@@ -1,0 +1,4 @@
+_autosave*.kicad*
+*.csv
+*.xml
+*.err
