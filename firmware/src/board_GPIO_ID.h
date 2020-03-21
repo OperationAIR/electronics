@@ -1,0 +1,22 @@
+#ifndef BOARD_GPIO_ID_H
+#define BOARD_GPIO_ID_H
+
+enum GPIO_ID {
+    GPIO_ID_HW_VERSION0,
+    GPIO_ID_BUTTON,
+    GPIO_ID_ISP,
+    GPIO_ID_LED_CS,
+    GPIO_ID_FLASH_CS,
+    GPIO_ID_USB_PWR_EN,
+    GPIO_ID_BATT_DISABLE,
+    GPIO_ID_CHARGER_DISABLE,
+    GPIO_ID_DCDC_EN,
+    GPIO_ID_CHARGER_STATUS,
+    GPIO_ID_MOTOR,
+    GPIO_ID_VALVE1,
+    GPIO_ID_VALVE2,
+    GPIO_ID_MAX // This should be last: it is used to count
+};
+
+#endif
+
