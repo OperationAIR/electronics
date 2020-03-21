@@ -1,4 +1,4 @@
-update=Mon 11 Feb 2019 02:29:03 PM CET
+update=Sat 21 Mar 2020 11:00:14 PM CET
 version=1
 last_client=kicad
 [general]
@@ -33,7 +33,7 @@ BoardOutlineThickness=0.2
 ModuleOutlineThickness=0.15
 [schematic_editor]
 version=1
-PageLayoutDescrFile=/home/s/keybase/team/jittercompany/jitter_kicad_ws.kicad_wks
+PageLayoutDescrFile=/home/s/dev/jitter/7001-ventilator/pcb/jitter_kicad_ws.kicad_wks
 PlotDirectoryName=
 SubpartIdSeparator=0
 SubpartFirstId=65

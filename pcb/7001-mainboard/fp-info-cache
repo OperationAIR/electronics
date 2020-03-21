@@ -1,0 +1,554 @@
+123240629428801
+Jitter_Footprints
+AEDR-8300
+
+
+0
+6
+6
+Jitter_Footprints
+BatteryHolder_Keystone_1042(P)_1x18650
+Battery holder for 18650 cylindrical cells. Combo footprint for Keystone 1043(P) or 1042(P)
+18650 Keystone 1042 1042p 1043 1043p Li-ion
+0
+2
+2
+Jitter_Footprints
+BatteryHolder_Keystone_1042(P)__1043(P)_1x18650
+Battery holder for 18650 cylindrical cells. Combo footprint for Keystone 1043(P) or 1042(P)
+18650 Keystone 1042 1042p 1043 1043p Li-ion
+0
+4
+2
+Jitter_Footprints
+BatteryHolder_Keystone_1043(p)_1x18650
+Battery holder for 18650 cylindrical cells http://www.keyelco.com/product.cfm/product_id/918
+18650 Keystone 1042 Li-ion
+0
+2
+2
+Jitter_Footprints
+BatteryHolder_SMTU-2450N-1-LF_1x2450
+http://www.keyelco.com/product-pdf.cfm?p=786
+Keystone type 3008 coin cell retainer
+0
+2
+2
+Jitter_Footprints
+CP_Elec_12.5x13.5
+SMD capacitor, aluminum electrolytic, Panasonic F12, 10.0x12.6mm
+capacitor electrolytic
+0
+2
+2
+Jitter_Footprints
+CapacitiveTouchButton_round_8mm
+Capactive Touch Button, 8mm diameter
+test point SMD pad
+0
+4
+2
+Jitter_Footprints
+Crystal_SMD_Abracon_ABS07-2Pin_3.6x1.9mm
+https://abracon.com/Resonators/ABS07.pdf
+Crystal, abracon
+0
+2
+2
+Jitter_Footprints
+Crystal_SMD_TXC_7A-2Pin_5.0x3.2mm
+
+
+0
+2
+2
+Jitter_Footprints
+DFN-6-1EP_2x2mm_P0.65mm_NMOS
+
+DFN 0.65 NMOS
+0
+8
+8
+Jitter_Footprints
+D_SOD-106
+Diode,,
+Diode SOD-106
+0
+2
+2
+Jitter_Footprints
+D_SOD-323F__pad_0.8x0.9
+SOD-323F http://www.farnell.com/datasheets/2296555.pdf
+SOD-323F
+0
+2
+2
+Jitter_Footprints
+EG1224_slide_switch_right_angle
+
+
+0
+7
+4
+Jitter_Footprints
+Enclosure_100x76x35
+
+
+0
+0
+0
+Jitter_Footprints
+Encoder_Switch_RGB_EC12PLRGBSDVBF
+Rotary encoder with switch, vertical shaft, RGB LEDs
+rotary encoder
+0
+10
+9
+Jitter_Footprints
+FFC_0.5x12
+
+
+0
+12
+12
+Jitter_Footprints
+Fuse_2410_6125Metric
+Fuse SMD 2512 (6332 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator
+resistor
+0
+3
+2
+Jitter_Footprints
+Fuse_littelfuse_nanoSMD400LR-C
+Fuse SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator
+resistor
+0
+2
+2
+Jitter_Footprints
+Heltec_lora_wifi_v2_breakout
+breakout board for ESP32-based mcu with wifi, lora and a small OLED display module
+lora wifi ESP32 microcontroller oled
+0
+36
+36
+Jitter_Footprints
+Inductor_Taiyo-Yuden_NR-8030
+Inductor, Taiyo Yuden, NR series, Taiyo-Yuden_NR-80xx, 8.0mmx8.0mm
+inductor taiyo-yuden nr smd
+0
+2
+2
+Jitter_Footprints
+JST_PH_B6B-PH-SM4-TB_1x06-1MP_P2.00mm_Vertical
+JST PH series connector, B6B-PH-SM4-TB (http://www.jst-mfg.com/product/pdf/eng/ePH.pdf), generated with kicad-footprint-generator
+connector JST PH side entry
+0
+8
+7
+Jitter_Footprints
+JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal
+JST PH series connector, S2B-PH-SM4-TB (http://www.jst-mfg.com/product/pdf/eng/ePH.pdf), generated with kicad-footprint-generator
+connector JST PH top entry
+0
+4
+3
+Jitter_Footprints
+JST_PH_S3B-PH-SM4-TB_1x03-1MP_P2.00mm_Horizontal
+JST PH series connector, S3B-PH-SM4-TB (http://www.jst-mfg.com/product/pdf/eng/ePH.pdf), generated with kicad-footprint-generator
+connector JST PH top entry
+0
+5
+4
+Jitter_Footprints
+JST_PH_S4B-PH-SM4-TB_1x04-1MP_P2.00mm_Horizontal
+JST PH series connector, S4B-PH-SM4-TB (http://www.jst-mfg.com/product/pdf/eng/ePH.pdf), generated with kicad-footprint-generator
+connector JST PH top entry
+0
+6
+5
+Jitter_Footprints
+JST_PH_S6B-PH-SM4-TB_1x06-1MP_P2.00mm_Horizontal
+JST PH series connector, S6B-PH-SM4-TB (http://www.jst-mfg.com/product/pdf/eng/ePH.pdf), generated with kicad-footprint-generator
+connector JST PH top entry
+0
+8
+7
+Jitter_Footprints
+JST_ZH_S2B-ZR-SM4A-TF_1x02-1MP_P1.5mm_Horizontal
+JST PH series connector, S2B-PH-SM4-TB (http://www.jst-mfg.com/product/pdf/eng/ePH.pdf), generated with kicad-footprint-generator
+connector JST PH top entry
+0
+4
+3
+Jitter_Footprints
+L712RAS_switchcraft_dc_jack
+
+
+0
+3
+3
+Jitter_Footprints
+LED_APA102-2020
+http://cdn.sparkfun.com/datasheets/Components/LED/5060BRG4.pdf
+RGB LED 5050-6
+0
+8
+6
+Jitter_Footprints
+LED_APA102-5050
+http://cdn.sparkfun.com/datasheets/Components/LED/5060BRG4.pdf
+RGB LED 5050-6
+0
+6
+6
+Jitter_Footprints
+LED_APA102_combo_2020_or_5050
+http://cdn.sparkfun.com/datasheets/Components/LED/5060BRG4.pdf
+RGB LED 5050-6
+0
+14
+6
+Jitter_Footprints
+LED_Reverse Mounted_3.2x2.8mm
+
+
+0
+2
+2
+Jitter_Footprints
+LED_SMD_Side_mounted_5x1.5mm
+
+
+0
+3
+2
+Jitter_Footprints
+LED_kingbright_kpda-1806QBC-D_angled
+LED SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator
+diode
+0
+2
+2
+Jitter_Footprints
+L_Bourns_SRP6060FA
+https://nl.mouser.com/datasheet/2/54/rp6060fa-1391623.pdf
+Shielded Power Inductor
+0
+2
+2
+Jitter_Footprints
+L_Bourns_SRR1280
+Bourns SRR1280 series SMD inductor http://www.bourns.com/docs/Product-Datasheets/SRR1280.pdf
+Bourns SRR1280 SMD inductor
+0
+2
+2
+Jitter_Footprints
+L_Wuerth_LHMI_1040
+Inductor, Wuerth Elektronik, Wuerth_HCI-1040, 10.2mmx10.2mm
+inductor Wuerth hci smd
+0
+2
+2
+Jitter_Footprints
+MPXH6250AC
+
+
+0
+8
+8
+Jitter_Footprints
+Molex_503480-1400-1x14-1MP_P0.5mm_Horizontal
+
+
+0
+16
+14
+Jitter_Footprints
+MountingHole_2.7mm_M2.5_Pad_Via__compact
+Mounting Hole 2.7mm
+mounting hole 2.7mm
+0
+9
+1
+Jitter_Footprints
+MountingHole_M2_threaded_5mm
+Mounting Hole 2.7mm
+mounting hole 2.7mm
+0
+8
+1
+Jitter_Footprints
+MountingHole_M4_threaded_6mm
+Standoff, SMT, Non Stop, Steel, Round Female, M4, 8.2 mm x 6 mm, 7.4 mm Overall, WA-SMSI Series
+mounting, hole, screw, standoff
+0
+8
+1
+Jitter_Footprints
+MouseBite_3.3mmx2.2mm_breakaway
+
+
+0
+0
+0
+Jitter_Footprints
+MouseBite_3.5mmx2.2mm
+
+
+0
+0
+0
+Jitter_Footprints
+MouseBite_3.7mmx2.2mm
+
+
+0
+0
+0
+Jitter_Footprints
+NFC_Antenna_Class_4
+
+
+0
+2
+2
+Jitter_Footprints
+PEL12D-4xxxS-Sxxxx
+
+
+0
+9
+8
+Jitter_Footprints
+PG-TDSON-8-4
+Power MOSFET package, TDSON-8-4
+tdson 
+0
+14
+6
+Jitter_Footprints
+PG-TDSON-8-33
+SON, 8-Leads, Body 5x6x1mm, Pitch 1.27mm; (see Texas Instruments CSD18531Q5A http://www.ti.com/lit/ds/symlink/csd18531q5a.pdf)
+VSONP 1.27
+0
+26
+3
+Jitter_Footprints
+PTSM_0.5_4-HH0-2.5-SMD
+Phoenix PTSM series connector
+connector phoenix PTSM SMD
+0
+6
+5
+Jitter_Footprints
+PinHeader_1x02_P2.54mm_Vertical_no_silk
+Through hole straight pin header, 1x02, 2.54mm pitch, single row
+Through hole pin header THT 1x02 2.54mm single row
+0
+2
+2
+Jitter_Footprints
+PinSocket_2x05_P1.27mm_Vertical_Mirrored_Y
+Through hole straight socket strip, 2x05, 1.27mm pitch, double cols (from Kicad 4.0.7), script generated
+Through hole socket strip THT 2x05 1.27mm double row
+0
+10
+10
+Jitter_Footprints
+PowerDI5060-8_C
+Power MOSFET package, TDSON-8-4
+tdson 
+0
+14
+6
+Jitter_Footprints
+PowerPAK-1212-8
+
+
+0
+9
+3
+Jitter_Footprints
+PowerPAK-1212-8__HSMT8
+
+
+0
+9
+3
+Jitter_Footprints
+PowerPAK_SO-8_Single
+PowerPAK SO-8 Single (https://www.vishay.com/docs/71655/powerpak.pdf, https://www.vishay.com/docs/72599/72599.pdf)
+PowerPAK SO-8 Single
+0
+9
+5
+Jitter_Footprints
+STM32F103_BlackPill
+
+
+0
+38
+33
+Jitter_Footprints
+SW_SPST_SKQYABE010
+https://www.mouser.com/ds/2/60/RS-282G05A-SM_RT-1159762.pdf
+SPST button tactile switch
+0
+2
+2
+Jitter_Footprints
+SW_SPST_SKRKAEE020
+https://www.mouser.com/ds/2/60/RS-282G05A-SM_RT-1159762.pdf
+SPST button tactile switch
+0
+2
+2
+Jitter_Footprints
+TSDSON-8
+SON, 8-Leads, Body 5x6x1mm, Pitch 1.27mm; (see Texas Instruments CSD18531Q5A http://www.ti.com/lit/ds/symlink/csd18531q5a.pdf)
+VSONP 1.27
+0
+23
+3
+Jitter_Footprints
+TSOT-23-6
+6-pin TSOT23 package, http://cds.linear.com/docs/en/packaging/SOT_6_05-08-1636.pdf
+TSOT-23-6 MK06A TSOT-6
+0
+6
+6
+Jitter_Footprints
+TSSOP-24-1EP_4.4x7.8mm_P0.65mm
+TSSOP24: plastic thin shrink small outline package; 24 leads; body width 4.4 mm; (see NXP SSOP-TSSOP-VSO-REFLOW.pdf and sot355-1_po.pdf)
+SSOP 0.65
+0
+25
+25
+Jitter_Footprints
+Texas_SWRA416_868MHz_915MHz
+http://www.ti.com/lit/an/swra416/swra416.pdf
+PCB antenna
+0
+38
+1
+Jitter_Footprints
+Tooling hole 4mm
+
+
+0
+0
+0
+Jitter_Footprints
+Tooling hole 4mm - dual sided
+
+
+0
+0
+0
+Jitter_Footprints
+Tooling_hole_4.1mm_aisler
+
+
+0
+0
+0
+Jitter_Footprints
+Tooling_hole_4mm_4.04mm_paste
+
+
+0
+0
+0
+Jitter_Footprints
+Tooling_hole_4mm_4.04mm_paste_dual_sided
+
+
+0
+0
+0
+Jitter_Footprints
+USB_Micro-B_UJ2-MIBH-4-SMT-TR-67_SMD_Horizontal
+http://www.adam-tech.com/upload/MUSB-B5-S-VT-TSMT-1.pdf
+USB Mini-B
+0
+7
+6
+Jitter_Footprints
+VL6180X
+
+
+0
+12
+12
+Jitter_Footprints
+VSONP-8-1EP_5x6_P1.27mm
+SON, 8-Leads, Body 5x6x1mm, Pitch 1.27mm; (see Texas Instruments CSD18531Q5A http://www.ti.com/lit/ds/symlink/csd18531q5a.pdf)
+VSONP 1.27
+0
+13
+3
+Jitter_Footprints
+Vishay_PowerPAK_SC70-6L_Single
+Vishay PowerPAK SC70 single transistor package http://www.vishay.com/docs/70486/70486.pdf
+powerpak sc70 sc-70
+0
+10
+3
+Jitter_Footprints
+XQFN-8_1.6x1.6mm_P0.4mm
+Plastic extremely thin quad flat package; no leads; 8 terminals
+XQFN8, SOT902-3
+0
+8
+8
+Jitter_Footprints
+antenna_DN024
+
+
+0
+101
+1
+Jitter_Footprints
+battery_varta_3V600HR
+
+
+0
+3
+2
+Jitter_Footprints
+connector_jtag_10pin_shrouded
+surface-mounted straight pin header, 2x05, 1.27mm pitch, double rows
+Surface mounted pin header SMD 2x05 1.27mm double row
+0
+10
+10
+Jitter_Footprints
+header_3x2.54_right_angle
+
+
+0
+3
+3
+Jitter_Footprints
+header_10x2.54_right_angle
+
+
+0
+10
+10
+Jitter_Footprints
+hole_1.2mm_nonplated
+
+
+0
+0
+0
+Jitter_Footprints
+slide_switch_09.03201.02
+
+
+0
+3
+3
