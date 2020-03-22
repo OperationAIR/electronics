@@ -13,28 +13,6 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-$Comp
-L Mechanical:MountingHole_Pad H1
-U 1 1 5C0E7FF6
-P 2850 10800
-F 0 "H1" H 2950 10805 50  0000 L CNN
-F 1 "DNI (mounting hole)" H 2950 10760 50  0001 L CNN
-F 2 "MountingHole:MountingHole_3.5mm_Pad_Via" H 2850 10800 50  0001 C CNN
-F 3 "~" H 2850 10800 50  0001 C CNN
-	1    2850 10800
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:GND #PWR0119
-U 1 1 5C0E807D
-P 2850 10900
-F 0 "#PWR0119" H 2850 10650 50  0001 C CNN
-F 1 "GND" H 2855 10727 50  0000 C CNN
-F 2 "" H 2850 10900 50  0001 C CNN
-F 3 "" H 2850 10900 50  0001 C CNN
-	1    2850 10900
-	1    0    0    -1  
-$EndComp
 Text Label 2350 5300 2    50   ~ 0
 USB_DP
 Text Label 2350 5400 2    50   ~ 0
@@ -1010,8 +988,6 @@ Wire Wire Line
 Connection ~ 3700 5600
 Wire Wire Line
 	3700 4950 3700 5600
-Text Notes 700  10750 0    118  ~ 0
-TODO\n\n- 24V to 5V DC/DC? Or 5VDC from separate rpi PSU?\n- RPI hat connector + board outline + Mouning holes\n- extra on/off outputs (voltage? maybe relays?)\n- test points\n- I2C addr conflict check\n- ADC in header\n- GPIO header
 Wire Wire Line
 	1050 7800 1000 7800
 $Comp
@@ -1542,28 +1518,6 @@ Wire Wire Line
 Wire Wire Line
 	12400 4400 12800 4400
 $Comp
-L Mechanical:MountingHole_Pad H2
-U 1 1 5EAC584F
-P 2500 10800
-F 0 "H2" H 2600 10805 50  0000 L CNN
-F 1 "DNI (mounting hole)" H 2600 10760 50  0001 L CNN
-F 2 "MountingHole:MountingHole_3.5mm_Pad_Via" H 2500 10800 50  0001 C CNN
-F 3 "~" H 2500 10800 50  0001 C CNN
-	1    2500 10800
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:GND #PWR022
-U 1 1 5EAC5855
-P 2500 10900
-F 0 "#PWR022" H 2500 10650 50  0001 C CNN
-F 1 "GND" H 2505 10727 50  0000 C CNN
-F 2 "" H 2500 10900 50  0001 C CNN
-F 3 "" H 2500 10900 50  0001 C CNN
-	1    2500 10900
-	1    0    0    -1  
-$EndComp
-$Comp
 L Connector_Generic:Conn_01x03 J?
 U 1 1 5EAD36B5
 P 15700 3100
@@ -1951,7 +1905,7 @@ U 1 1 5E78308D
 P 8900 2550
 F 0 "J9" H 8750 1150 50  0000 C CNN
 F 1 "Raspberry_Pi_2_3" H 9050 1050 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_2x20_P2.54mm_Vertical_SMD" H 8900 2550 50  0001 C CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_2x20_P2.54mm_Vertical_SMD" H 8900 2550 50  0001 C CNN
 F 3 "https://www.raspberrypi.org/documentation/hardware/raspberrypi/schematics/rpi_SCH_3bplus_1p0_reduced.pdf" H 8900 2550 50  0001 C CNN
 	1    8900 2550
 	1    0    0    -1  
@@ -2474,4 +2428,96 @@ F 3 "" H 1050 7750 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	1050 7750 1050 7800
+$Comp
+L Mechanical:MountingHole H3
+U 1 1 5F955C5F
+P 3700 10800
+F 0 "H3" H 3800 10846 50  0000 L CNN
+F 1 "DNI" H 3800 10755 50  0000 L CNN
+F 2 "MountingHole:MountingHole_2.7mm_M2.5" H 3700 10800 50  0001 C CNN
+F 3 "~" H 3700 10800 50  0001 C CNN
+	1    3700 10800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:MountingHole H4
+U 1 1 5F95D0C5
+P 4050 10800
+F 0 "H4" H 4150 10846 50  0000 L CNN
+F 1 "DNI" H 4150 10755 50  0000 L CNN
+F 2 "MountingHole:MountingHole_2.7mm_M2.5" H 4050 10800 50  0001 C CNN
+F 3 "~" H 4050 10800 50  0001 C CNN
+	1    4050 10800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:MountingHole H6
+U 1 1 5F95D34E
+P 4050 11050
+F 0 "H6" H 4150 11096 50  0000 L CNN
+F 1 "DNI" H 4150 11005 50  0000 L CNN
+F 2 "MountingHole:MountingHole_2.7mm_M2.5" H 4050 11050 50  0001 C CNN
+F 3 "~" H 4050 11050 50  0001 C CNN
+	1    4050 11050
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:MountingHole H5
+U 1 1 5F95D61B
+P 3700 11050
+F 0 "H5" H 3800 11096 50  0000 L CNN
+F 1 "DNI" H 3800 11005 50  0000 L CNN
+F 2 "MountingHole:MountingHole_2.7mm_M2.5" H 3700 11050 50  0001 C CNN
+F 3 "~" H 3700 11050 50  0001 C CNN
+	1    3700 11050
+	1    0    0    -1  
+$EndComp
+Text Notes 3650 10600 0    50   ~ 0
+RPI mounting
+$Comp
+L power:GND #PWR022
+U 1 1 5EAC5855
+P 2500 10900
+F 0 "#PWR022" H 2500 10650 50  0001 C CNN
+F 1 "GND" H 2505 10727 50  0000 C CNN
+F 2 "" H 2500 10900 50  0001 C CNN
+F 3 "" H 2500 10900 50  0001 C CNN
+	1    2500 10900
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:MountingHole_Pad H2
+U 1 1 5EAC584F
+P 2500 10800
+F 0 "H2" H 2600 10805 50  0000 L CNN
+F 1 "DNI (mounting hole)" H 2600 10760 50  0001 L CNN
+F 2 "MountingHole:MountingHole_3.5mm_Pad_Via" H 2500 10800 50  0001 C CNN
+F 3 "~" H 2500 10800 50  0001 C CNN
+	1    2500 10800
+	1    0    0    -1  
+$EndComp
+Text Notes 700  10750 0    118  ~ 0
+TODO\n\n- 24V to 5V DC/DC? Or 5VDC from separate rpi PSU?\n- RPI hat connector + board outline + Mouning holes\n- extra on/off outputs (voltage? maybe relays?)\n- test points\n- I2C addr conflict check\n- ADC in header\n- GPIO header
+$Comp
+L power:GND #PWR0119
+U 1 1 5C0E807D
+P 2850 10900
+F 0 "#PWR0119" H 2850 10650 50  0001 C CNN
+F 1 "GND" H 2855 10727 50  0000 C CNN
+F 2 "" H 2850 10900 50  0001 C CNN
+F 3 "" H 2850 10900 50  0001 C CNN
+	1    2850 10900
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:MountingHole_Pad H1
+U 1 1 5C0E7FF6
+P 2850 10800
+F 0 "H1" H 2950 10805 50  0000 L CNN
+F 1 "DNI (mounting hole)" H 2950 10760 50  0001 L CNN
+F 2 "MountingHole:MountingHole_3.5mm_Pad_Via" H 2850 10800 50  0001 C CNN
+F 3 "~" H 2850 10800 50  0001 C CNN
+	1    2850 10800
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
