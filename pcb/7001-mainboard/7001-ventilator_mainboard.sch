@@ -1011,7 +1011,7 @@ Connection ~ 3700 5600
 Wire Wire Line
 	3700 4950 3700 5600
 Text Notes 700  10750 0    118  ~ 0
-TODO\n\n- 24V to 5V DC/DC? Or 5VDC from separate rpi PSU?\n- footprints voor sensors\n- footprints voor screw terminals\n- extra on/off outputs (voltage? maybe relays?)\n- RPI hat connector + board outline + Mouning holes\n- test points\n- I2C addr conflict check\n- ADC in header\n- GPIO header
+TODO\n\n- 24V to 5V DC/DC? Or 5VDC from separate rpi PSU?\n- RPI hat connector + board outline + Mouning holes\n- extra on/off outputs (voltage? maybe relays?)\n- test points\n- I2C addr conflict check\n- ADC in header\n- GPIO header
 Wire Wire Line
 	1050 7800 1000 7800
 $Comp
@@ -1569,9 +1569,9 @@ U 1 1 5EAD36B5
 P 15700 3100
 AR Path="/5BF2E340/5EAD36B5" Ref="J?"  Part="1" 
 AR Path="/5EAD36B5" Ref="J8"  Part="1" 
-F 0 "J8" H 15700 2800 50  0000 C CNN
-F 1 "TODO" H 15700 2900 50  0000 C CNN
-F 2 "" H 15700 3100 50  0001 C CNN
+F 0 "J8" H 15700 2900 50  0000 C CNN
+F 1 "PREG_SIGNALS" H 15700 2900 50  0001 C CNN
+F 2 "Jitter_Footprints:TerminalBlock_Wurth_WR-TBL_691322110003_1x03_P3.50mm_Horizontal" H 15700 3100 50  0001 C CNN
 F 3 "~" H 15700 3100 50  0001 C CNN
 	1    15700 3100
 	1    0    0    1   
@@ -1590,9 +1590,9 @@ U 1 1 5EB10B69
 P 15700 2350
 AR Path="/5BF2E340/5EB10B69" Ref="J?"  Part="1" 
 AR Path="/5EB10B69" Ref="J7"  Part="1" 
-F 0 "J7" H 15700 2050 50  0000 C CNN
-F 1 "TODO" H 15700 2150 50  0000 C CNN
-F 2 "" H 15700 2350 50  0001 C CNN
+F 0 "J7" H 15700 2150 50  0000 C CNN
+F 1 "PREG_PWR" H 15700 2150 50  0001 C CNN
+F 2 "Jitter_Footprints:TerminalBlock_Wurth_WR-TBL_691322110002_1x02_P3.50mm_Horizontal" H 15700 2350 50  0001 C CNN
 F 3 "~" H 15700 2350 50  0001 C CNN
 	1    15700 2350
 	1    0    0    1   
@@ -1690,8 +1690,8 @@ P 1050 1850
 AR Path="/5BF2E340/5EBE6F1F" Ref="J?"  Part="1" 
 AR Path="/5EBE6F1F" Ref="J5"  Part="1" 
 F 0 "J5" H 1050 1550 50  0000 C CNN
-F 1 "TODO" H 1050 1650 50  0000 C CNN
-F 2 "" H 1050 1850 50  0001 C CNN
+F 1 "24VIN" H 1050 1650 50  0000 C CNN
+F 2 "Jitter_Footprints:TerminalBlock_Wurth_WR-TBL_691322110002_1x02_P3.50mm_Horizontal" H 1050 1850 50  0001 C CNN
 F 3 "~" H 1050 1850 50  0001 C CNN
 	1    1050 1850
 	-1   0    0    1   
