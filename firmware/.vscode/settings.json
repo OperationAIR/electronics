@@ -38,7 +38,8 @@
         "firmware_version.h": "c",
         "thermistor.h": "c",
         "board_adc_id.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "arm_math.h": "c"
     },
     "C_Cpp.default.defines": [
         "EN_WATCHDOG=1",

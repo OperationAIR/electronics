@@ -19,7 +19,37 @@
 #include "clock.h"
 #include "generated/firmware_version.h"
 
+#include "cmsis_dsp_lib/arm_math.h"
+
 #define CLK_FREQ (48e6)
+
+arm_pid_instance_f32 pid_instance;
+
+void test_pid()
+{
+    float Kp = 1;
+    float Ki = 0.1;
+    float Kd = 0.01;
+
+    arm_pid_reset_f32(&pid_instance);
+
+    pid_instance.Kp = Kp;
+    pid_instance.Ki = Ki;
+    pid_instance.Kd = Kd;
+    // init calculates the required coefficients based on the PID input
+    // A0 = Kp + Ki + Kd
+    // A1 = (-Kp ) - (2 * Kd )
+    // A2 = Kd
+    // The PID controller calculates the following transfer function
+    // y[n] = y[n-1] + A0 * x[n] + A1 * x[n-1] + A2 * x[n-2]
+    arm_pid_init_f32(&pid_instance, 1);
+
+    float signal_in = 3.14;
+    float signal_out = arm_pid_f32(&pid_instance, signal_in);
+
+    log_wtime("PID in: %.3f", signal_in);
+
+}
 
 int main(void)
 {
@@ -33,6 +63,7 @@ int main(void)
     delay_init();
     logging_init();
 
+    test_pid();
     // USB init
     if (!app_usb_init())
     {

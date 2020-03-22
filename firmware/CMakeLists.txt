@@ -54,7 +54,7 @@ set(L_FLAGS "-fmessage-length=80 -nostdlib -specs=nano.specs \
 set(MCU_PLATFORM    lpc11xxx)
 
 add_definitions("${FLAGS_M0} ${C_FLAGS} ${C_FLAGS_WARN}")
-add_definitions(-DCORE_M0 -DCHIP_LPC11UXX -DMCU_PLATFORM_${MCU_PLATFORM})
+add_definitions(-DCORE_M0 -DCHIP_LPC11UXX -DMCU_PLATFORM_${MCU_PLATFORM} -DARM_MATH_CM0 -DARM_MATH_CM0_FAMILY)
 add_definitions(-DCRP_SETTING_${CRP_SETTING})
 add_definitions(-DEN_WATCHDOG=${EN_WATCHDOG})
 
@@ -100,6 +100,11 @@ CPM_AddModule("c_utils"
 CPM_AddModule("mcu_debug"
     GIT_REPOSITORY "https://github.com/JitterCompany/mcu_debug.git"
     GIT_TAG "2.1")
+
+CPM_AddModule("cmsis_dsp_lib"
+    # SOURCE_DIR "../../lpc/libs/cmsis_dsp_lib")
+    GIT_REPOSITORY "https://github.com/JitterCompany/cmsis_dsp_lib.git"
+    GIT_TAG "1.1-1")
 
 CPM_Finish()
 

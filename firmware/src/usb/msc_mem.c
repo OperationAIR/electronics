@@ -11,7 +11,7 @@ extern USBD_API_T* gUSB_API;
 // - 16 bytes product ID
 // - 4 bytes product revision
 // These fields should be exactly the length above (pad with ' ' if required).
-const uint8_t InquiryStr[28+1] = "Jitter  "
+const uint8_t InquiryStr[31+1] = "Jitter  "
     "Operation Air data "
     "1.0 ";
 
