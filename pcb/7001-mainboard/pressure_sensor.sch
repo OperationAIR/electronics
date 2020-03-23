@@ -132,9 +132,6 @@ F 3 "http://www.honeywellscportal.com//index.php?ci_id=138832" H 3150 2500 50  0
 $EndComp
 Wire Wire Line
 	1400 2750 1600 2750
-Connection ~ 1600 2750
-Wire Wire Line
-	1600 2750 2050 2750
 $Comp
 L Jitter_Components:ABPMXXX000XX0XX U?
 U 1 1 5F5C76AA
@@ -165,10 +162,6 @@ F 3 "" H 3050 4000 50  0001 C CNN
 	1    3050 4000
 	-1   0    0    -1  
 $EndComp
-Text Label 4100 3500 2    50   ~ 0
-I2C_SCL
-Text Label 4100 3600 2    50   ~ 0
-I2C_SDA
 Wire Wire Line
 	4100 3500 3750 3500
 Wire Wire Line
@@ -287,7 +280,7 @@ Place close to\nADC input
 Wire Wire Line
 	4250 5100 4350 5100
 Connection ~ 4250 5100
-Text Notes 5050 4600 2    59   ~ 0
+Text Notes 5650 5750 2    59   ~ 0
 5V to 3V divider.\nRC filter: 40kOhm, 2.2nF: Fc= 1.8Khz\n
 $Comp
 L Device:C C?
@@ -440,19 +433,14 @@ $EndComp
 Wire Wire Line
 	4600 3800 4600 2500
 Wire Wire Line
-	4600 3800 3750 3800
+	4600 3800 4100 3800
 Wire Wire Line
 	4700 2500 4600 2500
 Connection ~ 4600 2500
 Wire Wire Line
 	3050 3300 2050 3300
 Wire Wire Line
-	2050 3300 2050 2750
-Wire Wire Line
 	2050 1850 3050 1850
-Connection ~ 2050 2750
-Wire Wire Line
-	2050 2750 2050 1850
 Text Notes 1400 1600 0    50   ~ 0
 Note: place one of the three footprints
 Wire Notes Line
@@ -576,9 +564,6 @@ F 3 "http://www.honeywellscportal.com//index.php?ci_id=138832" H 7800 2500 50  0
 $EndComp
 Wire Wire Line
 	6050 2750 6250 2750
-Connection ~ 6250 2750
-Wire Wire Line
-	6250 2750 6700 2750
 $Comp
 L Jitter_Components:ABPMXXX000XX0XX U?
 U 1 1 5F5FFB7C
@@ -587,7 +572,7 @@ AR Path="/5F5FFB7C" Ref="U?"  Part="1"
 AR Path="/5F5B6035/5F5FFB7C" Ref="U10"  Part="1" 
 F 0 "U10" H 7450 4200 50  0000 L CNN
 F 1 "ABPMAND001PG2A3" H 6850 4100 50  0000 L CNN
-F 2 "Jitter_Footprints:ABPMXXX000XX0XX" H 7800 3600 50  0001 C CNN
+F 2 "Jitter_Footprints:ABPM+DXXX000XX0XX" H 7800 3600 50  0001 C CNN
 F 3 "https://nl.mouser.com/datasheet/2/187/honeywell-sensing-basic-board-mount-pressure-abp-s-916690.pdf" H 7800 3700 50  0001 C CNN
 F 4 "I2C 0x28" H 7150 3400 50  0000 L CNN "Interface"
 F 5 "ABPMAND001PG2A3" H 7700 3700 50  0001 C CNN "MPN"
@@ -609,10 +594,6 @@ F 3 "" H 7700 4000 50  0001 C CNN
 	1    7700 4000
 	-1   0    0    -1  
 $EndComp
-Text Label 8750 3500 2    50   ~ 0
-I2C_SCL
-Text Label 8750 3600 2    50   ~ 0
-I2C_SDA
 Wire Wire Line
 	8750 3500 8400 3500
 Wire Wire Line
@@ -734,7 +715,7 @@ Place close to\nADC input
 Wire Wire Line
 	8900 5100 9000 5100
 Connection ~ 8900 5100
-Text Notes 9700 4600 2    59   ~ 0
+Text Notes 10200 5750 2    59   ~ 0
 5V to 3V divider.\nRC filter: 40kOhm, 2.2nF: Fc= 1.8Khz\n
 $Comp
 L Device:C C?
@@ -887,19 +868,14 @@ $EndComp
 Wire Wire Line
 	9250 3800 9250 2500
 Wire Wire Line
-	9250 3800 8400 3800
+	9250 3800 8700 3800
 Wire Wire Line
 	9350 2500 9250 2500
 Connection ~ 9250 2500
 Wire Wire Line
-	7700 3300 6700 3300
+	7700 3300 6800 3300
 Wire Wire Line
-	6700 3300 6700 2750
-Wire Wire Line
-	6700 1850 7700 1850
-Connection ~ 6700 2750
-Wire Wire Line
-	6700 2750 6700 1850
+	6800 1850 7700 1850
 Text Notes 6050 1600 0    50   ~ 0
 Note: this is optional. Choose at most one of the three footprints
 Wire Notes Line
@@ -938,18 +914,18 @@ Wire Bus Line
 	4700 2100 4700 2300
 Text HLabel 4700 2500 2    50   Output ~ 0
 PSENSE_1_DATA_READY
-Text Label 9450 3500 0    50   ~ 0
-I2C_SCL
-Text Label 9450 3600 0    50   ~ 0
-I2C_SDA
-Text HLabel 9850 3500 2    50   BiDi ~ 0
+Text Label 4400 6700 0    50   ~ 0
+P_SCL
+Text Label 4950 6800 0    50   ~ 0
+P_SDA
+Text HLabel 5950 6700 2    50   BiDi ~ 0
 I2C_SCL
 Wire Wire Line
-	9850 3500 9450 3500
-Text HLabel 9850 3600 2    50   BiDi ~ 0
+	5950 6700 5550 6700
+Text HLabel 5950 6800 2    50   BiDi ~ 0
 I2C_SDA
 Wire Wire Line
-	9450 3600 9850 3600
+	5550 6800 5950 6800
 Text Notes 4200 3600 0    50   ~ 0
 I2C bus\nshared
 Wire Bus Line
@@ -965,4 +941,165 @@ A_PRESSURE_1
 Wire Wire Line
 	4950 5100 4350 5100
 Connection ~ 4350 5100
+$Comp
+L Device:R R?
+U 1 1 5E7A0096
+P 6650 2750
+AR Path="/5BF2E340/5E7A0096" Ref="R?"  Part="1" 
+AR Path="/5E7A0096" Ref="R?"  Part="1" 
+AR Path="/5F5B6035/5E7A0096" Ref="R23"  Part="1" 
+F 0 "R23" H 6720 2796 50  0000 L CNN
+F 1 "0" H 6720 2705 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" V 6580 2750 50  0001 C CNN
+F 3 "~" H 6650 2750 50  0001 C CNN
+	1    6650 2750
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	6800 1850 6800 2750
+Connection ~ 6800 2750
+Wire Wire Line
+	6800 2750 6800 3300
+Wire Wire Line
+	6500 2750 6250 2750
+Connection ~ 6250 2750
+$Comp
+L Device:R R?
+U 1 1 5E7A5311
+P 1900 2750
+AR Path="/5BF2E340/5E7A5311" Ref="R?"  Part="1" 
+AR Path="/5E7A5311" Ref="R?"  Part="1" 
+AR Path="/5F5B6035/5E7A5311" Ref="R22"  Part="1" 
+F 0 "R22" H 1970 2796 50  0000 L CNN
+F 1 "0" H 1970 2705 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" V 1830 2750 50  0001 C CNN
+F 3 "~" H 1900 2750 50  0001 C CNN
+	1    1900 2750
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	2050 1850 2050 2750
+Connection ~ 2050 2750
+Wire Wire Line
+	2050 2750 2050 3300
+Wire Wire Line
+	1750 2750 1600 2750
+Connection ~ 1600 2750
+$Comp
+L Device:R R?
+U 1 1 5E7A758F
+P 8700 3950
+AR Path="/5BF2E340/5E7A758F" Ref="R?"  Part="1" 
+AR Path="/5E7A758F" Ref="R?"  Part="1" 
+AR Path="/5F5B6035/5E7A758F" Ref="R25"  Part="1" 
+F 0 "R25" H 8770 3996 50  0000 L CNN
+F 1 "DNI" H 8770 3905 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" V 8630 3950 50  0001 C CNN
+F 3 "~" H 8700 3950 50  0001 C CNN
+	1    8700 3950
+	-1   0    0    1   
+$EndComp
+Connection ~ 8700 3800
+Wire Wire Line
+	8700 3800 8400 3800
+Wire Wire Line
+	8700 4100 8700 4750
+Wire Wire Line
+	8700 4750 8500 4750
+Connection ~ 8500 4750
+$Comp
+L Device:R R?
+U 1 1 5E7AB07D
+P 4100 3950
+AR Path="/5BF2E340/5E7AB07D" Ref="R?"  Part="1" 
+AR Path="/5E7AB07D" Ref="R?"  Part="1" 
+AR Path="/5F5B6035/5E7AB07D" Ref="R24"  Part="1" 
+F 0 "R24" H 4170 3996 50  0000 L CNN
+F 1 "DNI" H 4170 3905 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" V 4030 3950 50  0001 C CNN
+F 3 "~" H 4100 3950 50  0001 C CNN
+	1    4100 3950
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	4100 4100 4100 4750
+Wire Wire Line
+	4100 4750 3850 4750
+Connection ~ 3850 4750
+Connection ~ 4100 3800
+Wire Wire Line
+	4100 3800 3750 3800
+$Comp
+L Device:R R?
+U 1 1 5E7B1850
+P 5400 6700
+AR Path="/5BF2E340/5E7B1850" Ref="R?"  Part="1" 
+AR Path="/5E7B1850" Ref="R?"  Part="1" 
+AR Path="/5F5B6035/5E7B1850" Ref="R27"  Part="1" 
+F 0 "R27" H 5470 6746 50  0000 L CNN
+F 1 "0" H 5470 6655 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" V 5330 6700 50  0001 C CNN
+F 3 "~" H 5400 6700 50  0001 C CNN
+	1    5400 6700
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5E7B1DA5
+P 5400 6800
+AR Path="/5BF2E340/5E7B1DA5" Ref="R?"  Part="1" 
+AR Path="/5E7B1DA5" Ref="R?"  Part="1" 
+AR Path="/5F5B6035/5E7B1DA5" Ref="R28"  Part="1" 
+F 0 "R28" H 5470 6846 50  0000 L CNN
+F 1 "0" H 5470 6755 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" V 5330 6800 50  0001 C CNN
+F 3 "~" H 5400 6800 50  0001 C CNN
+	1    5400 6800
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	4950 6800 5250 6800
+Wire Wire Line
+	4400 6700 4850 6700
+Text Label 4100 3600 2    50   ~ 0
+P_SCL
+Text Label 4100 3500 2    50   ~ 0
+P_SDA
+Text Label 8750 3500 2    50   ~ 0
+P_SDA
+Text Label 8750 3600 2    50   ~ 0
+P_SCL
+$Comp
+L Device:R R?
+U 1 1 5E7B6BB2
+P 4850 6550
+AR Path="/5BF2E340/5E7B6BB2" Ref="R?"  Part="1" 
+AR Path="/5E7B6BB2" Ref="R?"  Part="1" 
+AR Path="/5F5B6035/5E7B6BB2" Ref="R26"  Part="1" 
+F 0 "R26" H 4920 6596 50  0000 L CNN
+F 1 "DNI" H 4920 6505 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" V 4780 6550 50  0001 C CNN
+F 3 "~" H 4850 6550 50  0001 C CNN
+	1    4850 6550
+	1    0    0    -1  
+$EndComp
+Connection ~ 4850 6700
+Wire Wire Line
+	4850 6700 5250 6700
+$Comp
+L power:+5V #PWR?
+U 1 1 5E7B8980
+P 4850 6400
+AR Path="/5BF41E5D/5E7B8980" Ref="#PWR?"  Part="1" 
+AR Path="/5E7B8980" Ref="#PWR?"  Part="1" 
+AR Path="/5F5B6035/5E7B8980" Ref="#PWR023"  Part="1" 
+F 0 "#PWR023" H 4850 6250 50  0001 C CNN
+F 1 "+5V" H 4865 6573 50  0000 C CNN
+F 2 "" H 4850 6400 50  0001 C CNN
+F 3 "" H 4850 6400 50  0001 C CNN
+	1    4850 6400
+	1    0    0    -1  
+$EndComp
+Text Notes 3900 7500 0    50   ~ 0
+ABP I2c version: U9, R24=DNI, R22,R27,R28=0\nABP analog version: R22,R26,R24=0, R27-28=DNI
 $EndSCHEMATC
