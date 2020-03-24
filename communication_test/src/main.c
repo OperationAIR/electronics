@@ -1,0 +1,218 @@
+#include "board.h"
+#include "board_GPIO_ID.h"
+
+#include <chip.h>
+#include <lpc_tools/boardconfig.h>
+#include <lpc_tools/GPIO_HAL.h>
+#include <lpc_tools/GPIO_HAL_LPC.h>
+#include <lpc_tools/clock.h>
+#include <mcu_timing/delay.h>
+#include <stdio.h>
+#include <string.h>
+
+#include <c_utils/ringbuffer.h>
+
+#define CLK_FREQ (48e6)
+
+
+const uint8_t SETTINGS_HEADER[4] = {0x0D, 0x15, 0xEA, 0x5E};
+
+volatile char buf[256];
+volatile char buf2[256];
+
+/* Transmit and receive ring buffer sizes */
+#define UART_SRB_SIZE 256	/* Send */
+#define UART_RRB_SIZE 256	/* Receive */
+/* Transmit and receive ring buffers */
+STATIC RINGBUFF_T txring, rxring;
+// static uint8_t rxbuff[UART_RRB_SIZE];
+static uint8_t txbuff[UART_SRB_SIZE];
+
+
+
+uint8_t rb_Rx_buffer[UART_RRB_SIZE];
+Ringbuffer rb_Rx;
+
+
+
+
+
+typedef struct __attribute__((packed)) {
+    uint16_t peep;
+    uint16_t frequency;
+    uint16_t tidal_volume;
+    uint16_t pressure;
+    uint16_t max_pressure_alarm;
+    uint16_t min_pressure_alarm;
+    uint16_t max_tv_alarm;
+    uint16_t min_tv_alarm;
+    uint16_t max_fi02_alarm;
+    uint16_t min_fi02_alarm;
+} OperationSettings;
+
+
+
+
+OperationSettings settings;
+
+/**
+ * Dummy syscall to use printf features
+ */
+void *_sbrk(int incr)
+{
+    void *st = 0;
+    return st;
+}
+
+/**
+ * @brief	UART interrupt handler using ring buffers
+ * @return	Nothing
+ */
+void UART_IRQHandler(void)
+{
+
+	/* Want to handle any errors? Do it here. */
+
+	/* Use default ring buffer handler. Override this with your own
+	   code if you need more capability. */
+	// Chip_UART_IRQRBHandler(LPC_USART, &rxring, &txring);
+
+
+	/* Handle transmit interrupt if enabled */
+	if (LPC_USART->IER & UART_IER_THREINT) {
+		Chip_UART_TXIntHandlerRB(LPC_USART, &txring);
+
+		/* Disable transmit interrupt if the ring buffer is empty */
+		if (RingBuffer_IsEmpty(&txring)) {
+			Chip_UART_IntDisable(LPC_USART, UART_IER_THREINT);
+		}
+	}
+
+	// receive
+
+	/* New data will be ignored if data not popped in time */
+	while (Chip_UART_ReadLineStatus(LPC_USART) & UART_LSR_RDR) {
+		uint8_t byte = Chip_UART_ReadByte(LPC_USART);
+		ringbuffer_write(&rb_Rx, &byte, 1);
+	}
+
+
+}
+
+
+
+static void Uart_Init(void)
+{
+	/* Setup UART for 115.2K8N1 */
+	Chip_UART_Init(LPC_USART);
+	Chip_UART_SetBaud(LPC_USART, 9600);
+	Chip_UART_ConfigData(LPC_USART, (UART_LCR_WLEN8 | UART_LCR_SBS_1BIT));
+	Chip_UART_SetupFIFOS(LPC_USART, (UART_FCR_FIFO_EN | UART_FCR_TRG_LEV2));
+	Chip_UART_TXEnable(LPC_USART);
+
+
+	ringbuffer_init(&rb_Rx, rb_Rx_buffer, 1, UART_RRB_SIZE);
+	/* Before using the ring buffers, initialize them using the ring
+	   buffer init function */
+	// RingBuffer_Init(&rxring, rxbuff, 1, UART_RRB_SIZE);
+	RingBuffer_Init(&txring, txbuff, 1, UART_SRB_SIZE);
+
+	/* Enable receive data and line status interrupt */
+	Chip_UART_IntEnable(LPC_USART, (UART_IER_RBRINT | UART_IER_RLSINT));
+
+	/* preemption = 1, sub-priority = 1 */
+	NVIC_SetPriority(UART0_IRQn, 1);
+	NVIC_EnableIRQ(UART0_IRQn);
+
+}
+
+bool find_start_byte() {
+
+	uint8_t byte = 0;
+	uint8_t bytes[50];
+	int i = 0;
+	while (1 || byte != SETTINGS_HEADER[0]) {
+		int n = Chip_UART_ReadRB(LPC_USART, &rxring, &byte, 1);
+
+
+		bytes[i++] = byte;
+
+		if (n == 0) {
+			// failed to find start byte
+			return false;
+		}
+	}
+	snprintf(buf, sizeof(buf) - 1, "%i, Test bytes 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\n",
+	i, bytes[0],bytes[1],bytes[2],bytes[3],bytes[4],bytes[5],bytes[6],bytes[7],bytes[8],bytes[9],bytes[10],bytes[11]);
+	Chip_UART_SendRB(LPC_USART, &txring, buf, sizeof(buf) - 1);
+
+	return true;
+
+}
+
+int main(void)
+{
+    board_setup();
+    board_setup_NVIC();
+    board_setup_pins();
+
+	// configure System Clock at 48MHz
+	clock_set_frequency(CLK_FREQ);
+	SystemCoreClockUpdate();
+
+    delay_init();
+
+    // get the GPIO with the led (see board.c)
+    const GPIO *led = board_get_GPIO(GPIO_ID_LED);
+
+	Uart_Init();
+
+
+
+	snprintf(buf, sizeof(buf) - 1, "Uart test\n");
+	Chip_UART_SendRB(LPC_USART, &txring, buf, sizeof(buf) - 1);
+
+	delay_us(1000*1000);
+
+	bool match = false;
+	uint8_t bytes[50];
+	memset(bytes, 0, sizeof(bytes));
+	while(true)
+	{
+        delay_us(100*1000);
+
+
+		// int count = RingBuffer_GetCount(&rxring);
+		size_t count = ringbuffer_used_count(&rb_Rx);
+		if (!match && count >= 4) {
+			uint8_t byte;
+			int n = 1;
+			while (!match) {
+				uint32_t *ptr = ringbuffer_get_readable(&rb_Rx);
+				uint32_t start;
+				memcpy(&start, ptr, 4);// = *ptr;
+				if (start == 0x41424344) {
+        			GPIO_HAL_toggle(led);
+					ringbuffer_flush(&rb_Rx, 4);
+					match = true;
+				} else {
+					// no match, advance rb 1 byte, try again until magic sequence is found
+					ringbuffer_advance(&rb_Rx);
+				}
+				Chip_UART_SendRB(LPC_USART, &txring, ptr, 4);
+			}
+		}
+
+		count = ringbuffer_used_count(&rb_Rx);
+		if (match && (count >= sizeof(OperationSettings))) {
+			OperationSettings *ptr = ringbuffer_get_readable(&rb_Rx);
+			memcpy(&settings, ptr, sizeof(OperationSettings));
+			ringbuffer_clear(&rb_Rx);
+			match = false;
+		}
+
+
+	}
+	return 0;
+}
+
