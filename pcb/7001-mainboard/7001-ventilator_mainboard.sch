@@ -462,10 +462,6 @@ Text Notes 3600 6750 0    50   ~ 0
 (boot_~ISP~)
 Wire Wire Line
 	3450 6950 4100 6950
-Wire Wire Line
-	3450 7050 3450 6950
-Wire Wire Line
-	3250 7050 3450 7050
 Text Notes 3600 6950 0    50   ~ 0
 (USB boot)
 Text Notes 3600 6650 0    50   ~ 0
@@ -607,12 +603,12 @@ Connection ~ 5950 5650
 $Comp
 L power:+3.3V #PWR0148
 U 1 1 5E7A0A90
-P 3250 7050
-F 0 "#PWR0148" H 3250 6900 50  0001 C CNN
-F 1 "+3.3V" H 3265 7223 50  0000 C CNN
-F 2 "" H 3250 7050 50  0001 C CNN
-F 3 "" H 3250 7050 50  0001 C CNN
-	1    3250 7050
+P 3150 7100
+F 0 "#PWR0148" H 3150 6950 50  0001 C CNN
+F 1 "+3.3V" H 3165 7273 50  0000 C CNN
+F 2 "" H 3150 7100 50  0001 C CNN
+F 3 "" H 3150 7100 50  0001 C CNN
+	1    3150 7100
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -689,43 +685,43 @@ Wire Wire Line
 $Comp
 L power:+5V #PWR08
 U 1 1 5E818833
-P 7100 2400
-F 0 "#PWR08" H 7100 2250 50  0001 C CNN
-F 1 "+5V" H 7115 2573 50  0000 C CNN
-F 2 "" H 7100 2400 50  0001 C CNN
-F 3 "" H 7100 2400 50  0001 C CNN
-	1    7100 2400
+P 7050 2550
+F 0 "#PWR08" H 7050 2400 50  0001 C CNN
+F 1 "+5V" H 7065 2723 50  0000 C CNN
+F 2 "" H 7050 2550 50  0001 C CNN
+F 3 "" H 7050 2550 50  0001 C CNN
+	1    7050 2550
 	-1   0    0    -1  
 $EndComp
 $Comp
 L Connector_Generic:Conn_01x02 J?
 U 1 1 5E818998
-P 7750 2700
+P 7700 2850
 AR Path="/5BF2E340/5E818998" Ref="J?"  Part="1" 
 AR Path="/5E818998" Ref="J6"  Part="1" 
-F 0 "J6" H 7750 2500 50  0000 C CNN
-F 1 "5V out" H 7800 2850 50  0001 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 7750 2700 50  0001 C CNN
-F 3 "~" H 7750 2700 50  0001 C CNN
-	1    7750 2700
+F 0 "J6" H 7700 2650 50  0000 C CNN
+F 1 "5V out" H 7750 3000 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 7700 2850 50  0001 C CNN
+F 3 "~" H 7700 2850 50  0001 C CNN
+	1    7700 2850
 	1    0    0    1   
 $EndComp
 $Comp
 L power:GND #PWR?
 U 1 1 5E81FD71
-P 7500 2700
+P 7450 2850
 AR Path="/5BF2E340/5E81FD71" Ref="#PWR?"  Part="1" 
 AR Path="/5E81FD71" Ref="#PWR09"  Part="1" 
-F 0 "#PWR09" H 7500 2450 50  0001 C CNN
-F 1 "GND" H 7505 2527 50  0000 C CNN
-F 2 "" H 7500 2700 50  0001 C CNN
-F 3 "" H 7500 2700 50  0001 C CNN
-	1    7500 2700
+F 0 "#PWR09" H 7450 2600 50  0001 C CNN
+F 1 "GND" H 7455 2677 50  0000 C CNN
+F 2 "" H 7450 2850 50  0001 C CNN
+F 3 "" H 7450 2850 50  0001 C CNN
+	1    7450 2850
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	7500 2700 7550 2700
-Text Notes 7800 2300 2    50   ~ 0
+	7450 2850 7500 2850
+Text Notes 7500 3250 2    50   ~ 0
 5V header for\nRPI display
 Text Notes 10250 1000 0    118  ~ 24
 Pressure regulator (RP200_C_???)\n
@@ -1139,38 +1135,34 @@ F 3 "" H 12400 4700 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8150 6750 7550 6750
-Text Label 7550 6750 0    50   ~ 0
+	5500 8150 6100 8150
+Text Label 6100 8150 2    50   ~ 0
 PREG_SPI_~CS~
 Wire Wire Line
-	8350 5150 7550 5150
-Text Label 7550 5150 0    50   ~ 0
+	5500 6850 6550 6850
+Text Label 6550 6850 2    50   ~ 0
 PREG_SPI_CLK
 Wire Wire Line
-	8350 5250 7550 5250
-Text Label 7550 5250 0    50   ~ 0
+	5500 7350 6550 7350
+Text Label 6550 7350 2    50   ~ 0
 PREG_SPI_MOSI
 Wire Wire Line
-	8350 5350 7550 5350
-Text Label 7550 5350 0    50   ~ 0
+	5500 7250 6550 7250
+Text Label 6550 7250 2    50   ~ 0
 PREG_SPI_MISO
 Wire Wire Line
-	8150 6850 7550 6850
-Text Label 7550 6850 0    50   ~ 0
+	4100 8950 3050 8950
+Text Label 3050 8950 0    50   ~ 0
 PREG_CLEAR
-Text Label 7550 6950 0    50   ~ 0
+Text Label 6550 7950 2    50   ~ 0
 PREG_OK
 Wire Wire Line
-	7550 6950 8150 6950
-Text Label 7550 6050 0    50   ~ 0
+	6550 7950 5500 7950
+Text Label 3050 7750 0    50   ~ 0
 A_PREG_PRESSURE
 Wire Wire Line
-	7550 6050 8350 6050
-Text Notes 7550 6600 0    50   ~ 0
-GPIO
-Text Notes 7600 5050 0    50   ~ 0
-SPI
-Text Notes 7550 5950 0    50   ~ 0
+	3050 7750 4100 7750
+Text Notes 2800 7800 0    50   ~ 0
 ADC
 $Comp
 L Device:R R?
@@ -1314,17 +1306,17 @@ Connection ~ 14850 2100
 $Comp
 L Connector_Generic:Conn_01x02 J?
 U 1 1 5EBE6F1F
-P 1050 1800
+P 1050 1700
 AR Path="/5BF2E340/5EBE6F1F" Ref="J?"  Part="1" 
 AR Path="/5EBE6F1F" Ref="J5"  Part="1" 
-F 0 "J5" H 1050 1600 50  0000 C CNN
-F 1 "2-pin screw terminal" H 1050 1600 50  0001 C CNN
-F 2 "Jitter_Footprints:TerminalBlock_Wurth_WR-TBL_691322110002_1x02_P3.50mm_Horizontal" H 1050 1800 50  0001 C CNN
-F 3 "~" H 1050 1800 50  0001 C CNN
-F 4 "691322110002" H 1050 1800 50  0001 C CNN "MPN"
-F 5 "1841315" H 1050 1800 50  0001 C CNN "Farnell"
-	1    1050 1800
-	-1   0    0    1   
+F 0 "J5" H 1050 1500 50  0000 C CNN
+F 1 "2-pin screw terminal" H 1050 1500 50  0001 C CNN
+F 2 "Jitter_Footprints:TerminalBlock_Wurth_WR-TBL_691322110002_1x02_P3.50mm_Horizontal" H 1050 1700 50  0001 C CNN
+F 3 "~" H 1050 1700 50  0001 C CNN
+F 4 "691322110002" H 1050 1700 50  0001 C CNN "MPN"
+F 5 "1841315" H 1050 1700 50  0001 C CNN "Farnell"
+	1    1050 1700
+	-1   0    0    -1  
 $EndComp
 Text Notes 1000 2000 0    50   ~ 0
 24VDC 3A
@@ -1566,17 +1558,13 @@ NoConn ~ 9700 3050
 NoConn ~ 9700 3250
 NoConn ~ 9700 3350
 NoConn ~ 8100 3250
-NoConn ~ 8100 3150
-NoConn ~ 8100 3050
 NoConn ~ 8100 2950
 NoConn ~ 8100 2850
 NoConn ~ 8100 2750
-NoConn ~ 8100 2550
-NoConn ~ 8100 2450
 NoConn ~ 8100 2350
 NoConn ~ 8100 2150
 NoConn ~ 8100 2050
-NoConn ~ 8100 1950
+NoConn ~ 8100 3050
 Wire Wire Line
 	8800 1250 8700 1250
 Connection ~ 8700 1250
@@ -1665,10 +1653,6 @@ Wire Wire Line
 Connection ~ 9100 3850
 Wire Wire Line
 	9100 3850 9200 3850
-Wire Bus Line
-	7350 4650 7350 6450
-Text Notes 7400 4550 0    50   ~ 0
-TODO pinswap these:
 $Comp
 L Connector_Generic:Conn_01x06 J?
 U 1 1 5E997A85
@@ -1682,10 +1666,6 @@ F 3 "~" H 650 10600 50  0001 C CNN
 	1    650  10600
 	-1   0    0    1   
 $EndComp
-Text Label 1400 10400 2    50   ~ 0
-UART_DBG_TX
-Text Label 1400 10500 2    50   ~ 0
-UART_DBG_RX
 $Comp
 L power:GND #PWR?
 U 1 1 5E999DCE
@@ -1780,37 +1760,37 @@ $EndComp
 $Comp
 L Device:C C29
 U 1 1 5EBA796D
-P 7100 2550
+P 7050 2700
 AR Path="/5EBA796D" Ref="C29"  Part="1" 
 AR Path="/5BF2E340/5EBA796D" Ref="C?"  Part="1" 
-F 0 "C29" H 7215 2596 50  0000 L CNN
-F 1 "100nF" H 7215 2505 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 7138 2400 50  0001 C CNN
-F 3 "~" H 7100 2550 50  0001 C CNN
-F 4 "decoupling" H 7100 2550 50  0001 C CNN "purpose"
-	1    7100 2550
+F 0 "C29" H 7165 2746 50  0000 L CNN
+F 1 "100nF" H 7165 2655 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 7088 2550 50  0001 C CNN
+F 3 "~" H 7050 2700 50  0001 C CNN
+F 4 "decoupling" H 7050 2700 50  0001 C CNN "purpose"
+	1    7050 2700
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR?
 U 1 1 5EBA8B23
-P 7100 2700
+P 7050 2850
 AR Path="/5BF2E340/5EBA8B23" Ref="#PWR?"  Part="1" 
 AR Path="/5EBA8B23" Ref="#PWR0155"  Part="1" 
-F 0 "#PWR0155" H 7100 2450 50  0001 C CNN
-F 1 "GND" H 7105 2527 50  0000 C CNN
-F 2 "" H 7100 2700 50  0001 C CNN
-F 3 "" H 7100 2700 50  0001 C CNN
-	1    7100 2700
+F 0 "#PWR0155" H 7050 2600 50  0001 C CNN
+F 1 "GND" H 7055 2677 50  0000 C CNN
+F 2 "" H 7050 2850 50  0001 C CNN
+F 3 "" H 7050 2850 50  0001 C CNN
+	1    7050 2850
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	7100 2400 7500 2400
+	7050 2550 7450 2550
 Wire Wire Line
-	7500 2400 7500 2600
+	7450 2550 7450 2750
 Wire Wire Line
-	7500 2600 7550 2600
-Connection ~ 7100 2400
+	7450 2750 7500 2750
+Connection ~ 7050 2550
 Wire Notes Line
 	6850 700  9900 700 
 Wire Notes Line
@@ -1870,31 +1850,31 @@ V_PU
 Wire Wire Line
 	14150 5750 14400 5750
 Wire Wire Line
-	8350 7300 7550 7300
-Text Label 7550 7300 0    50   ~ 0
+	4100 7250 3050 7250
+Text Label 3050 7250 0    50   ~ 0
 PSENSE_1_SPI_~CS~
 Wire Wire Line
-	8350 5550 7550 5550
-Text Label 7550 5550 0    50   ~ 0
+	5500 8050 6550 8050
+Text Label 6550 8050 2    50   ~ 0
 PSENSE_SPI_CLK
 Wire Wire Line
-	8350 5650 7550 5650
-Text Label 7550 5650 0    50   ~ 0
+	4100 7550 3050 7550
+Text Label 3050 7550 0    50   ~ 0
 PSENSE_SPI_MOSI
 Wire Wire Line
-	8350 5750 7550 5750
-Text Label 7550 5750 0    50   ~ 0
+	4100 7450 3050 7450
+Text Label 3050 7450 0    50   ~ 0
 PSENSE_SPI_MISO
 Wire Wire Line
-	8350 7400 7550 7400
-Text Label 7550 7400 0    50   ~ 0
+	4100 7350 3050 7350
+Text Label 3050 7350 0    50   ~ 0
 PSENSE_1_DATA_READY
 Wire Wire Line
-	8350 7500 7550 7500
-Text Label 7550 7500 0    50   ~ 0
+	5500 7150 6550 7150
+Text Label 6550 7150 2    50   ~ 0
 PSENSE_RESET
 Wire Wire Line
-	7550 6300 8150 6300
+	3050 7950 4100 7950
 Wire Notes Line
 	650  5650 2450 5650
 $Sheet
@@ -1953,14 +1933,14 @@ Wire Wire Line
 	10150 8850 9200 8850
 Text Label 9200 10750 0    50   ~ 0
 A_PRESSURE_1
-Text Label 7550 6300 0    50   ~ 0
+Text Label 3050 7950 0    50   ~ 0
 A_PRESSURE_1
 Wire Wire Line
-	7550 6450 8150 6450
-Text Label 7550 6450 0    50   ~ 0
+	3050 8050 4100 8050
+Text Label 3050 8050 0    50   ~ 0
 A_PRESSURE_2
 Text Label 9200 10850 0    50   ~ 0
-A_PRESSURE_1
+A_PRESSURE_2
 Wire Wire Line
 	9200 10850 10150 10850
 Wire Wire Line
@@ -2634,20 +2614,10 @@ Wire Notes Line
 	800  650  6700 650 
 Wire Notes Line
 	15900 9550 12750 9550
-Text Label 7550 6200 0    50   ~ 0
+Text Label 3050 7850 0    50   ~ 0
 A_FLOW
 Wire Wire Line
-	7550 6200 8350 6200
-Text Label 7550 4750 0    50   ~ 0
-UART_DBG_TX
-Text Label 7550 4850 0    50   ~ 0
-UART_DBG_RX
-Wire Wire Line
-	7550 4850 8100 4850
-Wire Wire Line
-	7550 4750 8100 4750
-Text Notes 7550 4650 0    50   ~ 0
-extra UART
+	3050 7850 4100 7850
 $Comp
 L Device:D_Schottky D1
 U 1 1 5EF09F32
@@ -3034,12 +3004,12 @@ Wire Notes Line
 Wire Notes Line
 	2450 5650 2450 8600
 Wire Wire Line
-	7550 7200 8400 7200
-Text Label 7550 7200 0    50   ~ 0
+	6550 7450 5500 7450
+Text Label 6550 7450 2    50   ~ 0
 PSENSE_2_DATA_READY
 Wire Wire Line
-	8350 7100 7550 7100
-Text Label 7550 7100 0    50   ~ 0
+	5500 7550 6550 7550
+Text Label 6550 7550 2    50   ~ 0
 PSENSE_2_SPI_~CS~
 Text Label 3600 8850 0    50   ~ 0
 switch_1_out
@@ -3094,12 +3064,6 @@ F 5 "108-S24SE05004PDFA" H 3850 2800 50  0001 C CNN "Mouser"
 $EndComp
 Wire Wire Line
 	5500 6650 6000 6650
-Text Label 6000 6650 2    50   ~ 0
-pwm_3
-Text Label 7900 8600 2    50   ~ 0
-pwm_3
-Text Notes 7650 8700 0    50   ~ 0
-5v servo header?
 Text Label 6000 6750 2    50   ~ 0
 switch_2_out
 Text Notes 6050 6650 0    50   ~ 0
@@ -3548,9 +3512,9 @@ Wire Notes Line
 	7350 11100 8850 11100
 Wire Notes Line
 	8850 11100 8850 9150
-Text Label 7650 7750 0    50   ~ 0
+Text Label 3050 8650 0    50   ~ 0
 LED_STATUS
-Text Label 7650 7850 0    50   ~ 0
+Text Label 3050 6850 0    50   ~ 0
 LED_ERROR
 $Comp
 L Device:R R?
@@ -3774,110 +3738,67 @@ F 3 "" H 3600 10100 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4450 10050 4050 10050
-Text Label 4050 10050 0    50   ~ 0
-MCU_IO_1
-Wire Wire Line
 	4450 10150 4050 10150
+Text Label 4050 10150 0    50   ~ 0
+MCU_IO_1
 Wire Wire Line
 	4450 10250 4050 10250
 Wire Wire Line
 	4450 10350 4050 10350
-Text Label 4050 10150 0    50   ~ 0
-MCU_IO_2
-Text Label 4050 10250 0    50   ~ 0
-MCU_IO_3
-Text Label 4050 10350 0    50   ~ 0
-MCU_IO_4
 Wire Wire Line
 	4450 10450 4050 10450
+Text Label 4050 10250 0    50   ~ 0
+MCU_IO_2
+Text Label 4050 10350 0    50   ~ 0
+MCU_IO_3
 Text Label 4050 10450 0    50   ~ 0
-RPI_IO_1
+MCU_IO_4
 Wire Wire Line
 	4450 10550 4050 10550
+Text Label 4050 10650 0    50   ~ 0
+RPI_IO_1
 Wire Wire Line
 	4450 10650 4050 10650
 Wire Wire Line
 	4450 10750 4050 10750
-$Comp
-L Device:C C50
-U 1 1 5EF6E522
-P 3500 10800
-AR Path="/5EF6E522" Ref="C50"  Part="1" 
-AR Path="/5C03F077/5EF6E522" Ref="C?"  Part="1" 
-F 0 "C50" H 3615 10846 50  0000 L CNN
-F 1 "100nF" H 3615 10755 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 3538 10650 50  0001 C CNN
-F 3 "~" H 3500 10800 50  0001 C CNN
-	1    3500 10800
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:+3.3V #PWR037
-U 1 1 5EF6E528
-P 3400 10650
-F 0 "#PWR037" H 3400 10500 50  0001 C CNN
-F 1 "+3.3V" H 3415 10823 50  0000 C CNN
-F 2 "" H 3400 10650 50  0001 C CNN
-F 3 "" H 3400 10650 50  0001 C CNN
-	1    3400 10650
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
-	3400 10650 3500 10650
-$Comp
-L power:GND #PWR?
-U 1 1 5EF6E531
-P 3500 10950
-AR Path="/5BF2E340/5EF6E531" Ref="#PWR?"  Part="1" 
-AR Path="/5EF6E531" Ref="#PWR039"  Part="1" 
-F 0 "#PWR039" H 3500 10700 50  0001 C CNN
-F 1 "GND" H 3505 10777 50  0000 C CNN
-F 2 "" H 3500 10950 50  0001 C CNN
-F 3 "" H 3500 10950 50  0001 C CNN
-	1    3500 10950
-	1    0    0    -1  
-$EndComp
+	4450 10850 4050 10850
 Text Notes 5050 10000 0    118  ~ 24
 Extra I/O
-Text Label 4050 10550 0    50   ~ 0
-RPI_IO_2
-Text Label 4050 10650 0    50   ~ 0
-RPI_IO_3
 Text Label 4050 10750 0    50   ~ 0
-RPI_IO_4
+RPI_IO_2
+Text Label 4050 10850 0    50   ~ 0
+RPI_IO_3
 Wire Wire Line
-	8000 8000 7600 8000
-Text Label 7600 8000 0    50   ~ 0
+	5500 7650 6550 7650
+Text Label 6550 7650 2    50   ~ 0
 MCU_IO_1
 Wire Wire Line
-	8000 8100 7600 8100
+	4100 8350 3050 8350
 Wire Wire Line
-	8000 8200 7600 8200
+	4100 8450 3050 8450
 Wire Wire Line
-	8000 8300 7600 8300
-Text Label 7600 8100 0    50   ~ 0
+	4100 8550 3050 8550
+Text Label 3050 8550 0    50   ~ 0
 MCU_IO_2
-Text Label 7600 8200 0    50   ~ 0
+Text Label 3050 8450 0    50   ~ 0
 MCU_IO_3
-Text Label 7600 8300 0    50   ~ 0
+Text Label 3050 8350 0    50   ~ 0
 MCU_IO_4
 Wire Wire Line
-	7700 3100 7300 3100
-Text Label 7300 3100 0    50   ~ 0
+	8100 1950 7700 1950
+Text Label 7700 2450 0    50   ~ 0
 RPI_IO_1
 Wire Wire Line
-	7700 3200 7300 3200
+	8100 3150 7700 3150
 Wire Wire Line
-	7700 3300 7300 3300
+	8100 2450 7700 2450
 Wire Wire Line
-	7700 3400 7300 3400
-Text Label 7300 3200 0    50   ~ 0
+	8100 2550 7700 2550
+Text Label 7700 3150 0    50   ~ 0
 RPI_IO_2
-Text Label 7300 3300 0    50   ~ 0
+Text Label 7700 2550 0    50   ~ 0
 RPI_IO_3
-Text Label 7300 3400 0    50   ~ 0
-RPI_IO_4
 Text Notes 5100 10450 0    50   ~ 0
 Extra header in\ncase of changing\nrequirements\n\nTODO: mcu reset to RPI?
 Text Notes 6700 7400 0    50   ~ 0
@@ -4115,13 +4036,6 @@ F 4 "20021521-00010T1LF" H 2400 9800 50  0001 C CNN "MPN"
 	1    2400 9800
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	3500 10650 3900 10650
-Wire Wire Line
-	3900 10650 3900 10850
-Wire Wire Line
-	3900 10850 4450 10850
-Connection ~ 3500 10650
 $Comp
 L power:+3.3V #PWR0154
 U 1 1 5F811EBF
@@ -4188,4 +4102,53 @@ F 4 "744282010" H 2900 1839 50  0001 C CNN "MPN"
 	1    2900 1650
 	1    0    0    -1  
 $EndComp
+Text Notes 3850 8250 0    50   ~ 0
+adc
+Text Notes 3900 8050 0    50   ~ 0
+adc
+Text Notes 3900 7950 0    50   ~ 0
+adc
+Text Notes 3900 7850 0    50   ~ 0
+adc
+Text Notes 3900 7750 0    50   ~ 0
+adc
+Text Notes 3650 9050 0    50   ~ 0
+(adc capable)
+Text Label 1400 10500 2    50   ~ 0
+UART_RX
+Text Label 1400 10400 2    50   ~ 0
+UART_TX
+Text Notes 3800 7550 0    50   ~ 0
+MOSI_0
+Text Notes 3800 7450 0    50   ~ 0
+MISO_0
+Text Notes 5550 8050 0    50   ~ 0
+SCK0
+Text Notes 5550 7250 0    50   ~ 0
+MISO_1
+Text Notes 5550 7350 0    50   ~ 0
+MOSI_1
+Text Notes 5550 6850 0    50   ~ 0
+SCK1
+Text Label 6000 6650 2    50   ~ 0
+MCU_IO_1
+Wire Wire Line
+	3050 8650 4100 8650
+Wire Wire Line
+	3050 6850 4100 6850
+Wire Wire Line
+	3450 7100 3150 7100
+Wire Wire Line
+	3450 6950 3450 7100
+NoConn ~ 5500 6950
+NoConn ~ 5500 7050
+NoConn ~ 4100 8250
+NoConn ~ 4100 8750
+Text Label 7700 1950 0    50   ~ 0
+~RESET~
+Text Label 4050 10550 0    50   ~ 0
+~RESET~
+Wire Wire Line
+	4450 10050 4450 9950
+Connection ~ 4450 9950
 $EndSCHEMATC
