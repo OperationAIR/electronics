@@ -105,7 +105,7 @@ static void Uart_Init(void)
 {
 	/* Setup UART for 115.2K8N1 */
 	Chip_UART_Init(LPC_USART);
-	Chip_UART_SetBaud(LPC_USART, 9600);
+	Chip_UART_SetBaud(LPC_USART, 115200);
 	Chip_UART_ConfigData(LPC_USART, (UART_LCR_WLEN8 | UART_LCR_SBS_1BIT));
 	Chip_UART_SetupFIFOS(LPC_USART, (UART_FCR_FIFO_EN | UART_FCR_TRG_LEV2));
 	Chip_UART_TXEnable(LPC_USART);
@@ -143,7 +143,6 @@ bool match_start_sequence()
 				// no match, advance rb 1 byte, try again until magic sequence is found
 				ringbuffer_advance(&rb_Rx);
 			}
-			// Chip_UART_SendRB(LPC_USART, &txring, ptr, 4);
 		}
 	}
 
@@ -193,6 +192,8 @@ int main(void)
 			memcpy(&settings, ptr, sizeof(OperationSettings));
 			ringbuffer_clear(&rb_Rx);
 			match = false;
+
+			// todo verify settings, check for valid range
 
 			// send back settings
 			Chip_UART_SendRB(LPC_USART, &txring, &settings, sizeof(settings));

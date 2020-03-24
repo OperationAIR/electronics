@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     TTY = '/dev/cu.SLAB_USBtoUART'
 
-    with serial.Serial(TTY, 9600, timeout=1) as ser:
+    with serial.Serial(TTY, 115200, timeout=1) as ser:
         ser.write(message)
 
     print('done, bye')
