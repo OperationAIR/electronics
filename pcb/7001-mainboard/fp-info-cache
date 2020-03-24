@@ -1,4 +1,4 @@
-16892905201789850
+16896075576990850
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -49889,6 +49889,13 @@ Keystone type 3008 coin cell retainer
 2
 2
 Jitter_Footprints
+CP_Elec_12.5_MAL214699107E3
+SMD capacitor, aluminum electrolytic, Panasonic F12, 10.0x12.6mm
+capacitor electrolytic
+0
+2
+2
+Jitter_Footprints
 CP_Elec_12.5x13.5
 SMD capacitor, aluminum electrolytic, Panasonic F12, 10.0x12.6mm
 capacitor electrolytic
@@ -50413,6 +50420,13 @@ ULT-5_5-D48NM-C
 0
 8
 8
+Jitter_Footprints
+USB_Micro-B_Molex_47346-0001
+Micro USB B receptable with flange, bottom-mount, SMD, right-angle (http://www.molex.com/pdm_docs/sd/473460001_sd.pdf)
+Micro B USB SMD
+0
+11
+6
 Jitter_Footprints
 USB_Micro-B_UJ2-MIBH-4-SMT-TR-67_SMD_Horizontal
 http://www.adam-tech.com/upload/MUSB-B5-S-VT-TSMT-1.pdf

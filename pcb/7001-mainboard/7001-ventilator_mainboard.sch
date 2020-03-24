@@ -25,7 +25,7 @@ AR Path="/5E781095" Ref="J1"  Part="1"
 AR Path="/5C03F077/5E781095" Ref="J?"  Part="1" 
 F 0 "J1" H 1005 7117 50  0000 C CNN
 F 1 "USB_B_Micro" H 1005 7026 50  0000 C CNN
-F 2 "Connector_USB:USB_Micro-B_Molex_47346-0001" H 1100 6600 50  0001 C CNN
+F 2 "Jitter_Footprints:USB_Micro-B_Molex_47346-0001" H 1100 6600 50  0001 C CNN
 F 3 "~" H 1100 6600 50  0001 C CNN
 F 4 "47346-0001" H 950 6650 50  0001 C CNN "MPN"
 F 5 "1568026" H 950 6650 50  0001 C CNN "Farnell"
@@ -1326,7 +1326,7 @@ U 1 1 5EC02FDC
 P 5100 1550
 F 0 "C22" H 5218 1596 50  0000 L CNN
 F 1 "330uF" H 5218 1505 50  0000 L CNN
-F 2 "Jitter_Footprints:CP_Elec_12.5x13.5" H 5138 1400 50  0001 C CNN
+F 2 "Jitter_Footprints:CP_Elec_12.5_MAL214699107E3" H 5138 1400 50  0001 C CNN
 F 3 "~" H 5100 1550 50  0001 C CNN
 F 4 "MAL214699107E3" H 5100 1550 50  0001 C CNN "MPN"
 F 5 "generic bulk capacitor (value not determined)" H 5100 1550 50  0001 C CNN "Purpose"
@@ -4159,4 +4159,59 @@ Wire Wire Line
 	3050 6650 2800 6650
 Wire Wire Line
 	5500 7050 6550 7050
+$Comp
+L Mechanical:Fiducial FID1
+U 1 1 610B1F93
+P 6950 9600
+F 0 "FID1" H 7035 9646 50  0000 L CNN
+F 1 "DNI" H 7035 9555 50  0000 L CNN
+F 2 "Fiducial:Fiducial_1mm_Mask2mm" H 6950 9600 50  0001 C CNN
+F 3 "~" H 6950 9600 50  0001 C CNN
+	1    6950 9600
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:Fiducial FID2
+U 1 1 610B21B1
+P 6950 9800
+F 0 "FID2" H 7035 9846 50  0000 L CNN
+F 1 "DNI" H 7035 9755 50  0000 L CNN
+F 2 "Fiducial:Fiducial_1mm_Mask2mm" H 6950 9800 50  0001 C CNN
+F 3 "~" H 6950 9800 50  0001 C CNN
+	1    6950 9800
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:Fiducial FID3
+U 1 1 610B2466
+P 6950 10000
+F 0 "FID3" H 7035 10046 50  0000 L CNN
+F 1 "DNI" H 7035 9955 50  0000 L CNN
+F 2 "Fiducial:Fiducial_1mm_Mask2mm" H 6950 10000 50  0001 C CNN
+F 3 "~" H 6950 10000 50  0001 C CNN
+	1    6950 10000
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:Fiducial FID4
+U 1 1 610B26BD
+P 6950 10200
+F 0 "FID4" H 7035 10246 50  0000 L CNN
+F 1 "DNI" H 7035 10155 50  0000 L CNN
+F 2 "Fiducial:Fiducial_1mm_Mask2mm" H 6950 10200 50  0001 C CNN
+F 3 "~" H 6950 10200 50  0001 C CNN
+	1    6950 10200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Mechanical:Fiducial FID5
+U 1 1 610BC399
+P 7000 10400
+F 0 "FID5" H 7085 10446 50  0000 L CNN
+F 1 "DNI" H 7085 10355 50  0000 L CNN
+F 2 "Fiducial:Fiducial_1mm_Mask2mm" H 7000 10400 50  0001 C CNN
+F 3 "~" H 7000 10400 50  0001 C CNN
+	1    7000 10400
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
