@@ -1104,6 +1104,12 @@ F 3 "" H 4850 6400 50  0001 C CNN
 	1    4850 6400
 	1    0    0    -1  
 $EndComp
-Text Notes 3900 7500 0    50   ~ 0
+Text Notes 4350 7200 0    50   ~ 0
 ABP I2c version: U9, R24=DNI, R22,R27,R28=0\nABP analog version: R22,R26,R24=0, R27-28=DNI
+Text Label 8550 1800 0    50   ~ 0
+PSENSE_RESET
+Text HLabel 9350 1800 2    50   Input ~ 0
+PSENSE_RESET
+Wire Wire Line
+	8550 1800 9350 1800
 $EndSCHEMATC
