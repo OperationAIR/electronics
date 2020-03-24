@@ -1865,7 +1865,7 @@ Text Label 3050 7450 0    50   ~ 0
 PSENSE_SPI_MISO
 Wire Wire Line
 	4100 7350 3050 7350
-Text Label 3050 8250 0    50   ~ 0
+Text Label 6550 7650 2    50   ~ 0
 PSENSE_1_DATA_READY
 Wire Wire Line
 	5500 7150 6550 7150
@@ -1931,11 +1931,11 @@ Wire Wire Line
 	10150 8850 9200 8850
 Text Label 9200 10750 0    50   ~ 0
 A_PRESSURE_1
-Text Label 3050 7950 0    50   ~ 0
+Text Label 3050 8050 0    50   ~ 0
 A_PRESSURE_1
 Wire Wire Line
 	3050 8050 4100 8050
-Text Label 3050 8050 0    50   ~ 0
+Text Label 3050 7950 0    50   ~ 0
 A_PRESSURE_2
 Text Label 9200 10850 0    50   ~ 0
 A_PRESSURE_2
@@ -3007,7 +3007,7 @@ Text Label 6550 7450 2    50   ~ 0
 PSENSE_2_DATA_READY
 Wire Wire Line
 	5500 7650 6550 7650
-Text Label 6550 7650 2    50   ~ 0
+Text Label 3050 8250 0    50   ~ 0
 PSENSE_2_SPI_~CS~
 Text Label 3600 8850 0    50   ~ 0
 switch_1_out
@@ -4127,10 +4127,6 @@ SCK1
 Text Label 6000 6650 2    50   ~ 0
 MCU_IO_1
 Wire Wire Line
-	3050 8650 4100 8650
-Wire Wire Line
-	3050 6850 4100 6850
-Wire Wire Line
 	3450 7100 3150 7100
 Wire Wire Line
 	3450 6950 3450 7100
@@ -4144,10 +4140,10 @@ Wire Wire Line
 Connection ~ 4450 9950
 Wire Wire Line
 	6550 6950 5500 6950
-NoConn ~ 3050 8650
+NoConn ~ 4100 8650
 Wire Wire Line
 	3050 8250 4100 8250
-NoConn ~ 3050 6850
+NoConn ~ 4100 6850
 NoConn ~ 5500 7550
 Text Label 3050 6750 2    50   ~ 0
 ~RESET~
@@ -4214,4 +4210,5 @@ F 3 "~" H 7000 10400 50  0001 C CNN
 	1    7000 10400
 	1    0    0    -1  
 $EndComp
+NoConn ~ 4100 7250
 $EndSCHEMATC
