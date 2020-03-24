@@ -126,27 +126,28 @@ static void Uart_Init(void)
 
 }
 
-bool find_start_byte() {
-
-	uint8_t byte = 0;
-	uint8_t bytes[50];
-	int i = 0;
-	while (1 || byte != SETTINGS_HEADER[0]) {
-		int n = Chip_UART_ReadRB(LPC_USART, &rxring, &byte, 1);
-
-
-		bytes[i++] = byte;
-
-		if (n == 0) {
-			// failed to find start byte
-			return false;
+bool match_start_sequence()
+{
+	size_t count = ringbuffer_used_count(&rb_Rx);
+	if (count >= 4) {
+		uint8_t byte;
+		int i = 0;
+		while (0 < count--) {
+			uint32_t *ptr = ringbuffer_get_readable(&rb_Rx);
+			uint32_t start;
+			memcpy(&start, ptr, 4);// = *ptr; Misaligned access, is that okay?
+			if (start == 0x41424344) {
+				ringbuffer_flush(&rb_Rx, 4);
+				return true;
+			} else {
+				// no match, advance rb 1 byte, try again until magic sequence is found
+				ringbuffer_advance(&rb_Rx);
+			}
+			// Chip_UART_SendRB(LPC_USART, &txring, ptr, 4);
 		}
 	}
-	snprintf(buf, sizeof(buf) - 1, "%i, Test bytes 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x\n",
-	i, bytes[0],bytes[1],bytes[2],bytes[3],bytes[4],bytes[5],bytes[6],bytes[7],bytes[8],bytes[9],bytes[10],bytes[11]);
-	Chip_UART_SendRB(LPC_USART, &txring, buf, sizeof(buf) - 1);
 
-	return true;
+	return false;
 
 }
 
@@ -181,34 +182,21 @@ int main(void)
 	{
         delay_us(100*1000);
 
-
-		// int count = RingBuffer_GetCount(&rxring);
-		size_t count = ringbuffer_used_count(&rb_Rx);
-		if (!match && count >= 4) {
-			uint8_t byte;
-			int n = 1;
-			while (!match) {
-				uint32_t *ptr = ringbuffer_get_readable(&rb_Rx);
-				uint32_t start;
-				memcpy(&start, ptr, 4);// = *ptr;
-				if (start == 0x41424344) {
-        			GPIO_HAL_toggle(led);
-					ringbuffer_flush(&rb_Rx, 4);
-					match = true;
-				} else {
-					// no match, advance rb 1 byte, try again until magic sequence is found
-					ringbuffer_advance(&rb_Rx);
-				}
-				Chip_UART_SendRB(LPC_USART, &txring, ptr, 4);
-			}
+		if (!match) {
+			match = match_start_sequence();
 		}
 
-		count = ringbuffer_used_count(&rb_Rx);
+		size_t count = ringbuffer_used_count(&rb_Rx);
 		if (match && (count >= sizeof(OperationSettings))) {
+			GPIO_HAL_toggle(led);
 			OperationSettings *ptr = ringbuffer_get_readable(&rb_Rx);
 			memcpy(&settings, ptr, sizeof(OperationSettings));
 			ringbuffer_clear(&rb_Rx);
 			match = false;
+
+			// send back settings
+			Chip_UART_SendRB(LPC_USART, &txring, &settings, sizeof(settings));
+
 		}
 
 
