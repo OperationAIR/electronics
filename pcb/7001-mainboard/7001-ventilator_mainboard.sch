@@ -346,7 +346,7 @@ Wire Wire Line
 Wire Wire Line
 	5500 7850 6000 7850
 Wire Wire Line
-	4100 6750 2850 6750
+	4100 6750 3250 6750
 Wire Wire Line
 	5000 5650 5450 5650
 Connection ~ 5000 5650
@@ -650,33 +650,33 @@ Connection ~ 14150 5950
 $Comp
 L Connector_Generic:Conn_01x03 J?
 U 1 1 5E7CEF83
-P 2650 6750
+P 2600 6750
 AR Path="/5BF2E340/5E7CEF83" Ref="J?"  Part="1" 
 AR Path="/5E7CEF83" Ref="J4"  Part="1" 
-F 0 "J4" H 2650 6450 50  0000 C CNN
-F 1 "DNI" H 2650 6550 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 2650 6750 50  0001 C CNN
-F 3 "~" H 2650 6750 50  0001 C CNN
-	1    2650 6750
+F 0 "J4" H 2600 6450 50  0000 C CNN
+F 1 "DNI" H 2600 6550 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 2600 6750 50  0001 C CNN
+F 3 "~" H 2600 6750 50  0001 C CNN
+	1    2600 6750
 	-1   0    0    1   
 $EndComp
 $Comp
 L power:GND #PWR?
 U 1 1 5E7CFA00
-P 2850 6850
+P 2800 6850
 AR Path="/5BF2E340/5E7CFA00" Ref="#PWR?"  Part="1" 
 AR Path="/5E7CFA00" Ref="#PWR0150"  Part="1" 
-F 0 "#PWR0150" H 2850 6600 50  0001 C CNN
-F 1 "GND" H 2855 6677 50  0000 C CNN
-F 2 "" H 2850 6850 50  0001 C CNN
-F 3 "" H 2850 6850 50  0001 C CNN
-	1    2850 6850
+F 0 "#PWR0150" H 2800 6600 50  0001 C CNN
+F 1 "GND" H 2805 6677 50  0000 C CNN
+F 2 "" H 2800 6850 50  0001 C CNN
+F 3 "" H 2800 6850 50  0001 C CNN
+	1    2800 6850
 	1    0    0    -1  
 $EndComp
 Text Label 3250 6650 0    50   ~ 0
 ~RESET~
 Wire Wire Line
-	3550 6650 2850 6650
+	3550 6650 3250 6650
 Connection ~ 3550 6650
 Wire Wire Line
 	3550 6000 3550 6650
@@ -1152,7 +1152,7 @@ Text Label 6550 7250 2    50   ~ 0
 PREG_SPI_MISO
 Wire Wire Line
 	4100 8950 3050 8950
-Text Label 3050 8950 0    50   ~ 0
+Text Label 3050 7350 0    50   ~ 0
 PREG_CLEAR
 Text Label 6550 7950 2    50   ~ 0
 PREG_OK
@@ -1849,9 +1849,7 @@ Text Label 14150 5750 0    50   ~ 0
 V_PU
 Wire Wire Line
 	14150 5750 14400 5750
-Wire Wire Line
-	4100 7250 3050 7250
-Text Label 3050 7250 0    50   ~ 0
+Text Label 6550 7050 2    50   ~ 0
 PSENSE_1_SPI_~CS~
 Wire Wire Line
 	5500 8050 6550 8050
@@ -1867,7 +1865,7 @@ Text Label 3050 7450 0    50   ~ 0
 PSENSE_SPI_MISO
 Wire Wire Line
 	4100 7350 3050 7350
-Text Label 3050 7350 0    50   ~ 0
+Text Label 3050 8250 0    50   ~ 0
 PSENSE_1_DATA_READY
 Wire Wire Line
 	5500 7150 6550 7150
@@ -3008,8 +3006,8 @@ Wire Wire Line
 Text Label 6550 7450 2    50   ~ 0
 PSENSE_2_DATA_READY
 Wire Wire Line
-	5500 7550 6550 7550
-Text Label 6550 7550 2    50   ~ 0
+	5500 7650 6550 7650
+Text Label 6550 7650 2    50   ~ 0
 PSENSE_2_SPI_~CS~
 Text Label 3600 8850 0    50   ~ 0
 switch_1_out
@@ -3512,9 +3510,9 @@ Wire Notes Line
 	7350 11100 8850 11100
 Wire Notes Line
 	8850 11100 8850 9150
-Text Label 3050 8650 0    50   ~ 0
+Text Label 3050 8350 0    50   ~ 0
 LED_STATUS
-Text Label 3050 6850 0    50   ~ 0
+Text Label 3050 8950 0    50   ~ 0
 LED_ERROR
 $Comp
 L Device:R R?
@@ -3770,20 +3768,16 @@ RPI_IO_2
 Text Label 4050 10850 0    50   ~ 0
 RPI_IO_3
 Wire Wire Line
-	5500 7650 6550 7650
-Text Label 6550 7650 2    50   ~ 0
-MCU_IO_1
-Wire Wire Line
 	4100 8350 3050 8350
 Wire Wire Line
 	4100 8450 3050 8450
 Wire Wire Line
 	4100 8550 3050 8550
-Text Label 3050 8550 0    50   ~ 0
+Text Label 6550 6950 2    50   ~ 0
 MCU_IO_2
-Text Label 3050 8450 0    50   ~ 0
+Text Label 3050 8550 0    50   ~ 0
 MCU_IO_3
-Text Label 3050 8350 0    50   ~ 0
+Text Label 3050 8450 0    50   ~ 0
 MCU_IO_4
 Wire Wire Line
 	8100 1950 7700 1950
@@ -4140,9 +4134,6 @@ Wire Wire Line
 	3450 7100 3150 7100
 Wire Wire Line
 	3450 6950 3450 7100
-NoConn ~ 5500 6950
-NoConn ~ 5500 7050
-NoConn ~ 4100 8250
 NoConn ~ 4100 8750
 Text Label 7700 1950 0    50   ~ 0
 ~RESET~
@@ -4151,4 +4142,21 @@ Text Label 4050 10550 0    50   ~ 0
 Wire Wire Line
 	4450 10050 4450 9950
 Connection ~ 4450 9950
+Wire Wire Line
+	6550 6950 5500 6950
+NoConn ~ 3050 8650
+Wire Wire Line
+	3050 8250 4100 8250
+NoConn ~ 3050 6850
+NoConn ~ 5500 7550
+Text Label 3050 6750 2    50   ~ 0
+~RESET~
+Wire Wire Line
+	3050 6750 2800 6750
+Text Label 3050 6650 2    50   ~ 0
+~ISP~
+Wire Wire Line
+	3050 6650 2800 6650
+Wire Wire Line
+	5500 7050 6550 7050
 $EndSCHEMATC
