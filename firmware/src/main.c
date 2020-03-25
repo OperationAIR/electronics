@@ -22,6 +22,17 @@
 
 #define CLK_FREQ (48e6)
 
+void assert(bool should_be_true)
+{
+    if(should_be_true) {
+        return;
+    }
+
+    // Something bad happened!
+    // TODO alarm, reset? (enable watchdog, mcu will be reset..)
+    while(1);
+}
+
 arm_pid_instance_f32 pid_instance;
 
 void test_pid()
