@@ -12,7 +12,6 @@
 #include "cdc_vcom.h"
 #include "log.h"
 #include "log_storage/log_storage.h"
-#include "RGB_LED/LED_api.h"
 #include "sensors/sensors.h"
 #include "board.h"
 #include "global_settings.h"
@@ -108,57 +107,6 @@ void current_time(char *args) {
 	log_cli(time);
 }
 
-void led(char *args) {
-
-	RGBColor color = {0, 0, 0};
-	if (strncmp(args, "red", 3) == 0) {
-		color.red = 200;
-		log_cli("Set LED to RED");
-		LED_set(&color);
-	} else if (strncmp(args, "blue", 4) == 0) {
-		color.blue = 200;
-		log_cli("Set LED to Blue");
-		LED_set(&color);
-	} else if (strncmp(args, "green", 5) == 0) {
-		color.green = 200;
-		log_cli("Set LED to Green");
-		LED_set(&color);
-	} else if (strncmp(args, "yellow", 6) == 0) {
-		color.red = 200;
-		color.green = 200;
-		log_cli("Set LED to Yellow");
-		LED_set(&color);
-	} else if (strncmp(args, "white", 5) == 0) {
-		color.red = 200;
-		color.green = 200;
-		color.blue = 200;
-		log_cli("Set LED to White");
-		LED_set(&color);
-	} else if (strncmp(args, "magenta", 7) == 0) {
-		color.red = 200;
-		color.blue = 200;
-		log_cli("Set LED to Magenta");
-		LED_set(&color);
-	} else if (strncmp(args, "cyan", 4) == 0) {
-		color.green = 200;
-		color.blue = 200;
-		log_cli("Set LED to Cyan");
-		LED_set(&color);
-	} else if (strncmp(args, "off", 3) == 0) {
-		log_cli("Set LED off");
-		LED_set(&color);
-	} else if (strncmp(args, "help", 4) == 0) {
-		// cli_remove_enter(args, 10);
-		// log_cli("Unrecognized color '%s'", args);
-		log_cli("Supported colors: red, green, blue, white, yellow, magenta, cyan, off");
-	} else {
-		RGBColor c;
-		LED_get_color(&c);
-		log_cli("LED: %u, %u, %u", c.red, c.green, c.blue);
-	}
-
-}
-
 void start(char *args) {
 	app_program_start();
 }
@@ -248,7 +196,6 @@ void status() {
 	pressure("");
 	valve1("");
 	valve2("");
-	led("");
 }
 
 CliCommand cli_commands[] = {
@@ -266,11 +213,6 @@ CliCommand cli_commands[] = {
 		.cmd = "time",
 		.help = "Show the current (relative) time",
 		.function = current_time
-	},
-	{
-		.cmd = "led",
-		.help = "set led color: led [color]",
-		.function = led
 	},
 	{
 		.cmd = "logdata",

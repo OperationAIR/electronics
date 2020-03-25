@@ -2,7 +2,6 @@
 #define _SETTINGS_H_
 
 #include <stdbool.h>
-#include "RGB_LED/RGB_LED.h"
 
 const unsigned int BUTTON_TIME_PROGRAM_START_ms;
 const unsigned int BUTTON_TIME_PROGRAM_ABORT_ms;
@@ -34,12 +33,6 @@ const int SELF_TEST_PRESSURE_THRESHOLD_kPa;
 const int SELF_TEST_TARGET_PRESSURE_kPa;
 const unsigned int SELF_TEST_LOG_INTERVAL_ms;
 const unsigned int PRE_BREATHING_DELAY_ms;
-
-RGBColor BOOTLOADER_COLOR;
-RGBColor BOOTLOADER_ERROR_COLOR;
-
-RGBColor PROGRAM_ACTIVE;
-RGBColor PROGRAM_STOPPED;
 
 #define MAX_SUB_PROGRAMS 4
 #define REQUIRED_PWM_RESOLUTION 100
@@ -78,12 +71,6 @@ typedef struct BreathingProgram {
     BreathingSubProgram subprograms[MAX_SUB_PROGRAMS];
 } BreathingProgram;
 
-typedef struct LedAnimation {
-    RGBColor color_a;
-    unsigned int time_a;
-    RGBColor color_b;
-    unsigned int time_b;
-} LedAnimation;
 
 const BreathingProgram breathing_program;
 

@@ -35,8 +35,6 @@ bool app_is_battery_critical_mode(void);
 
 void app_reset_use_count(void);
 
-void app_led_animation(LedAnimation *anim);
-
 uint32_t get_last_pressure(void);
 
 #endif

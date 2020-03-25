@@ -332,7 +332,6 @@ enum AppState app_state_after_breathing(void)
     }
     return next_state;
 }
-RGBColor bright = {.red = 255, .green = 255, .blue = 255};
 
 enum AppState app_state_error(void)
 {

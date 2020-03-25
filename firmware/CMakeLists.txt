@@ -174,3 +174,4 @@ add_custom_target(bin
 
 add_dependencies(flash bin)
 add_dependencies(debug bin)
+add_dependencies(bin version)

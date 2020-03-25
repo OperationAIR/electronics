@@ -6,7 +6,6 @@
 
 // includes for debugging
 #include <mcu_timing/delay.h>
-#include "RGB_LED/LED_api.h"
 
 void power_management_deep_sleep()
 {
