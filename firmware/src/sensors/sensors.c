@@ -20,11 +20,12 @@ struct {
 #define SLEW_LIMIT_PRESSURE_SENSE   (2)
 
 
-void sensor_init(enum ADC_ID pressure_sense_pin) {
+void sensors_init(void) {
 
      ADC_init();
 
-     Sensors.pressure_sense_pin = pressure_sense_pin;
+     // TODO refactor this stuff to project 7001
+     Sensors.pressure_sense_pin = 0;
 
      sensors_reset();
 }

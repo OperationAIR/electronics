@@ -10,7 +10,6 @@
 
 #include "fat_fs_emulation.h"
 #include "log.h"
-#include "log_storage/log_storage.h"
 #include "generated/firmware_version.h"
 
 
@@ -48,12 +47,6 @@ bool read_file(const char *name, size_t offset,
         memcpy(buffer, sn+offset, serial_len-offset);
         return true;
 
-    } else if(strcmp(name,"LOG.TXT") == 0) {
-
-        log_storage_read(LOG_STORE_TEXT, offset, buffer, sizeof_buffer);
-        return true;
-
-
     } else if (strcmp(name,"VERSION.TXT") == 0) {
         const size_t version_len = strlen(FIRMWARE_VERSION);
 
@@ -79,9 +72,6 @@ static void init_fat_fs(void)
     }
 
     fat_fs_emulation_add_file("SERIAL.TXT", 43, FILE_ATTR_ARCHIVE | FILE_ATTR_READ_ONLY);
-    const size_t log_size = log_storage_bytes_used(LOG_STORE_TEXT);
-    fat_fs_emulation_add_file("LOG.TXT", log_size, FILE_ATTR_ARCHIVE);
-
     fat_fs_emulation_add_file("VERSION.TXT", strlen(FIRMWARE_VERSION), FILE_ATTR_ARCHIVE);
 }
 

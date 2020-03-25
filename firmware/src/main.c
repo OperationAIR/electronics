@@ -72,8 +72,7 @@ int main(void)
 
     control_signals_init();
 
-    const GPIO *hw_pin = board_get_GPIO(GPIO_ID_HW_VERSION0);
-    int hw_version = !GPIO_HAL_get(hw_pin) + 1;
+    const int hw_version = 0;
 
     app_init(hw_version);
     app_cli_init();

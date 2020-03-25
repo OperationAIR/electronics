@@ -8,7 +8,6 @@
 
 #include "log.h"
 #include "cdc_vcom.h"
-#include "log_storage/log_storage.h"
 #include "clock.h"
 
 uint8_t g_log_buffer[1024];
@@ -81,9 +80,6 @@ void logging_init(void)
     g_last_dst = LOG_DST_NONE;
     ringbuffer_init(&g_log_queue, g_log_buffer, 1, sizeof(g_log_buffer));
 
-    if(!log_storage_init()) {
-        log_wtime("warning: log storage not available: log data will not be stored!");
-    }
 }
 
 bool log_would_succeed(size_t msg_len)
@@ -260,11 +256,6 @@ static size_t log_task_process_queue(void)
     // try to send data to vcom if connected
     if((current_dst & LOG_DST_USB) && vcom_connected()) {
         data_len = vcom_write((uint8_t*)data, data_len);
-    }
-
-    // try to write to log storage if availale
-    if(current_dst & LOG_DST_STORE) {
-        log_storage_append(LOG_STORE_TEXT, data, data_len);
     }
 
     // free up some space in the ringbuffer
