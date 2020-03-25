@@ -68,12 +68,14 @@ static void log_not_allowed_reason(void)
 {
     log_wtime("Device not allowed to start because:");
 
+    /*
     if (g_app.not_allowed_reasons & ErrorPressureOverload) {
         log_wtime("-> Pressure Overload: %d kPa", sensors_read_pressure());
     }
     if (g_app.not_allowed_reasons & ErrorPressureUnderload) {
         log_wtime("-> Pressure Underload: %d kPa", sensors_read_pressure());
     }
+    */
     if (g_app.not_allowed_reasons & ErrorMaintenance) {
         log_wtime("-> Device needs maintenance");
     }
@@ -83,6 +85,7 @@ static void log_not_allowed_reason(void)
 bool app_start_allowed(void)
 {
     uint32_t reasons = ErrorNone;
+    /*
     const int pressure = sensors_read_pressure();
 
     if (pressure > PRESSURE_OVERLOAD_LIMIT_kPa) {
@@ -92,6 +95,7 @@ bool app_start_allowed(void)
     if (pressure < PRESSURE_UNDERLOAD_LIMIT_kPa) {
         reasons |= ErrorPressureUnderload;
     }
+    */
 
     if (g_app.maintenance) {
         reasons |= ErrorMaintenance;

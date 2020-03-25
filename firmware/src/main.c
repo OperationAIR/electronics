@@ -15,7 +15,6 @@
 #include "app_cli.h"
 #include "log.h"
 #include "power_management.h"
-#include "sensors/button.h"
 #include "clock.h"
 #include "generated/firmware_version.h"
 
