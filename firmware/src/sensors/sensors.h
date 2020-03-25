@@ -9,6 +9,10 @@ void sensors_init(void);
 void sensors_reset(void);
 void sensors_update(void);
 
-int32_t sensors_read_pressure(void);
+int32_t sensors_read_flow(void);
+int32_t sensors_read_pressure_1_pa(void);
+int32_t sensors_read_pressure_2_pa(void);
+
+int32_t sensors_read_pressure_regulator(void);
 
 #endif

@@ -3,7 +3,7 @@
 #include "chip.h"
 #include <lpc_tools/boardconfig.h>
 
-#define VDD_mV (3000.0)
+#define VDD_mV (3300.0)
 #define ADC_FACTOR (VDD_mV / ADC_RANGE)
 
 void ADC_init(void)
