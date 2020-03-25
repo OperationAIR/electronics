@@ -11,7 +11,6 @@
 #include "watchdog.h"
 #include "cdc_vcom.h"
 #include "log.h"
-#include "log_storage/log_storage.h"
 #include "RGB_LED/LED_api.h"
 #include "sensors/sensors.h"
 #include "board.h"
@@ -32,69 +31,6 @@
 #define MAX_USB_PACKET_LENGHT 64
 char cmd_buf[MAX_USB_PACKET_LENGHT + 1]; // +1 byte for 0 terminator
 
-void logdata_erase(char *args)
-{
-	if(strncmp(args, "all", 3)) {
-		log_cli("Are you sure? Type 'erase all' to erase all stored data");
-		return;
-	}
-	if(log_storage_erase_all()) {
-		log_cli("All logdata erased");
-		char buf[SERIAL_NUM_STR_SIZE];
-    	log_wtime("serial number: %s", log_get_serialnumber_str(buf, SERIAL_NUM_STR_SIZE));
-		log_wtime("Firmware version: %s", FIRMWARE_VERSION);
-	} else {
-		log_cli("Failed to erase logdata!");
-	}
-}
-
-void logdata(char *args)
-{
-    const size_t num_bytes = atoi(args);
-
-
-    log_cli("== Start of logdata  ==");
-
-    size_t offset = 0;
-    while(true) {
-
-        uint8_t buffer[64+1];
-        size_t length = log_storage_read(LOG_STORE_TEXT, offset,
-                buffer, sizeof(buffer)-1);
-        buffer[length] = 0;
-
-        if(!length) {
-            break;
-        }
-        if(num_bytes && (offset >= num_bytes)) {
-            break;
-        }
-
-		// replace all non-ascii values
-		for(size_t i=0;i<length;i++) {
-			if(buffer[i] > 127) {
-				buffer[i] = '#';
-			}
-		}
-
-        if(!log_cli("%s", (char*)buffer)) {
-			log_cli("== End of logdata (aborted: timeout!) ==\r\n");
-		}
-        offset+= length;
-
-		// This command may take very long, so we need to feed the watchdog
-        watchdog_feed();
-
-    }
-    log_cli("== End of logdata (%u bytes) ==\r\n", offset);
-}
-
-void memory_info(char *args)
-{
-	const size_t total = stack_total_size();
-	const size_t used = total - stack_unused_size();
-	log_cli("Memory usage: %u/%u", used, total);
-}
 
 void pressure(char *args) {
 	int pressure = sensors_read_pressure();
@@ -273,16 +209,6 @@ CliCommand cli_commands[] = {
 		.function = led
 	},
 	{
-		.cmd = "logdata",
-		.help = "Print all stored logdata (may take a while..)",
-		.function = logdata
-	},
-	{
-		.cmd = "erase",
-		.help = "Erase all stored logdata (may take a while..)",
-		.function = logdata_erase
-	},
-	{
 		.cmd = "start",
 		.help = "start (demo) program",
 		.function = start
@@ -306,11 +232,6 @@ CliCommand cli_commands[] = {
 		.cmd = "valves toggle",
 		.help = "Toggle the states of both valves",
 		.function = valves_toggle
-	},
-	{
-		.cmd = "memory",
-		.help = "get info about memory usage",
-		.function = memory_info
 	},
 	{
 		.cmd = "halt",

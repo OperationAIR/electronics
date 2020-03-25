@@ -17,14 +17,8 @@
 #define USB_STACK_MEM_BASE      0x20004000
 #define USB_STACK_MEM_SIZE      0x0600
 
-// TODO FIX THESE MEM ADDRESSES!!
-
-// GetMemSize = 172 bytes
-#define MSC_PARAM_MEM   0x20004600
-#define MSC_RARAM_SIZE  0x100
-
 // GetMemSize = 76 bytes
-#define CDC_PARAM_MEM   0x20004700
+#define CDC_PARAM_MEM   0x20004600
 #define CDC_PARAM_SIZE  0x100
 
 // USB Interface numbers and Endpoints
@@ -33,46 +27,5 @@
 #define USB_CDC_IN_EP           0x81
 #define USB_CDC_OUT_EP          0x01
 #define USB_CDC_INT_EP          0x82
-
-#define USB_MSC_IF_NUM          2
-#define USB_MSC_EP_IN           0x83
-#define USB_MSC_EP_OUT          0x03
-
-
-// Memory disk address. The disk is copied from flash to ram. This is the
-// RAM location and size where it is copied to.
-/*
-#define MSC_IMAGE_ADDR      0x10001000
-#define MSC_ImageSize       0x800
-*/
-
-/* MSC Disk Image Definitions */
-/* For WIN7 environment, the minimum FAT12 file system is 8K. For LPC11Uxx,
-the current IRAM is only 4K, so, the maximum RAM allocated for RAM disk drive is 3K.
-Once the RAM disk drive pops out with MSC_MemorySize capacity, it doesn't mean
-that you can access the maximum RAM capacity, but the MSC_PhysicalMemorySize minus
-the minimum memory allocated for FAT12 Boot sector(approx. 2.5K), etc.  */
-
-// Mass Storage Memory Layout
-
-/*
-#define MSC_PhysicalMemorySize  (1024 * 2)    //  (2kB)
-// For compliance test, to fake the disk size will cause failure in compliance test,
-// so, set MemorySize the same as PhysicalMemorySize, 3K. Otherwise, fake it, make
-// MSC_MemorySize at least 8K. Further investigation is needed on this.
-#if USB_COMPLIANCE_ENABLED
-#define MSC_MemorySize  MSC_PhysicalMemorySize
-#else
-#define MSC_MemorySize  (1024 * 8)            // = 0x2000 (8kB)
-#endif
-*/
-
-
-// Disk size in bytes
-#define MSC_MemorySize (16*1024*1024)
-
-// Mass Storage Memory Layout
-#define MSC_BlockSize 512
-#define MSC_BlockCount (MSC_MemorySize / MSC_BlockSize)
 
 #endif /* __APP_USB_CFG_H_ */

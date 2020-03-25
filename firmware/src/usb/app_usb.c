@@ -4,13 +4,10 @@
 #include "app_usb.h"
 #include "usbd_rom_api.h"
 
-#include "msc_mem.h"
 #include "usb_utils.h"
 #include "cdc_vcom.h"
 
-#include "fat_fs_emulation.h"
 #include "log.h"
-#include "log_storage/log_storage.h"
 #include "generated/firmware_version.h"
 
 
@@ -27,63 +24,6 @@ USBD_API_T* gUSB_API;
 
 static volatile bool g_connected = false;
 
-
-const uint32_t volume_serial = 0xC0DE0123;
-const char *volume_label = "OpAir";
-
-// mass storage reads are translated to this callback:
-// the USB host wants to read the given file at a certain offset
-bool read_file(const char *name, size_t offset,
-        uint8_t *buffer, size_t sizeof_buffer)
-{
-    if(strcmp(name,"SERIAL.TXT") == 0) {
-        const size_t serial_len = 4*10+3; // 4x10 digits, 3x '-'
-
-        if(offset >= serial_len) {
-            return false;
-        }
-
-        uint8_t sn[serial_len+1];
-        log_get_serialnumber_str((char*)sn, sizeof(sn));
-        memcpy(buffer, sn+offset, serial_len-offset);
-        return true;
-
-    } else if(strcmp(name,"LOG.TXT") == 0) {
-
-        log_storage_read(LOG_STORE_TEXT, offset, buffer, sizeof_buffer);
-        return true;
-
-
-    } else if (strcmp(name,"VERSION.TXT") == 0) {
-        const size_t version_len = strlen(FIRMWARE_VERSION);
-
-        if(offset >= version_len) {
-            return false;
-        }
-
-        memcpy(buffer, FIRMWARE_VERSION+offset, version_len-offset);
-        return true;
-
-    } else {
-        memset(buffer, '#', sizeof_buffer);
-    }
-    return true;
-}
-
-// (re-) create an emulated FAT16 disk with some files.
-// call this function again to update the disk.
-static void init_fat_fs(void)
-{
-    if(!fat_fs_emulation_init(MSC_MemorySize, volume_serial, volume_label, read_file)) {
-        return;
-    }
-
-    fat_fs_emulation_add_file("SERIAL.TXT", 43, FILE_ATTR_ARCHIVE | FILE_ATTR_READ_ONLY);
-    const size_t log_size = log_storage_bytes_used(LOG_STORE_TEXT);
-    fat_fs_emulation_add_file("LOG.TXT", log_size, FILE_ATTR_ARCHIVE);
-
-    fat_fs_emulation_add_file("VERSION.TXT", strlen(FIRMWARE_VERSION), FILE_ATTR_ARCHIVE);
-}
 
 void USB_IRQHandler(void)
 {
@@ -110,8 +50,6 @@ static ErrorCode_t usb_on_suspend(USBD_HANDLE_T hUsb)
 }
 static ErrorCode_t usb_on_configure(USBD_HANDLE_T hUsb)
 {
-    init_fat_fs();
-
 	g_connected = true;
 	return LPC_OK;
 }
@@ -169,14 +107,6 @@ ErrorCode_t workaround_stall(USBD_HANDLE_T hUsb)
     return ret;
 }
 
-// workaround USB_ROM.3
-void  *g_pMscCtrl;
-ErrorCode_t workaround_mwMSC_Reset(USBD_HANDLE_T hUsb)
-{
-    ((USB_MSC_CTRL_T *)g_pMscCtrl)->CSW.dSignature = 0;
-    ((USB_MSC_CTRL_T *)g_pMscCtrl)->BulkStage = 0;
-    return LPC_OK;
-}
 static bool g_initialized;
 void app_usb_deinit(void)
 {
@@ -209,8 +139,6 @@ bool app_usb_init()
 {
     g_connected = false;
 
-    init_fat_fs();
-
     gUSB_API = (USBD_API_T*)LPC_ROM_API->usbdApiBase; //0x1FFF1F24
 
 	USBD_API_INIT_PARAM_T usb_param;
@@ -234,7 +162,6 @@ bool app_usb_init()
     usb_param.USB_Suspend_Event = usb_on_suspend;
 	usb_param.USB_Resume_Event = usb_on_resume;
     usb_param.USB_Interface_Event = workaround_stall;       // See errata USB_ROM.1
-    usb_param.USB_Reset_Event = workaround_mwMSC_Reset;     // See errata USB_ROM.3
 	usb_param.USB_Configure_Event = usb_on_configure;
 
 
@@ -271,16 +198,6 @@ bool app_usb_init()
 
 				switch (pIntfDesc->bInterfaceClass)
 				{
-				case USB_DEVICE_CLASS_STORAGE:
-					usb_param.mem_base = MSC_PARAM_MEM;
-					usb_param.mem_size = MSC_RARAM_SIZE;
-
-                    // workaround USB_ROM.3
-                    g_pMscCtrl = (void *)(usb_param.mem_base);
-
-					ret = usb_msc_mem_init(g_hUsb, pIntfDesc, &usb_param.mem_base, &usb_param.mem_size);
-
-					break;
 				case CDC_COMMUNICATION_INTERFACE_CLASS:
 					usb_param.mem_base = CDC_PARAM_MEM;
 					usb_param.mem_size = CDC_PARAM_SIZE;
