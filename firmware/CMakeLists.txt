@@ -79,23 +79,23 @@ add_definitions("-DCHIP_LPC11UXX_USBD_CONFIG_FILE=${USBD_CFG_INCLUDE}")
 
 CPM_AddModule("startup_lpc11xxx"
     GIT_REPOSITORY "https://github.com/JitterCompany/startup_lpc11xxx.git"
-    GIT_TAG "1.4")
+    GIT_TAG "1.5.1")
 
 CPM_AddModule("lpc_tools"
     GIT_REPOSITORY "https://github.com/JitterCompany/lpc_tools.git"
-    GIT_TAG "2.8")
+    GIT_TAG "2.8.3")
 
 CPM_AddModule("chip_lpc11xxx"
     GIT_REPOSITORY "https://github.com/JitterCompany/chip_lpc11xxx.git"
-    GIT_TAG "1.4")
+    GIT_TAG "1.4.2")
 
 CPM_AddModule("mcu_timing"
     GIT_REPOSITORY "https://github.com/JitterCompany/mcu_timing.git"
-    GIT_TAG "1.5.9")
+    GIT_TAG "1.6.2")
 
 CPM_AddModule("c_utils"
     GIT_REPOSITORY "https://github.com/JitterCompany/c_utils.git"
-    GIT_TAG "1.4.5")
+    GIT_TAG "1.7")
 
 CPM_AddModule("mcu_debug"
     GIT_REPOSITORY "https://github.com/JitterCompany/mcu_debug.git"
@@ -174,3 +174,4 @@ add_custom_target(bin
 
 add_dependencies(flash bin)
 add_dependencies(debug bin)
+add_dependencies(bin version)
