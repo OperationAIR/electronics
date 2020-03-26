@@ -1,7 +1,7 @@
 
 #include "sensors.h"
 #include "actuators/control_signals.h"
-#include "thermistor.h"
+#include "flow.h"
 #include "ADC.h"
 
 #include <c_utils/max.h>
@@ -18,7 +18,7 @@ struct {
 
 // TODO FIXME: voltage divider for flow may be wrong!
 // Datasheet table shows 1-5V instead of assumed 0-12!!
-#define ADC_FACTOR_FLOW                 (1.0)
+#define ADC_FACTOR_FLOW                 (13.3/3.3)
 #define ADC_FACTOR_PREG_PRESSURE        (1.0)
 
 // Slew rate limits (in ms / full ADC range)
@@ -69,12 +69,11 @@ void sensors_update(void)
             ADC_RANGE/SLEW_LIMIT_PREG_PRESSURE);
 }
 
-int32_t sensors_read_flow(void)
+int32_t sensors_read_flow_sccm(void)
 {
     const int v_flow = ADC_scale(Sensors.flow, ADC_FACTOR_FLOW);
 
-    // TODO implement
-    return -1;
+    return flow_interpolate_sccm(v_flow);
 }
 
 int32_t sensors_read_pressure_1_pa(void)
