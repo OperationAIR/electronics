@@ -209,24 +209,6 @@ enum AppState app_state_idle(void)
 {
     enum AppState next_state = AppStateIdle;
 
-    if (g_app.start_requested) {
-        next_state = AppStatePreBreathing;
-        g_app.start_requested = false;
-    }
-    if (g_app.test_requested) {
-        if (app_start_allowed()) {
-            next_state = AppStateSelfTest;
-        } else if (OVERRIDE_NOT_ALLOWED) {
-            log_wtime("OVERRIDE_NOT_ALLOWED set: Start test anyway");
-            next_state = AppStateSelfTest;
-        }else {
-            log_wtime("Not Allowed");
-            next_state = AppStateError;
-        }
-        g_app.test_requested = false;
-
-    }
-
 
     return next_state;
 }
@@ -237,19 +219,6 @@ enum AppState app_state_pre_breathing(void)
 
      // first time in state
     if (g_app.time == 0) {
-
-    }
-
-    if (g_app.time == PRE_BREATHING_DELAY_ms) {
-       if (app_start_allowed()) {
-            next_state = AppStateBreathing;
-        } else if (OVERRIDE_NOT_ALLOWED) {
-            log_wtime("OVERRIDE_NOT_ALLOWED set:, Starting anyway");
-            next_state = AppStateBreathing;
-        } else {
-            log_wtime("Not Allowed");
-            next_state = AppStateError;
-        }
 
     }
 
@@ -269,26 +238,6 @@ enum AppState app_state_breathing(void)
         log_wtime("Start Breathing Program");
         breathing_start_program();
     }
-
-    if (!OVERRIDE_NOT_ALLOWED && !app_start_allowed()) {
-        log_wtime("Stop Breathing Program [error]");
-        breathing_stop();
-        stats_increment_use_count();
-        next_state = AppStateError;
-    } else if(g_app.stop_requested) {
-        log_wtime("Stop Breathing Program [user]");
-        breathing_stop();
-        next_state = AppStateAfterBreathing;
-        g_app.stop_requested = false;
-    } else {
-        const int pressure = breathing_run();
-        if (pressure) {
-            g_app.current_max_pressure = MAX(pressure, g_app.current_max_pressure);
-        } else {
-            next_state = AppStateAfterBreathing;
-            log_wtime("Stop Breathing Program [end]");
-        }
-    }
     return next_state;
 
 }
@@ -298,24 +247,10 @@ enum AppState app_state_after_breathing(void)
 
     enum AppState next_state = AppStateAfterBreathing;
 
-    if (g_app.time > AFTER_BREATHING_TIME_ms) {
-        // after timeout
-        next_state = AppStateIdle;
+    stats_increment_use_count();
 
-        if (g_app.start_requested) {
-            log_debug("Start Request Ignored (after breathing state)");
-            g_app.start_requested = false;
-        }
-        if (g_app.test_requested) {
-            log_debug("Test Request Ignored (after breathing state)");
-            g_app.test_requested = false;
-        }
-
-        stats_increment_use_count();
-    }
     return next_state;
 }
-RGBColor bright = {.red = 255, .green = 255, .blue = 255};
 
 enum AppState app_state_error(void)
 {
@@ -324,47 +259,6 @@ enum AppState app_state_error(void)
      // first time in state
     if (g_app.time == 0) {
         // do something here?
-    }
-
-   if (g_app.not_allowed_reasons & ErrorPressureOverload) {
-
-        if (g_app.time > ERROR_TIME_ms) {
-            g_app.maintenance = true;
-            stats_set_maintenance_mode(true);
-            g_app.not_allowed_reasons &= ~ErrorPressureOverload;
-            g_app.time = 0;
-        }
-    } else if (g_app.not_allowed_reasons & ErrorPressureUnderload) {
-
-
-        if (g_app.time > ERROR_TIME_ms) {
-            g_app.maintenance = true;
-            stats_set_maintenance_mode(true);
-            g_app.not_allowed_reasons &= ~ErrorPressureUnderload;
-            g_app.time = 0;
-        }
-    } else if (g_app.not_allowed_reasons & ErrorMaintenance) {
-        if (g_app.time > ERROR_TIME_ms) {
-            g_app.not_allowed_reasons &= ~ErrorMaintenance;
-            g_app.time = 0;
-        }
-    } else {
-        next_state = AppStateIdle;
-    }
-
-    if (g_app.time > ERROR_TIME_ms) {
-        // after timeout
-        next_state = AppStateIdle;
-        g_app.not_allowed_reasons = ErrorNone;
-    }
-
-    if (g_app.start_requested) {
-        log_debug("Start Request Ignored (not allowed state)");
-        g_app.start_requested = false;
-    }
-    if (g_app.test_requested) {
-        log_debug("Test Request Ignored (not allowed state)");
-        g_app.test_requested = false;
     }
 
     return next_state;
@@ -401,6 +295,9 @@ void SysTick_Handler(void)
     }
 
     sensors_update();
+    
+    // TODO the state-machine is not 7001-specific yet. Do we really need
+    // all this complexity?
 
     const enum AppState last_state = g_app.next_state;
     enum AppState next_state = g_app.next_state;

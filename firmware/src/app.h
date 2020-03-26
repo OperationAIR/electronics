@@ -30,12 +30,9 @@ bool app_is_maintenance_mode(void);
 void app_clear_overheated_mode(void);
 bool app_is_overheated_mode(void);
 
-void app_clear_battery_critical_mode(void);
-bool app_is_battery_critical_mode(void);
 
 void app_reset_use_count(void);
 
-void app_led_animation(LedAnimation *anim);
 
 uint32_t get_last_pressure(void);
 
