@@ -5,12 +5,14 @@
 
 void control_signals_init(void);
 
-void control_switch1_on(void);
-void control_switch1_off(void);
-bool control_switch1_get_state(void);
+void control_valve1_open(void);
+void control_valve1_close(void);
+bool control_valve1_get_state(void);
 
-void control_switch2_on(void);
-void control_switch2_off(void);
-bool control_switch2_get_state(void);
+void control_valve2_open(void);
+void control_valve2_close(void);
+bool control_valve2_get_state(void);
+
+void control_valves_toggle(void);
 
 #endif

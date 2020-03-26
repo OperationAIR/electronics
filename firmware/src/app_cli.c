@@ -11,11 +11,12 @@
 #include "watchdog.h"
 #include "cdc_vcom.h"
 #include "log.h"
+#include "RGB_LED/LED_api.h"
+#include "sensors/sensors.h"
 #include "board.h"
 #include "global_settings.h"
 #include "app.h"
 #include "actuators/control_signals.h"
-#include "sensors/sensors.h"
 #include "stats.h"
 #include "clock.h"
 #include "generated/firmware_version.h"
@@ -31,11 +32,67 @@
 char cmd_buf[MAX_USB_PACKET_LENGHT + 1]; // +1 byte for 0 terminator
 
 
+void pressure(char *args) {
+	int pressure = sensors_read_pressure();
+	log_cli("pressure: %d kPa", pressure);
+}
+
 void current_time(char *args) {
 
 	char time[20];
 	log_get_time_as_str(time);
 	log_cli(time);
+}
+
+void led(char *args) {
+
+	RGBColor color = {0, 0, 0};
+	if (strncmp(args, "red", 3) == 0) {
+		color.red = 200;
+		log_cli("Set LED to RED");
+		LED_set(&color);
+	} else if (strncmp(args, "blue", 4) == 0) {
+		color.blue = 200;
+		log_cli("Set LED to Blue");
+		LED_set(&color);
+	} else if (strncmp(args, "green", 5) == 0) {
+		color.green = 200;
+		log_cli("Set LED to Green");
+		LED_set(&color);
+	} else if (strncmp(args, "yellow", 6) == 0) {
+		color.red = 200;
+		color.green = 200;
+		log_cli("Set LED to Yellow");
+		LED_set(&color);
+	} else if (strncmp(args, "white", 5) == 0) {
+		color.red = 200;
+		color.green = 200;
+		color.blue = 200;
+		log_cli("Set LED to White");
+		LED_set(&color);
+	} else if (strncmp(args, "magenta", 7) == 0) {
+		color.red = 200;
+		color.blue = 200;
+		log_cli("Set LED to Magenta");
+		LED_set(&color);
+	} else if (strncmp(args, "cyan", 4) == 0) {
+		color.green = 200;
+		color.blue = 200;
+		log_cli("Set LED to Cyan");
+		LED_set(&color);
+	} else if (strncmp(args, "off", 3) == 0) {
+		log_cli("Set LED off");
+		LED_set(&color);
+	} else if (strncmp(args, "help", 4) == 0) {
+		// cli_remove_enter(args, 10);
+		// log_cli("Unrecognized color '%s'", args);
+		log_cli("Supported colors: red, green, blue, white, yellow, magenta, cyan, off");
+	} else {
+		RGBColor c;
+		LED_get_color(&c);
+		log_cli("LED: %u, %u, %u", c.red, c.green, c.blue);
+	}
+
 }
 
 void start(char *args) {
@@ -46,36 +103,42 @@ void stop(char *args) {
 	app_program_stop();
 }
 
-void switch1(char *args) {
-	if (strncmp(args, "on", 4) == 0) {
-		control_switch1_on();
-		log_cli("Enable switch 1");
-	} else if (strncmp(args, "off", 5) == 0) {
-		control_switch1_off();
-		log_cli("Disable switch 1");
+void valve1(char *args) {
+	if (strncmp(args, "open", 4) == 0) {
+		control_valve1_open();
+		log_cli("Open valve 1");
+	} else if (strncmp(args, "close", 5) == 0) {
+		control_valve1_close();
+		log_cli("Close valve 1");
 	} else {
-		if (control_switch1_get_state()) {
-			log_cli("Switch 1: On");
+		if (control_valve1_get_state()) {
+			log_cli("Valve 1: Open");
 		} else {
-			log_cli("Switch 1: Off");
+			log_cli("Valve 1: Closed");
 		}
 	}
 }
 
-void switch2(char *args) {
-	if (strncmp(args, "on", 4) == 0) {
-		control_switch2_on();
-		log_cli("Enable switch 2");
-	} else if (strncmp(args, "off", 5) == 0) {
-		control_switch2_off();
-		log_cli("Disable switch 2");
+void valve2(char *args) {
+	if (strncmp(args, "open", 4) == 0) {
+		control_valve2_open();
+		log_cli("Open valve 2");
+	} else if (strncmp(args, "close", 5) == 0) {
+		control_valve2_close();
+		log_cli("Close valve 2");
 	} else {
-		if (control_switch2_get_state()) {
-			log_cli("Switch 2: on");
+		if (control_valve2_get_state()) {
+			log_cli("Valve 2: Open");
 		} else {
-			log_cli("Switch 2: off");
+			log_cli("Valve 2: Closed");
 		}
 	}
+}
+
+void valves_toggle(char *args)
+{
+	control_valves_toggle();
+	log_cli("Toggling valves");
 }
 
 void halt(char *args)
@@ -118,8 +181,10 @@ void version(char *args)
 
 void status() {
 	app("");
-	switch1("");
-	switch2("");
+	pressure("");
+	valve1("");
+	valve2("");
+	led("");
 }
 
 CliCommand cli_commands[] = {
@@ -129,9 +194,19 @@ CliCommand cli_commands[] = {
 		.function = status
 	},
 	{
+		.cmd = "pres",
+		.help = "The current pressure measurement",
+		.function = pressure
+	},
+	{
 		.cmd = "time",
 		.help = "Show the current (relative) time",
 		.function = current_time
+	},
+	{
+		.cmd = "led",
+		.help = "set led color: led [color]",
+		.function = led
 	},
 	{
 		.cmd = "start",
@@ -144,14 +219,19 @@ CliCommand cli_commands[] = {
 		.function = stop
 	},
 	{
-		.cmd = "switch1",
-		.help = "Control switch 1: 'on' or 'off'",
-		.function = switch1
+		.cmd = "valve1",
+		.help = "Controll valve 1: 'open' or 'close'",
+		.function = valve1
 	},
 	{
-		.cmd = "switch2",
-		.help = "Control valve 2: 'on' or 'off'",
-		.function = switch2
+		.cmd = "valve2",
+		.help = "Controll valve 2: 'open' or 'close'",
+		.function = valve2
+	},
+	{
+		.cmd = "valves toggle",
+		.help = "Toggle the states of both valves",
+		.function = valves_toggle
 	},
 	{
 		.cmd = "halt",

@@ -15,23 +15,13 @@
 #include "app_cli.h"
 #include "log.h"
 #include "power_management.h"
+#include "sensors/button.h"
 #include "clock.h"
 #include "generated/firmware_version.h"
 
 #include "cmsis_dsp_lib/arm_math.h"
 
 #define CLK_FREQ (48e6)
-
-void assert(bool should_be_true)
-{
-    if(should_be_true) {
-        return;
-    }
-
-    // Something bad happened!
-    // TODO alarm, reset? (enable watchdog, mcu will be reset..)
-    while(1);
-}
 
 arm_pid_instance_f32 pid_instance;
 
@@ -82,7 +72,8 @@ int main(void)
 
     control_signals_init();
 
-    const int hw_version = 0;
+    const GPIO *hw_pin = board_get_GPIO(GPIO_ID_HW_VERSION0);
+    int hw_version = !GPIO_HAL_get(hw_pin) + 1;
 
     app_init(hw_version);
     app_cli_init();

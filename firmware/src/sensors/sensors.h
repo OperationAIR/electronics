@@ -4,15 +4,11 @@
 #include <stdint.h>
 #include "board_ADC_ID.h"
 
-void sensors_init(void);
+void sensor_init(enum ADC_ID pressure_sense_pin);
 
 void sensors_reset(void);
 void sensors_update(void);
 
-int32_t sensors_read_flow(void);
-int32_t sensors_read_pressure_1_pa(void);
-int32_t sensors_read_pressure_2_pa(void);
-
-int32_t sensors_read_pressure_regulator(void);
+int32_t sensors_read_pressure(void);
 
 #endif

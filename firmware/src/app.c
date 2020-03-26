@@ -10,17 +10,26 @@
 #include "actuators/control_signals.h"
 
 #include "sensors/sensors.h"
+#include "sensors/button.h"
 #include "usb/app_usb.h"
 
 #include "app.h"
 #include "log.h"
+#include "breathing.h"
 #include "global_settings.h"
 #include <mcu_timing/delay.h>
+#include "power_management.h"
 #include "stats.h"
 #include "clock.h"
 
-#include "breathing.h"
+#define BATT_CHARGER_STARTUP_DELAY_MS 20*1000
+#define BATT_CHARGER_DISCONNECT_DELAY_MS 10
+#define BATT_CHARGER_PAUSE_DELAY_MS 500
 
+
+
+#define SLEEP_DELAY_MS 30
+#define POST_SLEEP_DELAY_US 200
 
 enum AppState {
     AppStateNone = -1,
@@ -57,6 +66,8 @@ uint32_t get_last_pressure()
     return g_app.current_max_pressure;
 }
 
+void app_button_poll(void);
+
 enum ErrorReasons {
     ErrorNone = 0,
     ErrorPressureOverload = (1 << 3),
@@ -68,14 +79,12 @@ static void log_not_allowed_reason(void)
 {
     log_wtime("Device not allowed to start because:");
 
-    /*
     if (g_app.not_allowed_reasons & ErrorPressureOverload) {
         log_wtime("-> Pressure Overload: %d kPa", sensors_read_pressure());
     }
     if (g_app.not_allowed_reasons & ErrorPressureUnderload) {
         log_wtime("-> Pressure Underload: %d kPa", sensors_read_pressure());
     }
-    */
     if (g_app.not_allowed_reasons & ErrorMaintenance) {
         log_wtime("-> Device needs maintenance");
     }
@@ -85,7 +94,6 @@ static void log_not_allowed_reason(void)
 bool app_start_allowed(void)
 {
     uint32_t reasons = ErrorNone;
-    /*
     const int pressure = sensors_read_pressure();
 
     if (pressure > PRESSURE_OVERLOAD_LIMIT_kPa) {
@@ -95,7 +103,6 @@ bool app_start_allowed(void)
     if (pressure < PRESSURE_UNDERLOAD_LIMIT_kPa) {
         reasons |= ErrorPressureUnderload;
     }
-    */
 
     if (g_app.maintenance) {
         reasons |= ErrorMaintenance;
@@ -207,6 +214,11 @@ void app_wakeup(void)
 
 enum AppState app_state_idle(void)
 {
+    if (g_app.time <= 1) {
+        control_valve1_close();
+        control_valve2_close();
+    }
+
     enum AppState next_state = AppStateIdle;
 
     if (g_app.start_requested) {
@@ -298,6 +310,11 @@ enum AppState app_state_after_breathing(void)
 
     enum AppState next_state = AppStateAfterBreathing;
 
+    if (g_app.time == 0) {
+        control_valve1_close();
+        control_valve2_close();
+    }
+
     if (g_app.time > AFTER_BREATHING_TIME_ms) {
         // after timeout
         next_state = AppStateIdle;
@@ -315,6 +332,7 @@ enum AppState app_state_after_breathing(void)
     }
     return next_state;
 }
+RGBColor bright = {.red = 255, .green = 255, .blue = 255};
 
 enum AppState app_state_error(void)
 {
@@ -322,7 +340,8 @@ enum AppState app_state_error(void)
 
      // first time in state
     if (g_app.time == 0) {
-        // do something here?
+        control_valve1_close();
+        control_valve2_close();
     }
 
    if (g_app.not_allowed_reasons & ErrorPressureOverload) {
@@ -400,6 +419,7 @@ void SysTick_Handler(void)
     }
 
     sensors_update();
+    // app_button_poll();
 
     const enum AppState last_state = g_app.next_state;
     enum AppState next_state = g_app.next_state;
@@ -467,7 +487,8 @@ void app_init(int hw_version)
     g_app.use_count = stats_get_use_count();
     g_app.maintenance = stats_get_maintenance_mode();
 
-    sensors_init();
+    button_init(board_get_GPIO(GPIO_ID_BUTTON));
+    sensor_init(ADC_ID_PRESSURE);
 
     const uint32_t update_frequency = 1000;
     assert(systick_init(update_frequency));
@@ -497,3 +518,10 @@ void app_self_test(void)
     }
 }
 
+void app_button_poll(void)
+{
+    // enum BUTTON_STATUS button = button_get_status();
+    // no button
+    return;
+
+}
