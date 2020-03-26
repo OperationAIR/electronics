@@ -172,5 +172,6 @@ add_custom_target(bin
     COMMAND echo "${PROJECT_BINARY_DIR}/${EXE_NAME}.bin ${FLASH_ADDR} ${FLASH_CFG}" >> "${PROJECT_BINARY_DIR}/flash.cfg"
     )
 
+add_dependencies(bin version)
 add_dependencies(flash bin)
 add_dependencies(debug bin)
