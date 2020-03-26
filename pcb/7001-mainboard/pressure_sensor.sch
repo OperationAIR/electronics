@@ -560,7 +560,7 @@ AR Path="/5F5B6035/5F5FFB71" Ref="U8"  Part="1"
 F 0 "U8" H 6800 2200 50  0000 C CNN
 F 1 "MPRLS0001PG0000SA" H 7150 2100 50  0000 C CNN
 F 2 "Jitter_Footprints:MPRLS0001PG0000SA" H 7800 2500 50  0001 C CNN
-F 3 "" H 7800 2500 50  0001 C CNN
+F 3 "https://sensing.honeywell.com/honeywell-sensing-micropressure-board-mount-pressure-mpr-series-datasheet-32332628.pdf" H 7800 2500 50  0001 C CNN
 F 4 "MPRLS0001PG0000SA" H 7700 2500 50  0001 C CNN "MPN"
 F 5 "480-7100-1-ND" H 7700 2500 50  0001 C CNN "Digikey"
 	1    7700 2500
