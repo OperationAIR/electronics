@@ -5,6 +5,12 @@
 
 void control_signals_init(void);
 
+void control_LED_status_on(void);
+void control_LED_status_off(void);
+
+void control_LED_error_on(void);
+void control_LED_error_off(void);
+
 void control_switch1_on(void);
 void control_switch1_off(void);
 bool control_switch1_get_state(void);

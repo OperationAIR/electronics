@@ -47,11 +47,30 @@ void stop(char *args) {
 	app_program_stop();
 }
 
+void led_status(char *args) {
+	if (strncmp(args, "on", 2) == 0) {
+		control_LED_status_on();
+		log_cli("Enable status LED");
+	} else if (strncmp(args, "off", 3) == 0) {
+		control_LED_status_off();
+		log_cli("Disable status LED");
+	}
+}
+void led_error(char *args) {
+	if (strncmp(args, "on", 2) == 0) {
+		control_LED_error_on();
+		log_cli("Enable error LED");
+	} else if (strncmp(args, "off", 3) == 0) {
+		control_LED_error_off();
+		log_cli("Disable error LED");
+	}
+}
+
 void switch1(char *args) {
-	if (strncmp(args, "on", 4) == 0) {
+	if (strncmp(args, "on", 2) == 0) {
 		control_switch1_on();
 		log_cli("Enable switch 1");
-	} else if (strncmp(args, "off", 5) == 0) {
+	} else if (strncmp(args, "off", 3) == 0) {
 		control_switch1_off();
 		log_cli("Disable switch 1");
 	} else {
@@ -64,10 +83,10 @@ void switch1(char *args) {
 }
 
 void switch2(char *args) {
-	if (strncmp(args, "on", 4) == 0) {
+	if (strncmp(args, "on", 2) == 0) {
 		control_switch2_on();
 		log_cli("Enable switch 2");
-	} else if (strncmp(args, "off", 5) == 0) {
+	} else if (strncmp(args, "off", 3) == 0) {
 		control_switch2_off();
 		log_cli("Disable switch 2");
 	} else {
@@ -131,6 +150,7 @@ void status() {
 	app("");
 	switch1("");
 	switch2("");
+	led_status("");
 }
 
 CliCommand cli_commands[] = {
@@ -153,6 +173,16 @@ CliCommand cli_commands[] = {
 		.cmd = "stop",
 		.help = "stop (demo) program",
 		.function = stop
+	},
+	{
+		.cmd = "led_status",
+		.help = "Control status led: 'on' or 'off'",
+		.function = led_status
+	},
+	{
+		.cmd = "led_error",
+		.help = "Control error led: 'on' or 'off'",
+		.function = led_error
 	},
 	{
 		.cmd = "switch1",
