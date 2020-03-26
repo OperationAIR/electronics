@@ -487,8 +487,9 @@ void app_init(int hw_version)
     g_app.use_count = stats_get_use_count();
     g_app.maintenance = stats_get_maintenance_mode();
 
-    button_init(board_get_GPIO(GPIO_ID_BUTTON));
-    sensor_init(ADC_ID_PRESSURE);
+    // TODO FIX THIS!
+    button_init(board_get_GPIO(GPIO_ID_LED_STATUS));
+    sensor_init(ADC_ID_PRESSURE_1);
 
     const uint32_t update_frequency = 1000;
     assert(systick_init(update_frequency));

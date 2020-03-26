@@ -32,11 +32,6 @@
 char cmd_buf[MAX_USB_PACKET_LENGHT + 1]; // +1 byte for 0 terminator
 
 
-void pressure(char *args) {
-	int pressure = sensors_read_pressure();
-	log_cli("pressure: %d kPa", pressure);
-}
-
 void current_time(char *args) {
 
 	char time[20];
@@ -135,12 +130,6 @@ void valve2(char *args) {
 	}
 }
 
-void valves_toggle(char *args)
-{
-	control_valves_toggle();
-	log_cli("Toggling valves");
-}
-
 void halt(char *args)
 {
 	app_halt();
@@ -177,6 +166,16 @@ void version(char *args)
 {
 	log_cli("Firmware version:");
 	log_cli(FIRMWARE_VERSION);
+}
+
+void pressure(char *args)
+{
+	log_cli("Pressure: N/A");
+}
+
+void valves_toggle(char *args)
+{
+	log_cli("Not supported!");
 }
 
 void status() {
