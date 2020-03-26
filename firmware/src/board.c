@@ -80,10 +80,13 @@ static const PinMuxConfig pinmuxing[] = {
         // 0_15: SWD
         // 0,3: vbus 
 
-
         // ISP pin
         {0,  1, (IOCON_FUNC0
              | IOCON_MODE_PULLUP)},
+
+        // Dummy: this is required for USB D+ on devboard
+        {1, 24, (IOCON_FUNC0
+             | IOCON_MODE_PULLDOWN)},
 
 
         // LEDS
