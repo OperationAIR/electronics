@@ -10,26 +10,17 @@
 #include "actuators/control_signals.h"
 
 #include "sensors/sensors.h"
-#include "sensors/button.h"
 #include "usb/app_usb.h"
 
 #include "app.h"
 #include "log.h"
-#include "breathing.h"
 #include "global_settings.h"
 #include <mcu_timing/delay.h>
-#include "power_management.h"
 #include "stats.h"
 #include "clock.h"
 
-#define BATT_CHARGER_STARTUP_DELAY_MS 20*1000
-#define BATT_CHARGER_DISCONNECT_DELAY_MS 10
-#define BATT_CHARGER_PAUSE_DELAY_MS 500
+#include "breathing.h"
 
-
-
-#define SLEEP_DELAY_MS 30
-#define POST_SLEEP_DELAY_US 200
 
 enum AppState {
     AppStateNone = -1,
@@ -65,8 +56,6 @@ uint32_t get_last_pressure()
 {
     return g_app.current_max_pressure;
 }
-
-void app_button_poll(void);
 
 enum ErrorReasons {
     ErrorNone = 0,
@@ -408,7 +397,6 @@ void SysTick_Handler(void)
     }
 
     sensors_update();
-    // app_button_poll();
 
     const enum AppState last_state = g_app.next_state;
     enum AppState next_state = g_app.next_state;
@@ -476,8 +464,6 @@ void app_init(int hw_version)
     g_app.use_count = stats_get_use_count();
     g_app.maintenance = stats_get_maintenance_mode();
 
-    // TODO FIX THIS!
-    button_init(board_get_GPIO(GPIO_ID_LED_STATUS));
     sensors_init();
 
     const uint32_t update_frequency = 1000;
@@ -508,10 +494,3 @@ void app_self_test(void)
     }
 }
 
-void app_button_poll(void)
-{
-    // enum BUTTON_STATUS button = button_get_status();
-    // no button
-    return;
-
-}
