@@ -214,11 +214,6 @@ void app_wakeup(void)
 
 enum AppState app_state_idle(void)
 {
-    if (g_app.time <= 1) {
-        control_valve1_close();
-        control_valve2_close();
-    }
-
     enum AppState next_state = AppStateIdle;
 
     if (g_app.start_requested) {
@@ -310,11 +305,6 @@ enum AppState app_state_after_breathing(void)
 
     enum AppState next_state = AppStateAfterBreathing;
 
-    if (g_app.time == 0) {
-        control_valve1_close();
-        control_valve2_close();
-    }
-
     if (g_app.time > AFTER_BREATHING_TIME_ms) {
         // after timeout
         next_state = AppStateIdle;
@@ -340,8 +330,7 @@ enum AppState app_state_error(void)
 
      // first time in state
     if (g_app.time == 0) {
-        control_valve1_close();
-        control_valve2_close();
+        // do something here?
     }
 
    if (g_app.not_allowed_reasons & ErrorPressureOverload) {
@@ -489,7 +478,7 @@ void app_init(int hw_version)
 
     // TODO FIX THIS!
     button_init(board_get_GPIO(GPIO_ID_LED_STATUS));
-    sensor_init(ADC_ID_PRESSURE_1);
+    sensors_init();
 
     const uint32_t update_frequency = 1000;
     assert(systick_init(update_frequency));

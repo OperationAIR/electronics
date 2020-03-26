@@ -98,34 +98,34 @@ void stop(char *args) {
 	app_program_stop();
 }
 
-void valve1(char *args) {
-	if (strncmp(args, "open", 4) == 0) {
-		control_valve1_open();
-		log_cli("Open valve 1");
-	} else if (strncmp(args, "close", 5) == 0) {
-		control_valve1_close();
-		log_cli("Close valve 1");
+void switch1(char *args) {
+	if (strncmp(args, "on", 4) == 0) {
+		control_switch1_on();
+		log_cli("Enable switch 1");
+	} else if (strncmp(args, "off", 5) == 0) {
+		control_switch1_off();
+		log_cli("Disable switch 1");
 	} else {
-		if (control_valve1_get_state()) {
-			log_cli("Valve 1: Open");
+		if (control_switch1_get_state()) {
+			log_cli("Switch 1: On");
 		} else {
-			log_cli("Valve 1: Closed");
+			log_cli("Switch 1: Off");
 		}
 	}
 }
 
-void valve2(char *args) {
-	if (strncmp(args, "open", 4) == 0) {
-		control_valve2_open();
-		log_cli("Open valve 2");
-	} else if (strncmp(args, "close", 5) == 0) {
-		control_valve2_close();
-		log_cli("Close valve 2");
+void switch2(char *args) {
+	if (strncmp(args, "on", 4) == 0) {
+		control_switch2_on();
+		log_cli("Enable switch 2");
+	} else if (strncmp(args, "off", 5) == 0) {
+		control_switch2_off();
+		log_cli("Disable switch 2");
 	} else {
-		if (control_valve2_get_state()) {
-			log_cli("Valve 2: Open");
+		if (control_switch2_get_state()) {
+			log_cli("Switch 2: on");
 		} else {
-			log_cli("Valve 2: Closed");
+			log_cli("Switch 2: off");
 		}
 	}
 }
@@ -180,10 +180,8 @@ void valves_toggle(char *args)
 
 void status() {
 	app("");
-	pressure("");
-	valve1("");
-	valve2("");
-	led("");
+	switch1("");
+	switch2("");
 }
 
 CliCommand cli_commands[] = {
@@ -193,19 +191,9 @@ CliCommand cli_commands[] = {
 		.function = status
 	},
 	{
-		.cmd = "pres",
-		.help = "The current pressure measurement",
-		.function = pressure
-	},
-	{
 		.cmd = "time",
 		.help = "Show the current (relative) time",
 		.function = current_time
-	},
-	{
-		.cmd = "led",
-		.help = "set led color: led [color]",
-		.function = led
 	},
 	{
 		.cmd = "start",
@@ -218,19 +206,14 @@ CliCommand cli_commands[] = {
 		.function = stop
 	},
 	{
-		.cmd = "valve1",
-		.help = "Controll valve 1: 'open' or 'close'",
-		.function = valve1
+		.cmd = "switch1",
+		.help = "Control switch 1: 'on' or 'off'",
+		.function = switch1
 	},
 	{
-		.cmd = "valve2",
-		.help = "Controll valve 2: 'open' or 'close'",
-		.function = valve2
-	},
-	{
-		.cmd = "valves toggle",
-		.help = "Toggle the states of both valves",
-		.function = valves_toggle
+		.cmd = "switch2",
+		.help = "Control valve 2: 'on' or 'off'",
+		.function = switch2
 	},
 	{
 		.cmd = "halt",

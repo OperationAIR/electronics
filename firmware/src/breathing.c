@@ -15,7 +15,7 @@
 // valve2 == zuiger
 // valve1 == blazer
 
-static void breathing_start_sub_program(uint32_t program_index);
+static void breathing_start_sub_program(uint32_t program_index){}
 static int pressure_control_loop_A(const BreathingSubProgram *prog);
 static int pressure_control_loop_B(const BreathingSubProgram *prog);
 static bool program_validation(void);
@@ -59,30 +59,13 @@ bool breathing_init(void)
 
 void breathing_start_program()
 {
-    breathing.current_sub_program = 0;
-    breathing_start_sub_program(breathing.current_sub_program);
+    // TODO start
 }
 
-static void breathing_start_sub_program(uint32_t program_index)
-{
-    breathing.breathing_time = 0;
-    PWM_start(&breathing.pwm);
-    log_wtime("Breathing sub program %d", program_index);
-
-    const BreathingSubProgram *prog = &breathing_program.subprograms[program_index];
-
-    breathing.current_setpoint = 0;
-
-    // start program with under pressure
-    PWM_set(&breathing.pwm, PWM_CH1, prog->motor_power_vaccuum);
-    breathing.target_pressure = prog->min_pressure;
-}
 
 void breathing_stop()
 {
-    control_valve1_close();
-    control_valve2_close();
-    PWM_stop(&breathing.pwm);
+    // TODO stop
 }
 
 enum TestState breathing_test_get_result()
@@ -94,8 +77,6 @@ void breathing_start_test()
 {
     breathing.test_state = TestStateBuildPressure;
     breathing.breathing_time = 0;
-    control_valve1_close();
-    control_valve2_close();
     PWM_set(&breathing.pwm, PWM_CH1, SELF_TEST_MOTOR_POWER);
     PWM_start(&breathing.pwm);
 }
@@ -120,11 +101,7 @@ enum TestState breathing_test()
             // valve1 == blazer
             // increase pressure
             if (VALVE_FOR_OVER_PRESSURE == VALVE1) {
-                control_valve1_open();
-                control_valve2_close();
             } else {
-                control_valve1_close();
-                control_valve2_open();
             }
         } else {
             // target reached
@@ -153,9 +130,7 @@ enum TestState breathing_test()
             log_wtime("Self test failed, venting pressure: %d kPa", pressure);
             // vent pressure
             if (VALVE_FOR_OVER_PRESSURE == VALVE1) {
-                control_valve1_close();
             } else {
-                control_valve2_close();
             }
         }
         if (hold_time > SELF_TEST_HOLD_TIME_ms) {
@@ -164,9 +139,7 @@ enum TestState breathing_test()
             log_wtime("Self test succeeded, venting pressure");
             // vent pressure
             if (VALVE_FOR_OVER_PRESSURE == VALVE1) {
-                control_valve1_close();
             } else {
-                control_valve2_close();
             }
         }
     }
@@ -225,20 +198,12 @@ static int pressure_control_loop_B(const BreathingSubProgram *prog)
     if (error < 0) {
         // decrease pressure
          if (VALVE_FOR_OVER_PRESSURE == VALVE1) {
-            control_valve1_close();
-            control_valve2_open();
          } else {
-            control_valve1_open();
-            control_valve2_close();
          }
     } else {
         // increase pressure
         if (VALVE_FOR_OVER_PRESSURE == VALVE1) {
-            control_valve1_open();
-            control_valve2_close();
         } else {
-            control_valve1_close();
-            control_valve2_open();
         }
     }
 
@@ -283,21 +248,13 @@ static int pressure_control_loop_A(const BreathingSubProgram *prog)
         // valve2 == zuiger
         // valve1 == blazer
         if (VALVE_FOR_OVER_PRESSURE == VALVE1) {
-            control_valve1_close();
-            control_valve2_open();
          } else {
-            control_valve1_open();
-            control_valve2_close();
          }
     } else {
         //app_led_animation(&breathing_pressure_up_animation);
         // increase pressure
         if (VALVE_FOR_OVER_PRESSURE == VALVE1) {
-            control_valve1_open();
-            control_valve2_close();
         } else {
-            control_valve1_close();
-            control_valve2_open();
         }
     }
 
