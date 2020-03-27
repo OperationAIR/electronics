@@ -2,10 +2,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <c_utils/ringbuffer.h>
 
 #include "settings.h"
+#include "crc/crc.h"
 
 enum PiCommand {
     PiCommandNone = 0,
@@ -19,7 +21,6 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb_Rx)
 {
 	size_t count = ringbuffer_used_count(rb_Rx);
 	if (count >= 4) {
-		uint8_t byte;
 		while (0 < count--) {
 			uint32_t *ptr = ringbuffer_get_readable(rb_Rx);
 			uint32_t start;
@@ -48,7 +49,14 @@ void pi_comm_tasks(Ringbuffer *rb_Rx)
         size_t count = ringbuffer_used_count(rb_Rx);
 		if (count >= sizeof(OperationSettings)) {
 			OperationSettings *settings = ringbuffer_get_readable(rb_Rx);
-            settings_update(settings);
+
+            uint16_t res = crc16_usb_stream_check(&settings->crc, (uint8_t*)settings, 20);
+
+            if (res == settings->crc) {
+                settings_update(settings);
+            } else {
+                // crc error
+            }
 			ringbuffer_clear(rb_Rx);
 			g_current_command = PiCommandNone;
 		}

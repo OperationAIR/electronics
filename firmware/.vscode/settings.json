@@ -40,7 +40,8 @@
         "board_adc_id.h": "c",
         "stdbool.h": "c",
         "arm_math.h": "c",
-        "pi_communication.h": "c"
+        "pi_communication.h": "c",
+        "app_cfg.h": "c"
     },
     "C_Cpp.default.defines": [
         "EN_WATCHDOG=1",

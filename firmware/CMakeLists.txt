@@ -130,12 +130,14 @@ file(GLOB SOURCES
 "src/usb/*.c"
 "src/sensors/*.c"
 "src/actuators/*.c"
+"src/crc/*.c"
 )
 
 set(CMAKE_SYSTEM_NAME Generic)
 
 include_directories("src/")
 include_directories("src/usb")
+include_directories("src/crc")
 
 
 #-----------------------------------------------------------------------

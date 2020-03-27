@@ -15,6 +15,7 @@ typedef struct __attribute__((packed)) {
     uint16_t min_tv_alarm;
     uint16_t max_fi02_alarm;
     uint16_t min_fi02_alarm;
+    uint16_t crc;
 } OperationSettings;
 
 
