@@ -17,12 +17,12 @@ class Settings():
     def get_bit_string(self):
         #B = unsigned char
         #H = unsigned short
-        start_flag = 0x41424344 #= AABB in ascii
+        start_flag = 0x41424344 #= ABCD in ascii
         end_flag = 0xAF
-        values = (0x0123, start_flag, self.peep, self.freq, self.tidal_vol, self.pressure, self.max_pressure,self.min_pressure,self.max_tv,self.min_tv, self.max_fio2, self.min_fio2, end_flag)
-        s = struct.Struct('H I H H H H H H H H H H B')
-        # values = (start_flag, self.peep, self.freq, self.tidal_vol, self.pressure, self.max_pressure,self.min_pressure,self.max_tv,self.min_tv, self.max_fio2, self.min_fio2, end_flag)
-        # s = struct.Struct('I H H H H H H H H H H B')
+        #values = (0x5A59, start_flag, self.peep, self.freq, self.tidal_vol, self.pressure, self.max_pressure, self.min_pressure, self.max_tv, self.min_tv, self.max_fio2, self.min_fio2, 0x1111, end_flag)
+        #s = struct.Struct('=H I H H H H H H H H H H H B')
+        values = (start_flag, self.peep, self.freq, self.tidal_vol, self.pressure, self.max_pressure,self.min_pressure,self.max_tv,self.min_tv, self.max_fio2, self.min_fio2, end_flag)
+        s = struct.Struct('=I H H H H H H H H H H B')
         packed_data = s.pack(*values)
         return packed_data
     #return binascii.hexlify(packed_data)
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     import serial
     N = 100
 
-    s = Settings(0x4343, 0x4444, 0x4545, 0x4646, 0x4747, 0x4848, 0x4949, 0x5050, 0x5151, 0x5252)
+    s = Settings(0x4545, 0x4646, 0x4747, 0x4848, 0x4949, 0x5050, 0x5151, 0x5252, 0x5353, 0x5454)
     message =  s.get_bit_string()[:N]
     print('sending settings: ', len(message), message)
     print('in ascii: ', binascii.hexlify(message))

@@ -20,8 +20,8 @@ static const PinMuxConfig pinmuxing[] = {
 
         // Board LEDs
         {0,  7, (IOCON_FUNC0)},          // LED
-        {0,  18, (IOCON_FUNC1 | IOCON_MODE_INACT)},          // RXD
-        {0,  19, (IOCON_FUNC1 | IOCON_MODE_INACT)},          // TXD
+        {1,  26, (IOCON_FUNC2 | IOCON_MODE_INACT)},          // RXD
+        {1,  27, (IOCON_FUNC2 | IOCON_MODE_INACT)},          // TXD
         {0,  4, (IOCON_FUNC1 | IOCON_SFI2C_EN)}, // SCL (yellow)
         {0,  5, (IOCON_FUNC1 | IOCON_SFI2C_EN)}, // SDA (green)
 };

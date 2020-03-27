@@ -9,49 +9,27 @@
 #include <mcu_timing/delay.h>
 #include <stdio.h>
 #include <string.h>
+#include "settings.h"
 
 #include <c_utils/ringbuffer.h>
 
+#include "pi_communication.h"
+
 #define CLK_FREQ (48e6)
 
-
-const uint8_t SETTINGS_HEADER[4] = {0x0D, 0x15, 0xEA, 0x5E};
-
 volatile char buf[256];
-volatile char buf2[256];
 
 /* Transmit and receive ring buffer sizes */
 #define UART_SRB_SIZE 256	/* Send */
 #define UART_RRB_SIZE 256	/* Receive */
 /* Transmit and receive ring buffers */
-STATIC RINGBUFF_T txring, rxring;
-// static uint8_t rxbuff[UART_RRB_SIZE];
+STATIC RINGBUFF_T txring;
 static uint8_t txbuff[UART_SRB_SIZE];
 
 
 
 uint8_t rb_Rx_buffer[UART_RRB_SIZE];
 Ringbuffer rb_Rx;
-
-
-
-
-
-typedef struct __attribute__((packed)) {
-    uint16_t peep;
-    uint16_t frequency;
-    uint16_t tidal_volume;
-    uint16_t pressure;
-    uint16_t max_pressure_alarm;
-    uint16_t min_pressure_alarm;
-    uint16_t max_tv_alarm;
-    uint16_t min_tv_alarm;
-    uint16_t max_fi02_alarm;
-    uint16_t min_fi02_alarm;
-} OperationSettings;
-
-
-
 
 OperationSettings settings;
 
@@ -181,24 +159,27 @@ int main(void)
 	{
         delay_us(100*1000);
 
-		if (!match) {
-			match = match_start_sequence();
-		}
 
-		size_t count = ringbuffer_used_count(&rb_Rx);
-		if (match && (count >= sizeof(OperationSettings))) {
-			GPIO_HAL_toggle(led);
-			OperationSettings *ptr = ringbuffer_get_readable(&rb_Rx);
-			memcpy(&settings, ptr, sizeof(OperationSettings));
-			ringbuffer_clear(&rb_Rx);
-			match = false;
+		pi_comm_tasks(&rb_Rx);
 
-			// todo verify settings, check for valid range
+		// if (!match) {
+		// 	match = match_start_sequence();
+		// }
 
-			// send back settings
-			Chip_UART_SendRB(LPC_USART, &txring, &settings, sizeof(settings));
+		// size_t count = ringbuffer_used_count(&rb_Rx);
+		// if (match && (count >= sizeof(OperationSettings))) {
+		// 	GPIO_HAL_toggle(led);
+		// 	OperationSettings *ptr = ringbuffer_get_readable(&rb_Rx);
+		// 	memcpy(&settings, ptr, sizeof(OperationSettings));
+		// 	ringbuffer_clear(&rb_Rx);
+		// 	match = false;
 
-		}
+		// 	// todo verify settings, check for valid range
+
+		// 	// send back settings
+		// 	Chip_UART_SendRB(LPC_USART, &txring, &settings, sizeof(settings));
+
+		// }
 
 
 	}

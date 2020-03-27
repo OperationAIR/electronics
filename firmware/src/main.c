@@ -20,6 +20,9 @@
 
 #include "cmsis_dsp_lib/arm_math.h"
 
+#include <c_utils/ringbuffer.h>
+#include "pi_communication.h"
+
 #define CLK_FREQ (48e6)
 
 void assert(bool should_be_true)
@@ -61,6 +64,83 @@ void test_pid()
 
 }
 
+/* Transmit and receive ring buffer sizes */
+#define UART_SRB_SIZE 256	/* Send */
+#define UART_RRB_SIZE 256	/* Receive */
+/* Transmit and receive ring buffers */
+STATIC RINGBUFF_T txring, rxring;
+// static uint8_t rxbuff[UART_RRB_SIZE];
+static uint8_t txbuff[UART_SRB_SIZE];
+
+
+
+uint8_t rb_Rx_buffer[UART_RRB_SIZE];
+Ringbuffer rb_Rx;
+
+
+
+/**
+ * @brief	UART interrupt handler using ring buffers
+ * @return	Nothing
+ */
+void UART_IRQHandler(void)
+{
+
+	/* Want to handle any errors? Do it here. */
+
+	/* Use default ring buffer handler. Override this with your own
+	   code if you need more capability. */
+	// Chip_UART_IRQRBHandler(LPC_USART, &rxring, &txring);
+
+
+	/* Handle transmit interrupt if enabled */
+	if (LPC_USART->IER & UART_IER_THREINT) {
+		Chip_UART_TXIntHandlerRB(LPC_USART, &txring);
+
+		/* Disable transmit interrupt if the ring buffer is empty */
+		if (RingBuffer_IsEmpty(&txring)) {
+			Chip_UART_IntDisable(LPC_USART, UART_IER_THREINT);
+		}
+	}
+
+	// receive
+
+	/* New data will be ignored if data not popped in time */
+	while (Chip_UART_ReadLineStatus(LPC_USART) & UART_LSR_RDR) {
+		uint8_t byte = Chip_UART_ReadByte(LPC_USART);
+		ringbuffer_write(&rb_Rx, &byte, 1);
+	}
+
+
+}
+
+
+
+static void Uart_Init(void)
+{
+	/* Setup UART for 115.2K8N1 */
+	Chip_UART_Init(LPC_USART);
+	Chip_UART_SetBaud(LPC_USART, 115200);
+	Chip_UART_ConfigData(LPC_USART, (UART_LCR_WLEN8 | UART_LCR_SBS_1BIT));
+	Chip_UART_SetupFIFOS(LPC_USART, (UART_FCR_FIFO_EN | UART_FCR_TRG_LEV2));
+	Chip_UART_TXEnable(LPC_USART);
+
+
+	ringbuffer_init(&rb_Rx, rb_Rx_buffer, 1, UART_RRB_SIZE);
+	/* Before using the ring buffers, initialize them using the ring
+	   buffer init function */
+	// RingBuffer_Init(&rxring, rxbuff, 1, UART_RRB_SIZE);
+	RingBuffer_Init(&txring, txbuff, 1, UART_SRB_SIZE);
+
+	/* Enable receive data and line status interrupt */
+	Chip_UART_IntEnable(LPC_USART, (UART_IER_RBRINT | UART_IER_RLSINT));
+
+	/* preemption = 1, sub-priority = 1 */
+	NVIC_SetPriority(UART0_IRQn, 1);
+	NVIC_EnableIRQ(UART0_IRQn);
+
+}
+
 DPR dpr;
 
 int main(void)
@@ -90,6 +170,8 @@ int main(void)
     app_cli_init();
     watchdog_init();
 
+    Uart_Init();
+
     log_wtime("Operation Air firmware started");
     char buf[SERIAL_NUM_STR_SIZE];
     log_wtime("serial number: %s", log_get_serialnumber_str(buf, SERIAL_NUM_STR_SIZE));
@@ -100,6 +182,7 @@ int main(void)
 
     while (true)
     {
+        pi_comm_tasks(&rb_Rx);
         add_cli_tasks();
         log_tasks();
 
