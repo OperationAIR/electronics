@@ -109,7 +109,7 @@ bool DPR_enable(DPR *ctx)
 
     // TODO: slew rate control?
     const uint16_t ctrl = (DAC_CTRL_OUTEN
-            | DAC_CTRL_RANGE_0_20_MA);
+            | DAC_CTRL_RANGE_4_20_MA);
 
     // Write control register
     if(!_write(ctx, DAC_CMD_CONTROL, ctrl)) {

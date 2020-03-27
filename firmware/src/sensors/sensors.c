@@ -4,6 +4,8 @@
 #include "flow.h"
 #include "ADC.h"
 
+#include "log.h"
+
 #include <c_utils/max.h>
 
 struct {
@@ -80,9 +82,19 @@ int32_t sensors_read_pressure_1_pa(void)
 {
     const int v_pressure = ADC_scale(Sensors.pressure_1, ADC_FACTOR_PRESSURE);
 
-    // See MPVZ5010 datasheet
-    const int vcc = 5000;
-    int pressure_pa = ((1000*v_pressure) - (40*vcc)) / (0.09*vcc);
+    //log_wtime("v_pres: %d",v_pressure);
+    //const int vcc = 4900; // For now, prototype: laptop gives about 4.9V
+    const int offset = 476;
+
+    
+    // See ABP-series datasheet
+    const int v_sense = (v_pressure - offset);
+
+    // 6894.757 pa per PSI
+    const float scale_factor = (1000*2500)/(768-476);
+
+
+    int pressure_pa = (scale_factor * v_sense)/1000;
     return pressure_pa;
 }
 

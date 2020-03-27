@@ -1,7 +1,9 @@
 #include <lpc_tools/boardconfig.h>
 #include <lpc_tools/GPIO_HAL.h>
+#include <c_utils/constrain.h>
 
 #include "control_signals.h"
+#include "DPR.h"
 #include "board.h"
 #include "board_GPIO_ID.h"
 
@@ -11,6 +13,8 @@ struct {
 
     const GPIO *switch1;
     const GPIO *switch2;
+
+    DPR DPR;
 } Control;
 
 
@@ -21,6 +25,22 @@ void control_signals_init()
 
     Control.switch1 = board_get_GPIO(GPIO_ID_SWITCH_1);
     Control.switch2 = board_get_GPIO(GPIO_ID_SWITCH_2);
+
+    DPR_init(&Control.DPR, LPC_SSP1, board_get_GPIO(GPIO_ID_PREG_CS));
+}
+
+bool control_DPR_enable(void)
+{
+    return DPR_enable(&Control.DPR);
+}
+bool control_DPR_set_pa(int pressure_pa)
+{
+    // This assumes 4-20mA = 0-5000pa
+
+    int DAC_12bit = (pressure_pa*819)/1000;
+    DAC_12bit = constrain(DAC_12bit, 0, 4095);
+
+    return DPR_write(&Control.DPR, pressure_pa);
 }
 
 void control_LED_status_on(void)

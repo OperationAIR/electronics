@@ -50,14 +50,11 @@ void stop(char *args) {
 }
 
 void dpr_test(char *args) {
-    bool ok = DPR_enable(&dpr);
+    bool ok = control_DPR_enable();
 
-    int status = DPR_status(&dpr);
-    log_wtime("DPR status: %d", status);
-
-    ok&= DPR_write(&dpr, 2048);
+    ok&= control_DPR_set_pa(2048);
     delay_us(1000*1000);
-    ok&= DPR_write(&dpr, 0);
+    ok&= control_DPR_set_pa(0);
 
     log_wtime("DPR test: %s", (ok ? "OK" : "ERR"));
 
@@ -97,6 +94,13 @@ void switch1(char *args) {
 			log_cli("Switch 1: off");
 		}
 	}
+}
+
+void sensors(char *args) {
+    log_cli("Flow: %d SCCM", sensors_read_flow_sccm());
+    log_cli("Pressure 1: %d Pa", sensors_read_pressure_1_pa());
+    log_cli("Pressure 2: %d Pa", sensors_read_pressure_1_pa());
+    log_cli("Pressure DPR: %d Pa", sensors_read_pressure_regulator());
 }
 
 void switch2(char *args) {
@@ -153,18 +157,10 @@ void version(char *args)
 	log_cli(FIRMWARE_VERSION);
 }
 
-void pressure(char *args)
-{
-	log_cli("Pressure: N/A");
-}
-
-void valves_toggle(char *args)
-{
-	log_cli("Not supported!");
-}
 
 void status() {
 	app("");
+    sensors("");
 	switch1("");
 	switch2("");
 	led_status("");
@@ -195,6 +191,11 @@ CliCommand cli_commands[] = {
 		.cmd = "led_status",
 		.help = "Control status led: 'on' or 'off'",
 		.function = led_status
+	},
+	{
+		.cmd = "sensors",
+		.help = "Show sensor data",
+		.function = sensors
 	},
 	{
 		.cmd = "DPR_test",

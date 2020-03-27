@@ -10,13 +10,7 @@ bool app_is_running(void);
 
 char* app_get_state(void);
 
-bool app_can_sleep(void);
 bool app_is_idle(void);
-
-/**
- * Notify the app that the CPU has woken up after deep sleep
- */
-void app_wakeup(void);
 
 void app_self_test(void);
 

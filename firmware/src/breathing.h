@@ -14,12 +14,10 @@ void breathing_start_program(void);
 void breathing_stop(void);
 
 /**
- * Runs a breathing breathing_start_program
- * This function needs to be called repeatedly durnig breathinging.
- *
- * Returns the current pressure (as int) or 0 if program is finished.
+ * Runs the breathing control loop.
+ * This function needs to be called from the app timer at fixed frequency
  */
-int breathing_run(void);
+void breathing_run(void);
 
 void breathing_start_test(void);
 enum TestState breathing_test(void);
