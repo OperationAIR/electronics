@@ -1,5 +1,6 @@
 #include "MPRL_pressure.h"
 #include <lpc_tools/GPIO_HAL.h>
+#include <mcu_timing/delay.h>
 
 
 
@@ -7,12 +8,13 @@
 #define SPI_MODE      (SSP_CLOCK_MODE0)
 
 // Frequency: ADS5410 is specified up to 30MHz
-#define MPR_SENSOR_BITRATE   (8000000)
+#define MPR_SENSOR_BITRATE   (100000)
 
-void mprl_init(MPRL *ctx, LPC_SSP_T *LPC_SSP, const GPIO *cs_pin)
+void mprl_init(MPRL *ctx, LPC_SSP_T *LPC_SSP, const GPIO *cs_pin, const GPIO *drdy_pin)
 {
     ctx->SSP = LPC_SSP;
     ctx->cs_pin = cs_pin;
+    ctx->drdry_pin = drdy_pin;
 
     static SSP_ConfigFormat ssp_format;
     Chip_SSP_Init(LPC_SSP);
@@ -28,6 +30,7 @@ void mprl_init(MPRL *ctx, LPC_SSP_T *LPC_SSP, const GPIO *cs_pin)
 
 void mprl_enable(MPRL *ctx)
 {
+    // Step 1
     uint8_t buffer[4];
     memset(buffer, 0, sizeof(buffer));
     buffer[0] = 0xAA;
@@ -48,14 +51,41 @@ void mprl_enable(MPRL *ctx)
 
     size_t result = Chip_SSP_RWFrames_Blocking(ctx->SSP, &xf_setup);
 
+
     GPIO_HAL_set(ctx->cs_pin, HIGH);
 
+    // wait 5 ms for dataconversion to complete
+    delay_us(5 * 1000);
+
+    bool is_ready = GPIO_HAL_get(ctx->drdry_pin);
+
+    // Step 2
+    // memset(buffer, 0, sizeof(buffer));
+    // memset(rx, 0, sizeof(rx));
+    // GPIO_HAL_set(ctx->cs_pin, LOW);
+    // buffer[0] = 0xF0;
+
+    // Chip_SSP_DATA_SETUP_T xf_setup2 = {
+
+    //     .tx_data = buffer,
+    //     .tx_cnt = 0,
+    //     .rx_data = rx,
+    //     .rx_cnt = 0,
+    //     .length = 1,
+    // };
+
+    // result = Chip_SSP_RWFrames_Blocking(ctx->SSP, &xf_setup2);
+
+    // GPIO_HAL_set(ctx->cs_pin, HIGH);
+
+
+      // Step 3
     memset(buffer, 0, sizeof(buffer));
     memset(rx, 0, sizeof(rx));
     GPIO_HAL_set(ctx->cs_pin, LOW);
     buffer[0] = 0xF0;
 
-    Chip_SSP_DATA_SETUP_T xf_setup2 = {
+    Chip_SSP_DATA_SETUP_T xf_setup3 = {
 
         .tx_data = buffer,
         .tx_cnt = 0,
@@ -64,7 +94,7 @@ void mprl_enable(MPRL *ctx)
         .length = 4,
     };
 
-    result = Chip_SSP_RWFrames_Blocking(ctx->SSP, &xf_setup2);
+    result = Chip_SSP_RWFrames_Blocking(ctx->SSP, &xf_setup3);
 
     GPIO_HAL_set(ctx->cs_pin, HIGH);
 }

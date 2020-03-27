@@ -100,7 +100,7 @@ int main(void)
 
 
     // DPR_init(&dpr, LPC_SSP1, board_get_GPIO(GPIO_ID_PREG_CS));
-    mprl_init(&mprl, LPC_SSP0, board_get_GPIO(GPIO_ID_PSENSE_1_CS));
+    mprl_init(&mprl, LPC_SSP0, board_get_GPIO(GPIO_ID_PSENSE_1_CS), board_get_GPIO(GPIO_ID_PSENSE_1_DRDY));
     mprl_enable(&mprl);
 
     while (true)
