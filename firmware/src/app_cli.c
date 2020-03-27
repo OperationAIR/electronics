@@ -92,9 +92,9 @@ void switch1(char *args) {
 		log_cli("Disable switch 1");
 	} else {
 		if (control_switch1_get_state()) {
-			log_cli("Switch 1: On");
+			log_cli("Switch 1: on");
 		} else {
-			log_cli("Switch 1: Off");
+			log_cli("Switch 1: off");
 		}
 	}
 }
