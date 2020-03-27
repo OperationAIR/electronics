@@ -15,6 +15,7 @@
 #include "global_settings.h"
 #include "app.h"
 #include "actuators/control_signals.h"
+#include "actuators/DPR.h"
 #include "sensors/sensors.h"
 #include "stats.h"
 #include "clock.h"
@@ -30,6 +31,7 @@
 #define MAX_USB_PACKET_LENGHT 64
 char cmd_buf[MAX_USB_PACKET_LENGHT + 1]; // +1 byte for 0 terminator
 
+extern DPR dpr;
 
 void current_time(char *args) {
 
@@ -46,6 +48,21 @@ void start(char *args) {
 void stop(char *args) {
 	app_program_stop();
 }
+
+void dpr_test(char *args) {
+    bool ok = DPR_enable(&dpr);
+
+    int status = DPR_status(&dpr);
+    log_wtime("DPR status: %d", status);
+
+    ok&= DPR_write(&dpr, 2048);
+    delay_us(1000*1000);
+    ok&= DPR_write(&dpr, 0);
+
+    log_wtime("DPR test: %s", (ok ? "OK" : "ERR"));
+
+}
+
 
 void led_status(char *args) {
 	if (strncmp(args, "on", 2) == 0) {
@@ -178,6 +195,11 @@ CliCommand cli_commands[] = {
 		.cmd = "led_status",
 		.help = "Control status led: 'on' or 'off'",
 		.function = led_status
+	},
+	{
+		.cmd = "DPR_test",
+		.help = "Enables DPR for 1 second at half-scale",
+		.function = dpr_test
 	},
 	{
 		.cmd = "led_error",

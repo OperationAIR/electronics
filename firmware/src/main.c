@@ -8,6 +8,7 @@
 #include <mcu_timing/delay.h>
 
 #include "global_settings.h"
+#include "actuators/DPR.h"
 #include "actuators/control_signals.h"
 #include "usb/app_usb.h"
 #include "watchdog.h"
@@ -60,6 +61,8 @@ void test_pid()
 
 }
 
+DPR dpr;
+
 int main(void)
 {
     board_setup();
@@ -91,6 +94,9 @@ int main(void)
     char buf[SERIAL_NUM_STR_SIZE];
     log_wtime("serial number: %s", log_get_serialnumber_str(buf, SERIAL_NUM_STR_SIZE));
     log_wtime("Firmware version: %s", FIRMWARE_VERSION);
+
+
+    DPR_init(&dpr, LPC_SSP1, board_get_GPIO(GPIO_ID_PREG_CS));
 
     while (true)
     {
