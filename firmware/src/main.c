@@ -20,6 +20,8 @@
 
 #include "cmsis_dsp_lib/arm_math.h"
 
+#include "sensors/MPRL_pressure.h"
+
 #define CLK_FREQ (48e6)
 
 void assert(bool should_be_true)
@@ -62,6 +64,7 @@ void test_pid()
 }
 
 DPR dpr;
+MPRL mprl;
 
 int main(void)
 {
@@ -96,7 +99,9 @@ int main(void)
     log_wtime("Firmware version: %s", FIRMWARE_VERSION);
 
 
-    DPR_init(&dpr, LPC_SSP1, board_get_GPIO(GPIO_ID_PREG_CS));
+    // DPR_init(&dpr, LPC_SSP1, board_get_GPIO(GPIO_ID_PREG_CS));
+    mprl_init(&mprl, LPC_SSP0, board_get_GPIO(GPIO_ID_PSENSE_1_CS));
+    mprl_enable(&mprl);
 
     while (true)
     {
