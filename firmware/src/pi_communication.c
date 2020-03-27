@@ -53,7 +53,10 @@ void pi_comm_tasks(Ringbuffer *rb_Rx)
             uint16_t res = crc16_usb_stream_check(&settings->crc, (uint8_t*)settings, 20);
 
             if (res == settings->crc) {
-                settings_update(settings);
+                const bool settings_ok = settings_update(settings);
+                if (!settings_ok) {
+                    // settings error
+                }
             } else {
                 // crc error
             }
