@@ -10,11 +10,12 @@
 // Frequency: ADS5410 is specified up to 30MHz
 #define MPR_SENSOR_BITRATE   (100000)
 
-void mprl_init(MPRL *ctx, LPC_SSP_T *LPC_SSP, const GPIO *cs_pin, const GPIO *drdy_pin)
+void mprl_init(MPRL *ctx, LPC_SSP_T *LPC_SSP, const GPIO *cs_pin, const GPIO *drdy_pin, const GPIO *reset_pin)
 {
     ctx->SSP = LPC_SSP;
     ctx->cs_pin = cs_pin;
     ctx->drdry_pin = drdy_pin;
+    ctx->reset_pin = reset_pin;
 
     static SSP_ConfigFormat ssp_format;
     Chip_SSP_Init(LPC_SSP);
@@ -30,6 +31,13 @@ void mprl_init(MPRL *ctx, LPC_SSP_T *LPC_SSP, const GPIO *cs_pin, const GPIO *dr
 
 void mprl_enable(MPRL *ctx)
 {
+    GPIO_HAL_set(ctx->reset_pin, HIGH);
+    GPIO_HAL_set(ctx->reset_pin, LOW);
+    delay_us(10*1000);
+    GPIO_HAL_set(ctx->reset_pin, HIGH);
+    delay_us(10*1000);
+
+
     // Step 1
     uint8_t buffer[4];
     memset(buffer, 0, sizeof(buffer));

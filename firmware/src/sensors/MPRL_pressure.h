@@ -11,9 +11,10 @@ typedef struct {
     LPC_SSP_T *SSP;
     const GPIO *cs_pin;
     const GPIO *drdry_pin;
+    const GPIO *reset_pin;
 } MPRL;
 
-void mprl_init(MPRL *ctx, LPC_SSP_T *LPC_SSP, const GPIO *cs_pin, const GPIO *drdy_pin);
+void mprl_init(MPRL *ctx, LPC_SSP_T *LPC_SSP, const GPIO *cs_pin, const GPIO *drdy_pin, const GPIO *reset_pin);
 void mprl_enable(MPRL *ctx);
 
 
