@@ -17,6 +17,13 @@
 #define MPRLS_OUTPUT_TRIGGER_DATA_LENGTH 3
 #define MPRLS_OUTPUT_MEASUREMENT_DATA_LENGTH 4
 
+
+#define MPRLS_STATUS_POWERED (0x40) ///< Status SPI powered bit
+#define MPRLS_STATUS_BUSY (0x20)    ///< Status busy bit
+#define MPRLS_STATUS_FAILED (0x04)  ///< Status bit for integrity fail
+#define MPRLS_STATUS_MATHSAT (0x01) ///< Status bit for math saturation
+
+
 void mprls_init(MPRLS *ctx, LPC_SSP_T *LPC_SSP, const GPIO *cs_pin, const GPIO *drdy_pin, const GPIO *reset_pin)
 {
     ctx->SSP = LPC_SSP;
