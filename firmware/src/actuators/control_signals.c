@@ -40,7 +40,7 @@ bool control_DPR_set_pa(int pressure_pa)
     int DAC_12bit = (pressure_pa*819)/1000;
     DAC_12bit = constrain(DAC_12bit, 0, 4095);
 
-    return DPR_write(&Control.DPR, pressure_pa);
+    return DPR_write(&Control.DPR, DAC_12bit);
 }
 
 void control_LED_status_on(void)
