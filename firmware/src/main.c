@@ -68,14 +68,17 @@ void test_pid()
 #define UART_SRB_SIZE 256	/* Send */
 #define UART_RRB_SIZE 256	/* Receive */
 /* Transmit and receive ring buffers */
-STATIC RINGBUFF_T txring, rxring;
+STATIC RINGBUFF_T txring;
 // static uint8_t rxbuff[UART_RRB_SIZE];
 static uint8_t txbuff[UART_SRB_SIZE];
 
 
 
 uint8_t rb_Rx_buffer[UART_RRB_SIZE];
+uint8_t rb_Tx_buffer[UART_SRB_SIZE];
+
 Ringbuffer rb_Rx;
+Ringbuffer rb_Tx;
 
 
 
@@ -85,20 +88,23 @@ Ringbuffer rb_Rx;
  */
 void UART_IRQHandler(void)
 {
-
 	/* Want to handle any errors? Do it here. */
-
-	/* Use default ring buffer handler. Override this with your own
-	   code if you need more capability. */
-	// Chip_UART_IRQRBHandler(LPC_USART, &rxring, &txring);
-
+    // TODO handle uart errors
 
 	/* Handle transmit interrupt if enabled */
 	if (LPC_USART->IER & UART_IER_THREINT) {
-		Chip_UART_TXIntHandlerRB(LPC_USART, &txring);
+
+        /* Fill FIFO until full or until TX ring buffer is empty */
+        while ((Chip_UART_ReadLineStatus(LPC_USART) & UART_LSR_THRE) != 0) {
+            uint8_t *byte = ringbuffer_get_readable(&rb_Tx);
+            if (byte) {
+                Chip_UART_SendByte(LPC_USART, *byte);
+                ringbuffer_advance(&rb_Tx);
+            }
+        }
 
 		/* Disable transmit interrupt if the ring buffer is empty */
-		if (RingBuffer_IsEmpty(&txring)) {
+        if (ringbuffer_is_empty(&rb_Tx)) {
 			Chip_UART_IntDisable(LPC_USART, UART_IER_THREINT);
 		}
 	}
@@ -127,10 +133,11 @@ static void Uart_Init(void)
 
 
 	ringbuffer_init(&rb_Rx, rb_Rx_buffer, 1, UART_RRB_SIZE);
+    ringbuffer_init(&rb_Tx, rb_Tx_buffer, 1, UART_RRB_SIZE);
 	/* Before using the ring buffers, initialize them using the ring
 	   buffer init function */
 	// RingBuffer_Init(&rxring, rxbuff, 1, UART_RRB_SIZE);
-	RingBuffer_Init(&txring, txbuff, 1, UART_SRB_SIZE);
+	// RingBuffer_Init(&txring, txbuff, 1, UART_SRB_SIZE);
 
 	/* Enable receive data and line status interrupt */
 	Chip_UART_IntEnable(LPC_USART, (UART_IER_RBRINT | UART_IER_RLSINT));
@@ -179,6 +186,12 @@ int main(void)
 
 
     DPR_init(&dpr, LPC_SSP1, board_get_GPIO(GPIO_ID_PREG_CS));
+
+    GPIO *led_status = board_get_GPIO(GPIO_ID_LED_STATUS);
+    GPIO *led_error = board_get_GPIO(GPIO_ID_LED_ERROR);
+
+    GPIO_HAL_set(led_status, 1);
+    GPIO_HAL_set(led_error, 1);
 
     while (true)
     {
