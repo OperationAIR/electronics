@@ -198,7 +198,7 @@ void log_debug(const char format[], ...)
     va_start(va, format);
 
     char prefix[TIME_STR_SIZE];
-    log_get_time_as_str(prefix);
+
     log_write_to_queue(LOG_DST_ALL, prefix, format, va);
     va_end(va);
 }
