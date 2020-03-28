@@ -353,7 +353,7 @@ void app_init(int hw_version)
 
     sensors_init();
 
-    const uint32_t update_frequency = 1000;
+    const uint32_t update_frequency = 500;
     assert(systick_init(update_frequency));
 }
 

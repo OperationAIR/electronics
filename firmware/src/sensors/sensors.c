@@ -80,6 +80,7 @@ int32_t sensors_read_flow_sccm(void)
 
 int32_t sensors_read_pressure_1_pa(void)
 {
+    /* // Calculations for ABP series
     const int v_pressure = ADC_scale(Sensors.pressure_1, ADC_FACTOR_PRESSURE);
 
     //log_wtime("v_pres: %d",v_pressure);
@@ -95,6 +96,15 @@ int32_t sensors_read_pressure_1_pa(void)
 
 
     int pressure_pa = (scale_factor * v_sense)/1000;
+    return pressure_pa;
+    */
+
+
+    const int v_pressure = ADC_scale(Sensors.pressure_1, ADC_FACTOR_PRESSURE);
+
+    // See MPVZ5010 datasheet
+    const int vcc = 5000;
+    int pressure_pa = ((1.079*v_pressure) - 195.211);
     return pressure_pa;
 }
 

@@ -78,7 +78,7 @@ static arm_pid_instance_f32 pid_instance;
 
 void breathing_run(void)
 {
-    breathing.breathing_time++;
+    breathing.breathing_time+=2;
 
     const uint32_t time_ms = breathing.breathing_time;
 
