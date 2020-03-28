@@ -23,13 +23,13 @@ struct {
 #define ADC_FACTOR_FLOW                 (13.3/3.3)
 #define ADC_FACTOR_PREG_PRESSURE        (1.0)
 
-// Slew rate limits (in ms / full ADC range)
+// Slew rate limits (in app ticks / full ADC range)
 // Tweak these to limit noise spikes.
 // 1 = lowest value (effectively no filtering)
 // 1024 (ADC_RANGE) = highest value (strong filter)
-#define SLEW_LIMIT_FLOW             (2)
-#define SLEW_LIMIT_PRESSURE         (2)
-#define SLEW_LIMIT_PREG_PRESSURE    (2)
+#define SLEW_LIMIT_FLOW             (10)
+#define SLEW_LIMIT_PRESSURE         (100)
+#define SLEW_LIMIT_PREG_PRESSURE    (100)
 
 
 void sensors_init(void) {
@@ -102,20 +102,34 @@ int32_t sensors_read_pressure_1_pa(void)
 
     const int v_pressure = ADC_scale(Sensors.pressure_1, ADC_FACTOR_PRESSURE);
 
+    // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
+    const int offset_mv = 167;
+    const int scale_factor = 2157;
+    return ((v_pressure-offset_mv)*scale_factor)/1000;
+
+    /*
     // See MPVZ5010 datasheet
     const int vcc = 5000;
     int pressure_pa = ((1.079*v_pressure) - 195.211);
     return pressure_pa;
+    */
 }
 
 int32_t sensors_read_pressure_2_pa(void)
 {
     const int v_pressure = ADC_scale(Sensors.pressure_2, ADC_FACTOR_PRESSURE);
 
+    // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
+    const int offset_mv = 167;
+    const int scale_factor = 2157;
+    return ((v_pressure-offset_mv)*scale_factor)/1000;
+
+    /*
     // See MPVZ5010 datasheet
     const int vcc = 5000;
     int pressure_pa = ((1000*v_pressure) - (40*vcc)) / (0.09*vcc);
     return pressure_pa;
+    */
 }
 
 int32_t sensors_read_pressure_regulator(void)
@@ -124,6 +138,11 @@ int32_t sensors_read_pressure_regulator(void)
     // TODO see See RP200_C_??? specs (which version do we have? what is the range?):
     // - ADC_FACTOR_PREG_PRESSURE
     const int v_pressure = ADC_scale(Sensors.pressure_regulator, ADC_FACTOR_PREG_PRESSURE);
+
+    const int resistor_ohm = 150;
+    const int dpr_range_pa = 5000;
+    const int offset_ma = 4;
+    return ((v_pressure*dpr_range_pa)/resistor_ohm - (dpr_range_pa*offset_ma))/16;
 
     // TODO implement
     return -1;

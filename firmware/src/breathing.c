@@ -94,7 +94,7 @@ void breathing_run(void)
         breathing.cycle_time = 0;
     }
 
-    const int setpoint_high = 5000;
+    const int setpoint_high = 2500;
     const int setpoint_low = 1000;
 
     // start building pressure
@@ -137,16 +137,16 @@ void breathing_run(void)
     arm_pid_init_f32(&pid_instance, 1);
 
     float PID_out = arm_pid_f32(&pid_instance, error);
-    float to_DPR = constrain((g_setpoint_pa + PID_out), 0, 5100);
-    //control_DPR_set_pa(to_DPR);
-    // Overrule: step response
+    float to_DPR = constrain((g_setpoint_pa + PID_out), 0, 5000);
+    //float to_DPR = g_setpoint_pa;
     control_DPR_set_pa(to_DPR);
 
 
     if(BREATHING_LOG_INTERVAL_ms && time_ms && ((time_ms % BREATHING_LOG_INTERVAL_ms) == 0)) {
-        log_debug("%d,%d,%d",
+        log_debug("%d,%d,%d,%d",
                 g_setpoint_pa,
                 sensor_value,
+                sensors_read_pressure_regulator(),
                 (int)to_DPR);
     }
 }
