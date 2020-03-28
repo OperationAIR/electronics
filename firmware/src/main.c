@@ -20,7 +20,7 @@
 
 #include "cmsis_dsp_lib/arm_math.h"
 
-#include "sensors/MPRL_pressure.h"
+#include "sensors/MPRLS_pressure.h"
 
 #define CLK_FREQ (48e6)
 
@@ -64,7 +64,8 @@ void test_pid()
 }
 
 DPR dpr;
-MPRL mprl;
+MPRLS mprls1;
+MPRLS mprls2;
 
 int main(void)
 {
@@ -80,6 +81,8 @@ int main(void)
 
     test_pid();
     // USB init
+    delay_us(200 * 1000);
+
     if (!app_usb_init())
     {
         delay_us(2000 * 1000);
@@ -100,11 +103,18 @@ int main(void)
 
 
     // DPR_init(&dpr, LPC_SSP1, board_get_GPIO(GPIO_ID_PREG_CS));
-    mprl_init(&mprl, LPC_SSP0,
+    mprls_init(&mprls1, LPC_SSP0,
         board_get_GPIO(GPIO_ID_PSENSE_1_CS),
         board_get_GPIO(GPIO_ID_PSENSE_1_DRDY),
         board_get_GPIO(GPIO_ID_PSENSE_RESET));
-    mprl_enable(&mprl);
+
+    mprls_init(&mprls2, LPC_SSP0,
+        board_get_GPIO(GPIO_ID_PSENSE_2_CS),
+        board_get_GPIO(GPIO_ID_PSENSE_2_DRDY),
+        board_get_GPIO(GPIO_ID_PSENSE_RESET));
+
+    mprls_enable(&mprls1);
+    mprls_enable(&mprls2);
 
     while (true)
     {
@@ -113,6 +123,12 @@ int main(void)
 
         // Maybe only feed watchdog if some sanity checks succeed?
         watchdog_feed();
+
+        delay_us(1000 * 1000);
+
+        uint32_t p1 = mprls_read_blocking(&mprls1);
+        uint32_t p2 = mprls_read_blocking(&mprls2);
+        log_debug("Pres: %u, %u", p1, p2);
     }
     return 0;
 }
