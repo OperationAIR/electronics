@@ -99,7 +99,7 @@ void switch1(char *args) {
 void sensors(char *args) {
     log_cli("Flow: %d SCCM", sensors_read_flow_sccm());
     log_cli("Pressure 1: %d Pa", sensors_read_pressure_1_pa());
-    log_cli("Pressure 2: %d Pa", sensors_read_pressure_1_pa());
+    log_cli("Pressure 2: %d Pa", sensors_read_pressure_2_pa());
     log_cli("Pressure DPR: %d Pa", sensors_read_pressure_regulator());
 }
 
