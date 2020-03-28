@@ -39,6 +39,63 @@ void assert(bool should_be_true)
 
 DPR dpr;
 
+
+#define DEFAULT_I2C          I2C0
+#define SPEED_100KHZ         100000
+#define SPEED_400KHZ         400000
+#define I2C_DEFAULT_SPEED    SPEED_100KHZ
+static int mode_poll;	/* Poll/Interrupt mode flag */
+
+
+/* Set I2C mode to polling/interrupt */
+static void i2c_set_mode(I2C_ID_T id, int polling)
+{
+	if (!polling) {
+		mode_poll &= ~(1 << id);
+		Chip_I2C_SetMasterEventHandler(id, Chip_I2C_EventHandler);
+		NVIC_EnableIRQ(I2C0_IRQn);
+	}
+	else {
+		mode_poll |= 1 << id;
+		NVIC_DisableIRQ(I2C0_IRQn);
+		Chip_I2C_SetMasterEventHandler(id, Chip_I2C_EventHandlerPolling);
+	}
+}
+
+/* Initialize the I2C bus */
+static void i2c_app_init(I2C_ID_T id, int speed)
+{
+
+	Chip_SYSCTL_PeriphReset(RESET_I2C0);
+
+	/* Initialize I2C */
+	Chip_I2C_Init(id);
+	Chip_I2C_SetClockRate(id, speed);
+
+	i2c_set_mode(id, 0);
+}
+
+/* State machine handler for I2C0 and I2C1 */
+static void i2c_state_handling(I2C_ID_T id)
+{
+	if (Chip_I2C_IsMasterActive(id)) {
+		Chip_I2C_MasterStateHandler(id);
+	}
+	else {
+		Chip_I2C_SlaveStateHandler(id);
+	}
+}
+
+/**
+ * @brief	I2C Interrupt Handler
+ * @return	None
+ */
+void I2C_IRQHandler(void)
+{
+	i2c_state_handling(I2C0);
+}
+
+
 int main(void)
 {
     board_setup();
@@ -89,9 +146,35 @@ int main(void)
 
 	snprintf((char*)uart_buf, sizeof(uart_buf) - 1, "Hallo Ventilator\n");
     pi_comm_send(uart_buf, strnlen((char*)uart_buf, sizeof(uart_buf)));
-    // ringbuffer_write(&rb_Tx, uart_buf, strnlen(uart_buf, 256));
-    // Chip_UART_IntEnable(LPC_USART, UART_IER_THREINT);
-	// Chip_UART_SendRB(LPC_USART, &txring, buf, sizeof(buf) - 1);
+
+
+	i2c_app_init(I2C0, I2C_DEFAULT_SPEED);
+
+
+	 /* I2C send/receive structure */
+	static I2C_XFER_T xfer;
+
+	/* Transfer and Receive buffers */
+	static uint8_t tx[10], rx[10];
+
+    memset(tx, 0, sizeof(tx));
+
+
+	uint8_t address = 0x63;
+
+	/* Setup I2C parameters to send 4 bytes of data */
+	xfer.slaveAddr = address;
+	tx[0] = 0x40;
+
+    uint16_t output = 3000;
+    tx[1] = output / 16;
+    tx[2] = (output % 16) << 4;
+
+	xfer.txBuff = &tx[0];
+
+	/* Send data */
+	Chip_I2C_MasterSend(I2C0, xfer.slaveAddr, xfer.txBuff, 3);
+
 
     while (true)
     {
