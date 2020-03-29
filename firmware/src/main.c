@@ -103,7 +103,7 @@ int main(void)
         // Maybe only feed watchdog if some sanity checks succeed?
         watchdog_feed();
 
-        delay_us(1000 * 1000);
+        delay_us(1);
 
     }
     return 0;

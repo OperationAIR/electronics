@@ -29,6 +29,8 @@ Ringbuffer rb_Tx;
 
 enum PiCommand {
     PiCommandNone = 0,
+	PiCommandLedOn = 0x55556666,
+	PiCommandLedOff = 0x66667777,
     PiCommandNewSettings = 0x41424344,
     PiCommandRequestSensorValues = 0x22226666,
 };
@@ -113,6 +115,16 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 			} else if (cmd == PiCommandRequestSensorValues) {
 				ringbuffer_flush(rb, 4);
 				return PiCommandRequestSensorValues;
+			} else if (cmd == PiCommandLedOn) {
+				ringbuffer_flush(rb, 4);
+				control_LED_status_on();
+				pi_comm_send_string("Status LED on\n");
+				return PiCommandNone;
+			} else if (cmd == PiCommandLedOff) {
+				ringbuffer_flush(rb, 4);
+				control_LED_status_off();
+				pi_comm_send_string("Status LED off\n");
+				return PiCommandNone;
 			} else {
 				// no match, advance rb 1 byte, try again until magic sequence is found
 				ringbuffer_advance(rb);
@@ -140,6 +152,8 @@ void pi_comm_tasks()
 
 			SensorsAllData data;
 			sensors_read_all(&data);
+			uint32_t prefix = PiCommandRequestSensorValues;
+			pi_comm_send((uint8_t*)&prefix, 4);
 			pi_comm_send((uint8_t*)&data, sizeof(SensorsAllData));
 			g_current_command = PiCommandNone;
 
@@ -178,6 +192,7 @@ void pi_comm_tasks()
 
 void pi_comm_send_string(char *string)
 {
+	pi_comm_send((uint8_t*)"###", 3);
 	pi_comm_send((uint8_t*)string, strlen(string));
 }
 
