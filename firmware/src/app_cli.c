@@ -54,7 +54,7 @@ void dpr(char *args) {
 		control_DPR_on();
 		log_cli("Enable DPR");
 	} else if (strncmp(args, "off", 3) == 0) {
-		control_switch1_off();
+		control_DPR_off();
 		log_cli("Disable DPR");
     }
 }
