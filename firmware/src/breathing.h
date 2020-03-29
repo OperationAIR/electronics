@@ -10,7 +10,7 @@ enum TestState {
 };
 
 bool breathing_init(void);
-void breathing_start_program(void);
+bool breathing_start_program(void);
 void breathing_stop(void);
 
 /**
