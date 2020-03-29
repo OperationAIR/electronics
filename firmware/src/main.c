@@ -90,7 +90,7 @@ int main(void)
     uint8_t uart_buf[256];
     memset(uart_buf, 0, 256);
 
-	snprintf((char*)uart_buf, sizeof(uart_buf) - 1, "Hallo Ventilator\n");
+	snprintf((char*)uart_buf, sizeof(uart_buf) - 1, "Hallo Ventilator!\n");
     pi_comm_send(uart_buf, strnlen((char*)uart_buf, sizeof(uart_buf)));
 
 
