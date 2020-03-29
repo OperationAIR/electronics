@@ -5,10 +5,14 @@
 #include <string.h>
 #include <chip.h>
 
+#include "pi_communication.h"
+
 #include <c_utils/ringbuffer.h>
 
 #include "settings.h"
 #include "crc/crc.h"
+
+#include "actuators/control_signals.h"
 
 
 /* Transmit and receive ring buffer sizes */
@@ -71,24 +75,19 @@ void UART_IRQHandler(void)
 
 static void Uart_Init(void)
 {
-	/* Setup UART for 115.2K8N1 */
+	// Setup UART for 115.2K8N1
 	Chip_UART_Init(LPC_USART);
 	Chip_UART_SetBaud(LPC_USART, 115200);
 	Chip_UART_ConfigData(LPC_USART, (UART_LCR_WLEN8 | UART_LCR_SBS_1BIT));
 	Chip_UART_SetupFIFOS(LPC_USART, (UART_FCR_FIFO_EN | UART_FCR_TRG_LEV2));
 	Chip_UART_TXEnable(LPC_USART);
 
-
 	ringbuffer_init(&rb_Rx, rb_Rx_buffer, 1, UART_RRB_SIZE);
     ringbuffer_init(&rb_Tx, rb_Tx_buffer, 1, UART_RRB_SIZE);
-	/* Before using the ring buffers, initialize them using the ring
-	   buffer init function */
 
-	/* Enable receive data and line status interrupt */
+	// Enable receive data and line status interrupt
 	Chip_UART_IntEnable(LPC_USART, (UART_IER_RBRINT | UART_IER_RLSINT));
 
-	/* preemption = 1, sub-priority = 1 */
-	NVIC_SetPriority(UART0_IRQn, 1);
 	NVIC_EnableIRQ(UART0_IRQn);
 }
 
@@ -120,6 +119,9 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 
 }
 
+extern OperationSettings g_settings;
+
+
 void pi_comm_tasks()
 {
     if (g_current_command == PiCommandNone) {
@@ -135,9 +137,16 @@ void pi_comm_tasks()
 
             if (res == settings->crc) {
                 const bool settings_ok = settings_update(settings);
-                if (!settings_ok) {
-                    // settings error
-                }
+                if (settings_ok) {
+					control_LED_status_on();
+					// pi_comm_send((uint8_t*)&g_settings, sizeof(g_settings));
+					// pi_comm_send((uint8_t*)"Settings Ok!\n", 14);
+					pi_comm_send_string("Settings Ok!\n");
+                } else {
+					control_LED_error_on();
+					pi_comm_send_string("Error: settings verification failed!");
+				}
+
             } else {
                 // crc error
             }
@@ -145,6 +154,13 @@ void pi_comm_tasks()
 			g_current_command = PiCommandNone;
 		}
     }
+}
+
+
+
+void pi_comm_send_string(char *string)
+{
+	pi_comm_send((uint8_t*)string, strlen(string));
 }
 
 void pi_comm_send(uint8_t *buffer, size_t len)

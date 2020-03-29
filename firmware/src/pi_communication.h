@@ -11,5 +11,6 @@ enum VentilatorError {
 void pi_comm_init(void);
 void pi_comm_tasks(void);
 void pi_comm_send(uint8_t *buffer, size_t len);
+void pi_comm_send_string(char *string);
 
 #endif

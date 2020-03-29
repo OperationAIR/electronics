@@ -26,18 +26,40 @@ class Settings():
         s = struct.Struct('=I H H H H H H H H H H')
         packed_data = s.pack(*values)
         checksum = self.crc(packed_data)
-        
+
         print('crc:', checksum, checksum.to_bytes(2, byteorder='little'))
         bitstring = packed_data + checksum.to_bytes(2, byteorder='little')
-        print('added:', bitstring)
         return bitstring
     #return binascii.hexlify(packed_data)
 
+def handle_data(data):
+    print(data)
+
+def read_from_port(ser):
+    while not connected:
+        #serin = ser.read()
+        connected = True
+
+        while True:
+           print("test")
+           reading = ser.readline().decode()
+           handle_data(reading)
+
 if __name__ == "__main__":
     import serial
+    import threading
     N = 100
-
-    s = Settings(0x4545, 0x4646, 0x4747, 0x4848, 0x4949, 0x5050, 0x5151, 0x5252, 0x5353, 0x5454)
+    s = Settings(
+        peep=20,
+        freq=20,
+        tidal_vol=120,
+        pressure=20,
+        max_pressure=45,
+        min_pressure=5,
+        max_tv=400,
+        min_tv=200,
+        max_fio2=50,
+        min_fio2=20)
     message =  s.get_bit_string()[:N]
     print('sending settings: ', len(message), message)
     print('in ascii: ', binascii.hexlify(message))
@@ -46,8 +68,13 @@ if __name__ == "__main__":
 
     with serial.Serial(TTY, 115200, timeout=1) as ser:
         ser.write(message)
+        thread = threading.Thread(target=read_from_port, args=(ser,))
+        thread.start()
 
     print('done, bye')
+
+    time.sleep(10)
+    thread.join()
 
 
 

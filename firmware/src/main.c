@@ -80,18 +80,12 @@ int main(void)
 
     DPR_init(&dpr, LPC_SSP1, board_get_GPIO(GPIO_ID_PREG_CS));
 
-    const GPIO *led_status = board_get_GPIO(GPIO_ID_LED_STATUS);
-    const GPIO *led_error = board_get_GPIO(GPIO_ID_LED_ERROR);
+    // const GPIO *led_status = board_get_GPIO(GPIO_ID_LED_STATUS);
+    // const GPIO *led_error = board_get_GPIO(GPIO_ID_LED_ERROR);
+    // GPIO_HAL_set(led_status, 1);
+    // GPIO_HAL_set(led_error, 1);
 
-    GPIO_HAL_set(led_status, 1);
-    GPIO_HAL_set(led_error, 1);
-
-
-    uint8_t uart_buf[256];
-    memset(uart_buf, 0, 256);
-
-	snprintf((char*)uart_buf, sizeof(uart_buf) - 1, "Hallo Ventilator!\n");
-    pi_comm_send(uart_buf, strnlen((char*)uart_buf, sizeof(uart_buf)));
+    pi_comm_send_string("Hallo Ventilator!\n");
 
 
 	i2cdac_init(I2C_DEFAULT_SPEED);

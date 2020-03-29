@@ -8,6 +8,7 @@ typedef struct {
 } AllowedRange;
 
 struct ValidSettings {
+    AllowedRange peep;
     AllowedRange frequency;
     AllowedRange tidal_volume;
     AllowedRange pressure;
@@ -20,6 +21,7 @@ struct ValidSettings {
 };
 
 static struct ValidSettings g_bounds = {
+    .peep = {.min = 5, .max = 25},
     .frequency = {.min = 10, .max = 35},
     .tidal_volume = {.min = 100, .max = 800},
     .pressure = {.min = 10, .max = 35},
@@ -32,6 +34,7 @@ static struct ValidSettings g_bounds = {
 };
 
 OperationSettings g_settings;
+
 static inline bool check_bounds(uint16_t value, AllowedRange *bounds)
 {
     return (value >= bounds->min) && (value <= bounds->max);
@@ -40,6 +43,8 @@ static inline bool check_bounds(uint16_t value, AllowedRange *bounds)
 static bool verify_settings(OperationSettings *settings)
 {
     bool ok = true;
+        ok &= check_bounds(settings->peep, &g_bounds.peep);
+
     ok &= check_bounds(settings->frequency, &g_bounds.frequency);
     ok &= check_bounds(settings->tidal_volume, &g_bounds.tidal_volume);
     ok &= check_bounds(settings->pressure, &g_bounds.pressure);
