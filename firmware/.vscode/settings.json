@@ -39,7 +39,8 @@
         "thermistor.h": "c",
         "board_adc_id.h": "c",
         "stdbool.h": "c",
-        "arm_math.h": "c"
+        "arm_math.h": "c",
+        "mprls_pressure.h": "c"
     },
     "C_Cpp.default.defines": [
         "EN_WATCHDOG=1",

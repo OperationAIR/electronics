@@ -1,12 +1,19 @@
+#include <lpc_tools/boardconfig.h>
+#include <lpc_tools/GPIO_HAL.h>
+#include <c_utils/max.h>
 
 #include "sensors.h"
 #include "actuators/control_signals.h"
 #include "flow.h"
 #include "ADC.h"
 
+#include "MPRLS_pressure.h"
+#include "board.h"
+#include "board_GPIO_ID.h"
+
+// TODO RM
 #include "log.h"
 
-#include <c_utils/max.h>
 
 struct {
     int32_t flow;
@@ -31,10 +38,32 @@ struct {
 #define SLEW_LIMIT_PRESSURE         (400)
 #define SLEW_LIMIT_PREG_PRESSURE    (400)
 
+static MPRLS mprls1;
+static MPRLS mprls2;
 
 void sensors_init(void) {
 
+    mprls_init(&mprls1, LPC_SSP0,
+        board_get_GPIO(GPIO_ID_PSENSE_1_CS),
+        board_get_GPIO(GPIO_ID_PSENSE_1_DRDY),
+        board_get_GPIO(GPIO_ID_PSENSE_RESET));
+
+    mprls_init(&mprls2, LPC_SSP0,
+        board_get_GPIO(GPIO_ID_PSENSE_2_CS),
+        board_get_GPIO(GPIO_ID_PSENSE_2_DRDY),
+        board_get_GPIO(GPIO_ID_PSENSE_RESET));
+
+    // TODO enable and readout mprls. If they are on the PCB.
+    /*
+    mprls_enable(&mprls1);
+    mprls_enable(&mprls2);
+    uint32_t p1 = mprls_read_blocking(&mprls1);
+    uint32_t p2 = mprls_read_blocking(&mprls2);
+    log_debug("Pres: %u, %u", p1, p2);
+    */
+
      ADC_init();
+
      sensors_reset();
 }
 

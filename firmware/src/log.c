@@ -197,9 +197,10 @@ void log_debug(const char format[], ...)
     va_list va;
     va_start(va, format);
 
+
     // debug without time prefix
-    const char *prefix = "";//[TIME_STR_SIZE];
-    //log_get_time_as_str(prefix);
+    const char *prefix = "";
+
     log_write_to_queue(LOG_DST_ALL, prefix, format, va);
     va_end(va);
 }

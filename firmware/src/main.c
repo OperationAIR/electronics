@@ -19,6 +19,8 @@
 
 #include "cmsis_dsp_lib/arm_math.h"
 
+#include "sensors/MPRLS_pressure.h"
+
 #define CLK_FREQ (48e6)
 
 void assert(bool should_be_true)
@@ -47,6 +49,8 @@ int main(void)
     logging_init();
 
     // USB init
+    delay_us(200 * 1000);
+
     if (!app_usb_init())
     {
         delay_us(2000 * 1000);
@@ -65,7 +69,6 @@ int main(void)
     log_wtime("serial number: %s", log_get_serialnumber_str(buf, SERIAL_NUM_STR_SIZE));
     log_wtime("Firmware version: %s", FIRMWARE_VERSION);
 
-    //app_program_start();
 
     while (true)
     {
@@ -74,6 +77,9 @@ int main(void)
 
         // Maybe only feed watchdog if some sanity checks succeed?
         watchdog_feed();
+
+        delay_us(1000 * 1000);
+
     }
     return 0;
 }
