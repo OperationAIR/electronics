@@ -13,6 +13,7 @@
 #include "crc/crc.h"
 
 #include "actuators/control_signals.h"
+#include "sensors/sensors.h"
 
 
 /* Transmit and receive ring buffer sizes */
@@ -136,7 +137,13 @@ void pi_comm_tasks()
 
 	if (g_current_command == PiCommandRequestSensorValues) {
 			pi_comm_send_string("sensor values...!\n");
+
+			SensorsAllData data;
+			sensors_read_all(&data);
+			pi_comm_send((uint8_t*)&data, sizeof(SensorsAllData));
 			g_current_command = PiCommandNone;
+
+
 
 	} else if (g_current_command == PiCommandNewSettings) {
         size_t count = ringbuffer_used_count(&rb_Rx);

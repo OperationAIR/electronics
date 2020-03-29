@@ -4,6 +4,13 @@
 #include <stdint.h>
 #include "board_ADC_ID.h"
 
+typedef struct SensorsAllData {
+    int32_t flow;
+    int32_t pressure_1_pa;
+    int32_t pressure_2_pa;
+    int32_t oxygen;
+} SensorsAllData;
+
 void sensors_init(void);
 
 void sensors_reset(void);
@@ -15,4 +22,5 @@ int32_t sensors_read_pressure_2_pa(void);
 
 int32_t sensors_read_pressure_regulator(void);
 
+void sensors_read_all(SensorsAllData *data);
 #endif

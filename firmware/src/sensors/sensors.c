@@ -116,7 +116,7 @@ int32_t sensors_read_pressure_1_pa(void)
     //const int vcc = 4900; // For now, prototype: laptop gives about 4.9V
     const int offset = 476;
 
-    
+
     // See ABP-series datasheet
     const int v_sense = (v_pressure - offset);
 
@@ -177,3 +177,10 @@ int32_t sensors_read_pressure_regulator(void)
     return -1;
 }
 
+void sensors_read_all(SensorsAllData *data)
+{
+    data->pressure_1_pa = sensors_read_pressure_1_pa();
+    data->pressure_2_pa = sensors_read_pressure_2_pa();
+    data->flow = sensors_read_flow_sccm();
+    data->oxygen = 0; //TODO
+}
