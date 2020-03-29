@@ -8,7 +8,6 @@
 #include <mcu_timing/delay.h>
 
 #include "global_settings.h"
-#include "actuators/DPR.h"
 #include "actuators/control_signals.h"
 #include "usb/app_usb.h"
 #include "watchdog.h"
@@ -33,35 +32,7 @@ void assert(bool should_be_true)
     while(1);
 }
 
-arm_pid_instance_f32 pid_instance;
 
-void test_pid()
-{
-    float Kp = 1;
-    float Ki = 0.1;
-    float Kd = 0.01;
-
-    arm_pid_reset_f32(&pid_instance);
-
-    pid_instance.Kp = Kp;
-    pid_instance.Ki = Ki;
-    pid_instance.Kd = Kd;
-    // init calculates the required coefficients based on the PID input
-    // A0 = Kp + Ki + Kd
-    // A1 = (-Kp ) - (2 * Kd )
-    // A2 = Kd
-    // The PID controller calculates the following transfer function
-    // y[n] = y[n-1] + A0 * x[n] + A1 * x[n-1] + A2 * x[n-2]
-    arm_pid_init_f32(&pid_instance, 1);
-
-    float signal_in = 3.14;
-    float signal_out = arm_pid_f32(&pid_instance, signal_in);
-
-    log_wtime("PID in: %.3f", signal_in);
-
-}
-
-DPR dpr;
 
 int main(void)
 {
@@ -75,7 +46,6 @@ int main(void)
     delay_init();
     logging_init();
 
-    test_pid();
     // USB init
     if (!app_usb_init())
     {
@@ -95,8 +65,7 @@ int main(void)
     log_wtime("serial number: %s", log_get_serialnumber_str(buf, SERIAL_NUM_STR_SIZE));
     log_wtime("Firmware version: %s", FIRMWARE_VERSION);
 
-
-    DPR_init(&dpr, LPC_SSP1, board_get_GPIO(GPIO_ID_PREG_CS));
+    //app_program_start();
 
     while (true)
     {

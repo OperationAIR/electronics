@@ -62,9 +62,9 @@ const unsigned int SELF_TEST_TIMEOUT_ms = 30*1000;
 const unsigned int SELF_TEST_LOG_INTERVAL_ms = 200;
 
 
-// The rate pressure is logged during regular breathing program.
+// Sensor data is logged during regular breathing program.
 // Interval in milliseconds.
-const unsigned int BREATHING_LOG_INTERVAL_ms = 100;
+const unsigned int BREATHING_LOG_INTERVAL_ms = 10;
 
 
 /* === */

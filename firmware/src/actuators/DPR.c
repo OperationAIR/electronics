@@ -49,7 +49,6 @@ enum DAC_control {
 
 };
 
-
 // Forward declarations
 static bool _reset(DPR *ctx);
 static bool _write(DPR *ctx, enum DAC_command cmd, uint16_t value);
@@ -107,9 +106,14 @@ bool DPR_enable(DPR *ctx)
         return false;
     }
 
-    // TODO: slew rate control?
+    // See datasheet for slew rate control. 0xA 0x7 is 50ms rise time
+    const int SR_CLOCK = 0b0010  << DAC_CTRL_SHIFT_SR_CLOCK;
+    const int SR_STEP = 0x1 << DAC_CTRL_SHIFT_SR_STEP;
     const uint16_t ctrl = (DAC_CTRL_OUTEN
-            | DAC_CTRL_RANGE_0_20_MA);
+            | DAC_CTRL_RANGE_4_20_MA
+            | DAC_CTRL_SREN
+            | SR_CLOCK
+            | SR_STEP);
 
     // Write control register
     if(!_write(ctx, DAC_CMD_CONTROL, ctrl)) {

@@ -45,7 +45,7 @@ static struct {
     uint32_t not_allowed_reasons;
     volatile bool maintenance;          //TODO should be non-volatile
     volatile unsigned int use_count;
-    volatile int current_max_pressure;
+    volatile int current_max_pressure;  // TODO not really used
 
     volatile uint32_t idle_blink; // timestamp for blink start
     volatile uint32_t last_idle_blink; // timestamp last blink start
@@ -185,76 +185,62 @@ bool app_is_idle(void)
     return ((g_app.last_state == AppStateIdle) || (g_app.last_state == AppStateNone))
         && ((g_app.next_state == AppStateIdle) || (g_app.next_state == AppStateNone));
 }
-bool app_can_sleep(void)
-{
-    if(g_app.last_state != AppStateIdle) {
-        return false;
-    }
-    if(g_app.next_state != AppStateIdle) {
-        return false;
-    }
-
-    if (g_app.idle_blink != 0) {
-        return false;
-    }
-    return true;
-}
-void app_wakeup(void)
-{
-    g_app.last_state = AppStateNone;
-    sensors_reset();
-}
 
 enum AppState app_state_idle(void)
 {
-    enum AppState next_state = AppStateIdle;
+    if(g_app.start_requested) {
+        g_app.start_requested = false;
+        return AppStatePreBreathing;
+    }
 
-
-    return next_state;
+    return AppStateIdle;
 }
 
 enum AppState app_state_pre_breathing(void)
 {
-    enum AppState next_state = AppStatePreBreathing;
-
-     // first time in state
-    if (g_app.time == 0) {
-
+    if(!control_DPR_enable()) {
+        return AppStateError;
     }
+    control_LED_status_on();
 
-    return next_state;
+    g_app.current_max_pressure = 0;
 
+    log_wtime("Start Breathing Program");
+    breathing_start_program();
+
+    return AppStateBreathing;
 }
 
 enum AppState app_state_breathing(void)
 {
-    enum AppState next_state = AppStateBreathing;
-
-    // first time in state
-    if (g_app.time == 0) {
-
-        g_app.current_max_pressure = 0;
-
-        log_wtime("Start Breathing Program");
-        breathing_start_program();
+    if(g_app.stop_requested) {
+        g_app.stop_requested = false;
+        return AppStateAfterBreathing;
     }
-    return next_state;
+
+    breathing_run();
+
+
+    return AppStateBreathing;
 
 }
 
 enum AppState app_state_after_breathing(void)
 {
-
-    enum AppState next_state = AppStateAfterBreathing;
+    log_wtime("Stop Breathing Program");
+    breathing_stop();
 
     stats_increment_use_count();
+    control_LED_status_off();
 
-    return next_state;
+    return AppStateIdle;
 }
 
 enum AppState app_state_error(void)
 {
     enum AppState next_state = AppStateError;
+
+    control_LED_error_on();
 
      // first time in state
     if (g_app.time == 0) {
@@ -367,7 +353,7 @@ void app_init(int hw_version)
 
     sensors_init();
 
-    const uint32_t update_frequency = 1000;
+    const uint32_t update_frequency = 500;
     assert(systick_init(update_frequency));
 }
 
@@ -375,6 +361,7 @@ void app_program_start(void)
 {
     if (!g_app.start_requested) {
        // log_debug("Start Request");
+        g_app.stop_requested = false;
         g_app.start_requested = true;
     }
 }
@@ -383,6 +370,7 @@ void app_program_stop(void)
 {
     if (!g_app.stop_requested) {
         log_debug("Stop Request");
+        g_app.start_requested = false;
         g_app.stop_requested = true;
     }
 }
