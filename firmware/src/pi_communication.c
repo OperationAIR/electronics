@@ -28,8 +28,8 @@ Ringbuffer rb_Tx;
 
 enum PiCommand {
     PiCommandNone = 0,
-    PiCommandNewSettings = 1,
-    PiCommandRequestSensorValues = 2,
+    PiCommandNewSettings = 0x41424344,
+    PiCommandRequestSensorValues = 0x22226666,
 };
 static enum PiCommand g_current_command = PiCommandNone;
 
@@ -99,15 +99,19 @@ void pi_comm_init(void)
 
 static enum PiCommand match_start_sequence(Ringbuffer *rb)
 {
+	uint32_t cmd = PiCommandNone;
 	size_t count = ringbuffer_used_count(rb);
 	if (count >= 4) {
 		while (0 < count--) {
 			uint32_t *ptr = ringbuffer_get_readable(rb);
-			uint32_t start;
-			memcpy(&start, ptr, 4);// = *ptr; Misaligned access, is that okay?
-			if (start == 0x41424344) {
+			// uint32_t start = PiCommandNone;
+			memcpy(&cmd, ptr, 4); // = *ptr; memcpy to handle misaligned access.
+			if (cmd == PiCommandNewSettings) {
 				ringbuffer_flush(rb, 4);
 				return PiCommandNewSettings;
+			} else if (cmd == PiCommandRequestSensorValues) {
+				ringbuffer_flush(rb, 4);
+				return PiCommandRequestSensorValues;
 			} else {
 				// no match, advance rb 1 byte, try again until magic sequence is found
 				ringbuffer_advance(rb);
@@ -124,11 +128,17 @@ extern OperationSettings g_settings;
 
 void pi_comm_tasks()
 {
+	// TODO: add timeout for current command to expire
+
     if (g_current_command == PiCommandNone) {
         g_current_command = match_start_sequence(&rb_Rx);
     }
 
-    if (g_current_command == PiCommandNewSettings) {
+	if (g_current_command == PiCommandRequestSensorValues) {
+			pi_comm_send_string("sensor values...!\n");
+			g_current_command = PiCommandNone;
+
+	} else if (g_current_command == PiCommandNewSettings) {
         size_t count = ringbuffer_used_count(&rb_Rx);
 		if (count >= sizeof(OperationSettings)) {
 			OperationSettings *settings = ringbuffer_get_readable(&rb_Rx);
@@ -154,6 +164,7 @@ void pi_comm_tasks()
 			g_current_command = PiCommandNone;
 		}
     }
+
 }
 
 

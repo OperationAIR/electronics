@@ -97,6 +97,11 @@ if __name__ == "__main__":
     # print('in ascii: ', binascii.hexlify(message))
     conn.send_buffer(message)
 
+    time.sleep(1)
+    
+    req_sensor_data = 0x22226666
+    cmd = req_sensor_data.to_bytes(4, 'little')
+    conn.send_buffer(cmd)
     exit = False
 
     def exitFunc(_signal=None, _=None):
