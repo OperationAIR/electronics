@@ -65,7 +65,7 @@ int main(void)
     log_wtime("serial number: %s", log_get_serialnumber_str(buf, SERIAL_NUM_STR_SIZE));
     log_wtime("Firmware version: %s", FIRMWARE_VERSION);
 
-    app_program_start();
+    //app_program_start();
 
     while (true)
     {

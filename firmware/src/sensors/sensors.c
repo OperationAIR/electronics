@@ -28,8 +28,8 @@ struct {
 // 1 = lowest value (effectively no filtering)
 // 1024 (ADC_RANGE) = highest value (strong filter)
 #define SLEW_LIMIT_FLOW             (10)
-#define SLEW_LIMIT_PRESSURE         (100)
-#define SLEW_LIMIT_PREG_PRESSURE    (100)
+#define SLEW_LIMIT_PRESSURE         (400)
+#define SLEW_LIMIT_PREG_PRESSURE    (400)
 
 
 void sensors_init(void) {

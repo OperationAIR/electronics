@@ -94,7 +94,7 @@ void breathing_run(void)
         breathing.cycle_time = 0;
     }
 
-    const int setpoint_high = 2500;
+    const int setpoint_high = 1750;
     const int setpoint_low = 1000;
 
     // start building pressure
@@ -120,7 +120,7 @@ void breathing_run(void)
     int sensor_value = sensors_read_pressure_1_pa();
     float error = g_setpoint_pa - sensor_value;
 
-    float Kp = 5.0;
+    float Kp = 10.0;
     float Ki = 0.0;
     float Kd = 0.01;
 
