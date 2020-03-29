@@ -44,6 +44,7 @@ bool control_DPR_on(void)
     return PWM_start(&Control.pwm);
     //return DPR_enable(&Control.DPR);
 }
+
 bool control_DPR_off(void)
 {
     PWM_stop(&Control.pwm);

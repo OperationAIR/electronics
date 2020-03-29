@@ -7,8 +7,8 @@ void control_signals_init(void);
 
 void control_LED_status_on(void);
 
-bool control_DPR_enable(void);
-bool control_DPR_stop(void);
+bool control_DPR_on(void);
+bool control_DPR_off(void);
 bool control_DPR_set_pa(int pressure_pa);
 
 void control_LED_status_off(void);

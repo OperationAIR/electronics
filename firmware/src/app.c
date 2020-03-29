@@ -198,7 +198,6 @@ enum AppState app_state_idle(void)
 
 enum AppState app_state_pre_breathing(void)
 {
-
     g_app.current_max_pressure = 0;
 
     log_wtime("Start Breathing Program");
