@@ -49,7 +49,7 @@ bool PWM_init(PWM *ctx, LPC_TIMER_T* timer,
 
     Chip_TIMER_Init(timer);
     Chip_TIMER_Reset(timer);
-    Chip_TIMER_PrescaleSet(LPC_TIMER16_1, (prescaler-1));
+    Chip_TIMER_PrescaleSet(timer, (prescaler-1));
 
     // Init all channels to fully off
     initialize_channels(ctx);
@@ -75,11 +75,11 @@ static void initialize_channels(PWM *ctx) {
             // default to off
             PWM_set(ctx, ch, 0);
 
-            Chip_TIMER_ResetOnMatchDisable(LPC_TIMER16_1, i);
-            Chip_TIMER_StopOnMatchDisable(LPC_TIMER16_1, i);
+            Chip_TIMER_ResetOnMatchDisable(ctx->timer, i);
+            Chip_TIMER_StopOnMatchDisable(ctx->timer, i);
 
             // Set the channel to PWM mode (instead of EMR register)
-            LPC_TIMER16_1->PWMC|= ch;
+            ctx->timer->PWMC|= ch;
         }
     }
 }

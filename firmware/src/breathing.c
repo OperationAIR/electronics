@@ -2,7 +2,6 @@
 #include <c_utils/max.h>
 #include <c_utils/constrain.h>
 
-#include "actuators/PWM.h"
 #include "actuators/control_signals.h"
 #include "sensors/sensors.h"
 
@@ -20,14 +19,6 @@
 static bool program_validation(void);
 
 static struct {
-// TODO this is obsolete
-/*
-    volatile int target_pressure;
-    volatile uint32_t num_programs;
-    volatile uint32_t current_sub_program;
-    volatile uint32_t current_setpoint;
-    PWM pwm;
-*/
     volatile uint32_t cycle_time;
     volatile uint32_t breathing_time;
     enum TestState test_state;
@@ -95,7 +86,7 @@ void breathing_run(void)
         breathing.cycle_time = 0;
     }
 
-    const int setpoint_high = 1750;
+    const int setpoint_high = 2500;
     const int setpoint_low = 1000;
 
     // start building pressure
@@ -123,7 +114,7 @@ void breathing_run(void)
 
     float Kp = 10.0;
     float Ki = 0.0;
-    float Kd = 0.01;
+    float Kd = 0.00;
 
     arm_pid_reset_f32(&pid_instance);
     pid_instance.Kp = Kp;
@@ -144,10 +135,11 @@ void breathing_run(void)
 
 
     if(BREATHING_LOG_INTERVAL_ms && time_ms && ((time_ms % BREATHING_LOG_INTERVAL_ms) == 0)) {
-        log_debug("%d,%d,%d,%d",
+        log_debug("%d,%d,%d",
                 g_setpoint_pa,
                 sensor_value,
-                sensors_read_pressure_regulator(),
+                //sensors_read_flow_sccm(),
+                //sensors_read_pressure_regulator(),
                 (int)to_DPR);
     }
 }

@@ -20,6 +20,7 @@
 #include "stats.h"
 #include "clock.h"
 #include "generated/firmware_version.h"
+#include "parse_utils.h"
 
 #include <chip.h>
 
@@ -31,7 +32,6 @@
 #define MAX_USB_PACKET_LENGHT 64
 char cmd_buf[MAX_USB_PACKET_LENGHT + 1]; // +1 byte for 0 terminator
 
-extern DPR dpr;
 
 void current_time(char *args) {
 
