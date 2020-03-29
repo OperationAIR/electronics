@@ -44,6 +44,7 @@
         "app_cfg.h": "c",
         "__locale": "c",
         "i2c_dac.h": "c"
+        "mprls_pressure.h": "c"
     },
     "C_Cpp.default.defines": [
         "EN_WATCHDOG=1",

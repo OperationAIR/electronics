@@ -1,10 +1,19 @@
+#include <lpc_tools/boardconfig.h>
+#include <lpc_tools/GPIO_HAL.h>
+#include <c_utils/max.h>
 
 #include "sensors.h"
 #include "actuators/control_signals.h"
 #include "flow.h"
 #include "ADC.h"
 
-#include <c_utils/max.h>
+#include "MPRLS_pressure.h"
+#include "board.h"
+#include "board_GPIO_ID.h"
+
+// TODO RM
+#include "log.h"
+
 
 struct {
     int32_t flow;
@@ -21,18 +30,40 @@ struct {
 #define ADC_FACTOR_FLOW                 (13.3/3.3)
 #define ADC_FACTOR_PREG_PRESSURE        (1.0)
 
-// Slew rate limits (in ms / full ADC range)
+// Slew rate limits (in app ticks / full ADC range)
 // Tweak these to limit noise spikes.
 // 1 = lowest value (effectively no filtering)
 // 1024 (ADC_RANGE) = highest value (strong filter)
-#define SLEW_LIMIT_FLOW             (2)
-#define SLEW_LIMIT_PRESSURE         (2)
-#define SLEW_LIMIT_PREG_PRESSURE    (2)
+#define SLEW_LIMIT_FLOW             (10)
+#define SLEW_LIMIT_PRESSURE         (400)
+#define SLEW_LIMIT_PREG_PRESSURE    (400)
 
+static MPRLS mprls1;
+static MPRLS mprls2;
 
 void sensors_init(void) {
 
+    mprls_init(&mprls1, LPC_SSP0,
+        board_get_GPIO(GPIO_ID_PSENSE_1_CS),
+        board_get_GPIO(GPIO_ID_PSENSE_1_DRDY),
+        board_get_GPIO(GPIO_ID_PSENSE_RESET));
+
+    mprls_init(&mprls2, LPC_SSP0,
+        board_get_GPIO(GPIO_ID_PSENSE_2_CS),
+        board_get_GPIO(GPIO_ID_PSENSE_2_DRDY),
+        board_get_GPIO(GPIO_ID_PSENSE_RESET));
+
+    // TODO enable and readout mprls. If they are on the PCB.
+    /*
+    mprls_enable(&mprls1);
+    mprls_enable(&mprls2);
+    uint32_t p1 = mprls_read_blocking(&mprls1);
+    uint32_t p2 = mprls_read_blocking(&mprls2);
+    log_debug("Pres: %u, %u", p1, p2);
+    */
+
      ADC_init();
+
      sensors_reset();
 }
 
@@ -78,22 +109,56 @@ int32_t sensors_read_flow_sccm(void)
 
 int32_t sensors_read_pressure_1_pa(void)
 {
+    /* // Calculations for ABP series
     const int v_pressure = ADC_scale(Sensors.pressure_1, ADC_FACTOR_PRESSURE);
 
+    //log_wtime("v_pres: %d",v_pressure);
+    //const int vcc = 4900; // For now, prototype: laptop gives about 4.9V
+    const int offset = 476;
+
+    
+    // See ABP-series datasheet
+    const int v_sense = (v_pressure - offset);
+
+    // 6894.757 pa per PSI
+    const float scale_factor = (1000*2500)/(768-476);
+
+
+    int pressure_pa = (scale_factor * v_sense)/1000;
+    return pressure_pa;
+    */
+
+
+    const int v_pressure = ADC_scale(Sensors.pressure_1, ADC_FACTOR_PRESSURE);
+
+    // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
+    const int offset_mv = 167;
+    const int scale_factor = 2157;
+    return ((v_pressure-offset_mv)*scale_factor)/1000;
+
+    /*
     // See MPVZ5010 datasheet
     const int vcc = 5000;
-    int pressure_pa = ((1000*v_pressure) - (40*vcc)) / (0.09*vcc);
+    int pressure_pa = ((1.079*v_pressure) - 195.211);
     return pressure_pa;
+    */
 }
 
 int32_t sensors_read_pressure_2_pa(void)
 {
     const int v_pressure = ADC_scale(Sensors.pressure_2, ADC_FACTOR_PRESSURE);
 
+    // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
+    const int offset_mv = 167;
+    const int scale_factor = 2157;
+    return ((v_pressure-offset_mv)*scale_factor)/1000;
+
+    /*
     // See MPVZ5010 datasheet
     const int vcc = 5000;
     int pressure_pa = ((1000*v_pressure) - (40*vcc)) / (0.09*vcc);
     return pressure_pa;
+    */
 }
 
 int32_t sensors_read_pressure_regulator(void)
@@ -102,6 +167,11 @@ int32_t sensors_read_pressure_regulator(void)
     // TODO see See RP200_C_??? specs (which version do we have? what is the range?):
     // - ADC_FACTOR_PREG_PRESSURE
     const int v_pressure = ADC_scale(Sensors.pressure_regulator, ADC_FACTOR_PREG_PRESSURE);
+
+    const int resistor_ohm = 150;
+    const int dpr_range_pa = 5000;
+    const int offset_ma = 4;
+    return ((v_pressure*dpr_range_pa)/resistor_ohm - (dpr_range_pa*offset_ma))/16;
 
     // TODO implement
     return -1;
