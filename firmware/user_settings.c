@@ -64,7 +64,7 @@ const unsigned int SELF_TEST_LOG_INTERVAL_ms = 200;
 
 // Sensor data is logged during regular breathing program.
 // Interval in milliseconds.
-const unsigned int BREATHING_LOG_INTERVAL_ms = 10;
+const unsigned int BREATHING_LOG_INTERVAL_ms = 20;
 
 
 /* === */

@@ -33,6 +33,11 @@ bool control_DPR_enable(void)
 {
     return DPR_enable(&Control.DPR);
 }
+
+bool control_DPR_stop(void)
+{
+    return DPR_disable(&Control.DPR);
+}
 bool control_DPR_set_pa(int pressure_pa)
 {
     // This assumes 4-20mA = 0-5000pa

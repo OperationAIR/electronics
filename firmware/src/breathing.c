@@ -53,6 +53,7 @@ void breathing_start_program(void)
 
 void breathing_stop(void)
 {
+    control_DPR_stop();
     // TODO stop
 }
 

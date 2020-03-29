@@ -29,6 +29,7 @@ bool DPR_init(DPR *ctx,
  * If false is returned, you should check the hardware connections.
  */
 bool DPR_enable(DPR *ctx);
+bool DPR_disable(DPR *ctx);
 
 
 /**
