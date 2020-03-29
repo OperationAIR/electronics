@@ -62,7 +62,7 @@ bool control_DPR_set_pa(int pressure_pa)
     //
     //pressure_pa = (pressure_pa - 1000) / 2.78;
 
-    log_debug("PWM RESOLUTION=%d", PWM_get_resolution(&Control.pwm));
+    //log_debug("PWM RESOLUTION=%d", PWM_get_resolution(&Control.pwm));
 
 
     // This assumes 4-20mA = 0-5000pa
