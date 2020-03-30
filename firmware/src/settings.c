@@ -26,7 +26,7 @@ struct ValidSettings {
 static struct ValidSettings g_bounds = {
     .peep = {.min = 5, .max = 25},
     .frequency = {.min = 10, .max = 35},
-    .pressure = {.min = 10, .max = 35},
+    .pressure = {.min = 10, .max = 85},
     .max_pressure_alarm = {.min = 10, .max = 50},
     .min_pressure_alarm = {.min = 5, .max = 30},
     .max_TV_alarm = {.min = 100, .max = 800},

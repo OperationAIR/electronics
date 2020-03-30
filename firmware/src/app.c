@@ -191,6 +191,11 @@ void app_apply_settings(OperationSettings *new_settings)
     irq_restore(critical_section);
 }
 
+OperationSettings* app_get_settings()
+{
+    return &g_app.settings;
+}
+
 bool app_is_idle(void)
 {
     return ((g_app.last_state == AppStateIdle) || (g_app.last_state == AppStateNone))

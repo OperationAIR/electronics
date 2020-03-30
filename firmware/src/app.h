@@ -35,6 +35,11 @@ void app_reset_use_count(void);
  */
 void app_apply_settings(OperationSettings *new_settings);
 
+/**
+ * Get current Operation Settings in use by app
+ */
+OperationSettings* app_get_settings(void);
+
 
 uint32_t get_last_pressure(void);
 

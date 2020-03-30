@@ -9,6 +9,7 @@
 
 #include <c_utils/ringbuffer.h>
 
+#include "app.h"
 #include "settings.h"
 #include "crc/crc.h"
 
@@ -170,6 +171,11 @@ void pi_comm_tasks()
                 if (settings_ok) {
 					control_LED_status_on();
 					pi_comm_send_string("Settings Ok!\n");
+					// send settings back for verification
+
+					uint32_t prefix = PiCommandNewSettings;
+					pi_comm_send((uint8_t*)&prefix, 4);
+					pi_comm_send((uint8_t*)app_get_settings(), sizeof(OperationSettings));
                 } else {
 					control_LED_error_on();
 					pi_comm_send_string("Error: settings verification failed!");
