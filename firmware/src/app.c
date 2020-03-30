@@ -52,7 +52,7 @@ static struct {
 
     volatile uint32_t idle_blink; // timestamp for blink start
     volatile uint32_t last_idle_blink; // timestamp last blink start
-    volatile OperationSettings settings;
+    OperationSettings settings;
 
 } g_app;
 

@@ -27,11 +27,11 @@ Ringbuffer rb_Tx;
 
 
 enum PiCommand {
-    PiCommandNone = 0,
-	PiCommandLedOn = 0x55556666,
-	PiCommandLedOff = 0x66667777,
-    PiCommandNewSettings = 0x41424344,
-    PiCommandRequestSensorValues = 0x22226666,
+    PiCommandNone 					= 0,
+	PiCommandLedOn 					= 0x55556666,
+	PiCommandLedOff 				= 0x66667777,
+    PiCommandNewSettings 			= 0x41424344,
+    PiCommandRequestSensorValues 	= 0x22226666,
 };
 static enum PiCommand g_current_command = PiCommandNone;
 

@@ -12,7 +12,6 @@ typedef struct {
 struct ValidSettings {
     AllowedRange peep;
     AllowedRange frequency;
-    AllowedRange tidal_volume;
     AllowedRange pressure;
     AllowedRange ratio;
     AllowedRange oxygen;
@@ -27,7 +26,6 @@ struct ValidSettings {
 static struct ValidSettings g_bounds = {
     .peep = {.min = 5, .max = 25},
     .frequency = {.min = 10, .max = 35},
-    .tidal_volume = {.min = 100, .max = 800},
     .pressure = {.min = 10, .max = 35},
     .max_pressure_alarm = {.min = 10, .max = 50},
     .min_pressure_alarm = {.min = 5, .max = 30},
@@ -48,7 +46,6 @@ static bool verify_settings(OperationSettings *settings)
         ok &= check_bounds(settings->peep, &g_bounds.peep);
 
     ok &= check_bounds(settings->frequency, &g_bounds.frequency);
-    ok &= check_bounds(settings->tidal_volume, &g_bounds.tidal_volume);
     ok &= check_bounds(settings->pressure, &g_bounds.pressure);
     ok &= check_bounds(settings->max_pressure_alarm, &g_bounds.max_pressure_alarm);
     ok &= check_bounds(settings->min_pressure_alarm, &g_bounds.min_pressure_alarm);
@@ -78,7 +75,6 @@ void settings_copy(OperationSettings *dst, OperationSettings *src)
     dst->frequency = src->frequency;
     dst->peep = src->peep;
     dst->ratio = src->ratio;
-    dst->tidal_volume = src->tidal_volume;
     dst->pressure = src->pressure;
     dst->oxygen = src->oxygen;
 
