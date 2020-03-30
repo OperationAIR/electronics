@@ -209,15 +209,13 @@ enum AppState app_state_idle(void)
 
 enum AppState app_state_pre_breathing(void)
 {
-    if(!control_DPR_on()) {
-        return AppStateError;
-    }
-    control_LED_status_on();
-
     g_app.current_max_pressure = 0;
 
     log_wtime("Start Breathing Program");
-    breathing_start_program();
+    if(!breathing_start_program()) {
+        return AppStateError;
+    }
+    control_LED_status_on();
 
     return AppStateBreathing;
 }

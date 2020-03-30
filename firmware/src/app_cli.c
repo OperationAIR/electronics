@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include <mcu_timing/delay.h>
+#include <c_utils/array.h>
 #include <startup_lpc11xxx/stacktools.h>
 
 #include "watchdog.h"
@@ -21,6 +22,7 @@
 #include "clock.h"
 #include "generated/firmware_version.h"
 #include "parse_utils.h"
+#include "breathing.h"
 
 #include <chip.h>
 
@@ -57,6 +59,25 @@ void dpr(char *args) {
 		control_DPR_off();
 		log_cli("Disable DPR");
     }
+}
+
+void dpr_PID(char *args) {
+
+    if(!strlen(args)) {
+        breathing_print_PID();
+        return;
+    }
+    log_cli("Setting DPR PID...");
+
+    float pid[3];
+    size_t n_params = 0;
+
+    if(!parse_float_csv(&n_params, pid, array_length(pid), args) || (n_params != 3)) {
+        log_cli("invalid PID values '%s': expected <P>,<I>,<D>", args);
+        return;
+    }
+    breathing_tune_PID(pid[0], pid[1], pid[2]);
+    log_cli("DPR: PID updated");
 }
 
 void dpr_set(char *args) {
@@ -220,6 +241,11 @@ CliCommand cli_commands[] = {
 		.cmd = "DPR_set",
 		.help = "Set DPR to given setpoint: <int>",
 		.function = dpr_set
+	},
+	{
+		.cmd = "DPR_PID",
+		.help = "Set DPR PID values <P>,<I>,<D>",
+		.function = dpr_PID
 	},
 	{
 		.cmd = "DPR",

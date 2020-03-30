@@ -11,6 +11,8 @@
 #endif
 #include <time.h>
 
+#include "strtof_noheap.h"
+
 
 /* Parse a string (base-10) as int.
  * Example: parse_int("314", &result) returns true and stores 314 to result.
@@ -28,6 +30,22 @@
  *                      the result is not updated.
  */
 bool parse_int(const char *string, long int *result);
+
+/* Parse a string formatted as comma-separated list of floats.
+ *
+ * @param dst_array     All parsed floats (up to dst_max_count)
+ *                      are stored in dst_array
+ * @param dst_max_count The maximum amount of floats to be stored in dst_array
+ * @param string        Source string, formatted as floats separated by ",".
+ *
+ * @param res_count     The amount of floats found is stored here
+ *                      A count > dst_max_count may be returned to indicate
+ *                      dst_array is too small.
+ *
+ * @return              True on success, false if a parse error occurs.
+ */
+bool parse_float_csv(size_t *res_count, float *dst_array, size_t dst_max_count,
+                     const char *string);
 
 
 #endif

@@ -35,7 +35,7 @@ struct {
 // 1 = lowest value (effectively no filtering)
 // 1024 (ADC_RANGE) = highest value (strong filter)
 #define SLEW_LIMIT_FLOW             (10)
-#define SLEW_LIMIT_PRESSURE         (400)
+#define SLEW_LIMIT_PRESSURE         (5)
 #define SLEW_LIMIT_PREG_PRESSURE    (400)
 
 static MPRLS mprls1;

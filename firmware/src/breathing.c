@@ -2,7 +2,6 @@
 #include <c_utils/max.h>
 #include <c_utils/constrain.h>
 
-#include "actuators/PWM.h"
 #include "actuators/control_signals.h"
 #include "sensors/sensors.h"
 
@@ -19,15 +18,57 @@
 
 static bool program_validation(void);
 
+float breathing_Kp = 3.3;
+float breathing_Ki = 0.025;
+float breathing_Kd = 1.7;
+
+
+static int g_setpoint_pa = 0;
+static arm_pid_instance_f32 pid_instance;
+static float g_sensor_state_1 = 0;
+static float g_sensor_state_2 = 0;
+static float g_to_DPR = 0;
+
+
+void breathing_print_PID(void)
+{
+    log_debug("PID: %d, %d, %d",
+            (int)breathing_Kp,
+            (int)breathing_Ki,
+            (int)breathing_Kd);
+}
+
+static void _init_PID(void)
+{
+    // Begin PID
+
+    arm_pid_reset_f32(&pid_instance);
+    pid_instance.Kp = breathing_Kp;
+    pid_instance.Ki = breathing_Ki;
+    pid_instance.Kd = breathing_Kd;
+    // init calculates the required coefficients based on the PID input
+    // A0 = Kp + Ki + Kd
+    // A1 = (-Kp ) - (2 * Kd )
+    // A2 = Kd
+    // The PID controller calculates the following transfer function
+    // y[n] = y[n-1] + A0 * x[n] + A1 * x[n-1] + A2 * x[n-2]
+    arm_pid_init_f32(&pid_instance, 1);
+}
+
+void breathing_tune_PID(float kp, float ki, float kd)
+{
+    breathing_Kp = kp;
+    breathing_Ki = ki;
+    breathing_Kd = kd;
+    _init_PID();
+
+    log_debug("PID: %d, %d, %d",
+            (int)breathing_Kp,
+            (int)breathing_Ki,
+            (int)breathing_Kd);
+}
+
 static struct {
-// TODO this is obsolete
-/*
-    volatile int target_pressure;
-    volatile uint32_t num_programs;
-    volatile uint32_t current_sub_program;
-    volatile uint32_t current_setpoint;
-    PWM pwm;
-*/
     volatile uint32_t cycle_time;
     volatile uint32_t breathing_time;
     enum TestState test_state;
@@ -45,8 +86,16 @@ bool breathing_init(void)
 }
 
 
+
 bool breathing_start_program(void)
 {
+    _init_PID();
+
+
+    // init state to sane value
+    g_sensor_state_1 = sensors_read_pressure_1_pa();
+    g_sensor_state_2 = sensors_read_pressure_2_pa();
+
     return control_DPR_on();
     // TODO start
 }
@@ -77,32 +126,47 @@ enum TestState breathing_test(void)
     return breathing.test_state;
 }
 
-static int g_setpoint_pa = 0;
-static arm_pid_instance_f32 pid_instance;
 
 void breathing_run(void)
 {
-    breathing.breathing_time+=2;
+    const int dt = 2;
+
+    breathing.breathing_time+=dt;
 
     const uint32_t time_ms = breathing.breathing_time;
 
     // Primitive 'control loop' 
 
 
-    const unsigned int time_high = 1000;//570;
-    const unsigned int time_low = 2000;//1142;
+    const unsigned int time_high = 666;//570;
+    const unsigned int time_low = 1334;//1142;
     const unsigned int time_total = time_high + time_low;
 
     breathing.cycle_time++;
     if(breathing.cycle_time > time_total) {
         breathing.cycle_time = 0;
+
+        // reset PID at start of peak
+        _init_PID();
     }
 
-    const int setpoint_high = 1750;
+    const int target_high = 3000;
     const int setpoint_low = 1000;
 
+    // ramp is 50ms
+    const int ramp_time = 50;
+    const int delta_p = (target_high - setpoint_low);
+    const int setpoint_high = min(setpoint_low + (breathing.cycle_time*(delta_p/ramp_time)), target_high);
+
+
+
+    g_sensor_state_1 = (0.7*g_sensor_state_1) + (0.3*sensors_read_pressure_1_pa());
+    g_sensor_state_2 = (0.7*g_sensor_state_2) + (0.3*sensors_read_pressure_2_pa());
+
+    int pressure = (g_sensor_state_1 + g_sensor_state_2)/2;
+
     // start building pressure
-    if(breathing.cycle_time == 0) {
+    if(breathing.cycle_time < time_high) {
         control_switch1_off();
         g_setpoint_pa = setpoint_high;
         //control_DPR_set_pa(g_setpoint_pa);
@@ -116,42 +180,30 @@ void breathing_run(void)
     // during low pressure
     } else if(breathing.cycle_time > time_high) {
         // close valve if pressure goes below peep
-        if(sensors_read_pressure_1_pa() < setpoint_low) {
+        if(pressure < setpoint_low) {
             control_switch1_off();
         }
     }
 
-    int sensor_value = sensors_read_pressure_1_pa();
-    float error = g_setpoint_pa - sensor_value;
-
-    float Kp = 10.0;
-    float Ki = 0.0;
-    float Kd = 0.01;
-
-    arm_pid_reset_f32(&pid_instance);
-    pid_instance.Kp = Kp;
-    pid_instance.Ki = Ki;
-    pid_instance.Kd = Kd;
-    // init calculates the required coefficients based on the PID input
-    // A0 = Kp + Ki + Kd
-    // A1 = (-Kp ) - (2 * Kd )
-    // A2 = Kd
-    // The PID controller calculates the following transfer function
-    // y[n] = y[n-1] + A0 * x[n] + A1 * x[n-1] + A2 * x[n-2]
-    arm_pid_init_f32(&pid_instance, 1);
+    float error = g_setpoint_pa - pressure;
 
     float PID_out = arm_pid_f32(&pid_instance, error);
-    float to_DPR = constrain((g_setpoint_pa + PID_out), 0, 5000);
+    // End PID
+
+    g_to_DPR = PID_out;//(0.95*g_to_DPR) + (0.05*PID_out);
+
+    float to_DPR = constrain((g_to_DPR), 0, 10000);
     //float to_DPR = g_setpoint_pa;
     control_DPR_set_pa(to_DPR);
 
 
     if(BREATHING_LOG_INTERVAL_ms && time_ms && ((time_ms % BREATHING_LOG_INTERVAL_ms) == 0)) {
-        log_debug("%d,%d,%d,%d",
+        log_debug("%d,%d",
                 g_setpoint_pa,
-                sensor_value,
-                sensors_read_pressure_regulator(),
-                (int)to_DPR);
+                //(int)g_sensor_state_1,
+                //(int)g_sensor_state_2,
+                (int)pressure);
+                //(int)to_DPR);
     }
 }
 
