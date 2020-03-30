@@ -198,7 +198,7 @@ enum AppState app_state_idle(void)
 
 enum AppState app_state_pre_breathing(void)
 {
-    if(!control_DPR_enable()) {
+    if(!control_DPR_on()) {
         return AppStateError;
     }
     control_LED_status_on();

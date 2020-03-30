@@ -100,6 +100,13 @@ bool DPR_init(DPR *ctx, LPC_SSP_T *LPC_SSP, const GPIO *cs_pin)
     return true;
 }
 
+bool DPR_disable(DPR *ctx)
+{
+    bool ok = DPR_write(ctx, 0);
+    ok&= _reset(ctx);
+    return ok;
+}
+
 bool DPR_enable(DPR *ctx)
 {
     if(!_reset(ctx)) {

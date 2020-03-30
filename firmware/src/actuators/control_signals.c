@@ -29,9 +29,14 @@ void control_signals_init()
     DPR_init(&Control.DPR, LPC_SSP1, board_get_GPIO(GPIO_ID_PREG_CS));
 }
 
-bool control_DPR_enable(void)
+bool control_DPR_on(void)
 {
     return DPR_enable(&Control.DPR);
+}
+
+bool control_DPR_off(void)
+{
+    return DPR_disable(&Control.DPR);
 }
 bool control_DPR_set_pa(int pressure_pa)
 {

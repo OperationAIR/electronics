@@ -45,15 +45,19 @@ bool breathing_init(void)
 }
 
 
-void breathing_start_program(void)
+bool breathing_start_program(void)
 {
+    return control_DPR_on();
     // TODO start
 }
 
 
 void breathing_stop(void)
 {
-    // TODO stop
+    control_DPR_off();
+    control_switch1_off();
+
+    // TODO should we open switch1 temporarily to let the pressure out?
 }
 
 enum TestState breathing_test_get_result(void)

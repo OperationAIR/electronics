@@ -20,6 +20,7 @@
 #include "stats.h"
 #include "clock.h"
 #include "generated/firmware_version.h"
+#include "parse_utils.h"
 
 #include <chip.h>
 
@@ -30,8 +31,6 @@
 
 #define MAX_USB_PACKET_LENGHT 64
 char cmd_buf[MAX_USB_PACKET_LENGHT + 1]; // +1 byte for 0 terminator
-
-extern DPR dpr;
 
 void current_time(char *args) {
 
@@ -49,17 +48,32 @@ void stop(char *args) {
 	app_program_stop();
 }
 
-void dpr_test(char *args) {
-    bool ok = control_DPR_enable();
 
-    ok&= control_DPR_set_pa(2048);
-    delay_us(1000*1000);
-    ok&= control_DPR_set_pa(0);
-
-    log_wtime("DPR test: %s", (ok ? "OK" : "ERR"));
-
+void dpr(char *args) {
+	if (strncmp(args, "on", 2) == 0) {
+		control_DPR_on();
+		log_cli("Enable DPR");
+	} else if (strncmp(args, "off", 3) == 0) {
+		control_switch1_off();
+		log_cli("Disable DPR");
+    }
 }
 
+void dpr_set(char *args) {
+    log_cli("Setting DPR..");
+
+    if(!control_DPR_on()) {
+        log_cli("DPR ERR");
+    }
+
+    long int setpoint = 0;
+    if(!parse_int(args, &setpoint)) {
+        log_cli("DPR setpoint '%s' not valid", args);
+        return;
+    }
+    const bool ok = control_DPR_set_pa(setpoint);
+    log_cli("DPR setpoint %d %s", setpoint, (ok ? "OK" : "ERR"));
+}
 
 void led_status(char *args) {
 	if (strncmp(args, "on", 2) == 0) {
@@ -188,24 +202,29 @@ CliCommand cli_commands[] = {
 		.function = stop
 	},
 	{
-		.cmd = "led_status",
-		.help = "Control status led: 'on' or 'off'",
-		.function = led_status
-	},
-	{
 		.cmd = "sensors",
 		.help = "Show sensor data",
 		.function = sensors
 	},
 	{
-		.cmd = "DPR_test",
-		.help = "Enables DPR for 1 second at half-scale",
-		.function = dpr_test
+		.cmd = "led_status",
+		.help = "Control status led: 'on' or 'off'",
+		.function = led_status
 	},
 	{
 		.cmd = "led_error",
 		.help = "Control error led: 'on' or 'off'",
 		.function = led_error
+	},
+	{
+		.cmd = "DPR_set",
+		.help = "Set DPR to given setpoint: <int>",
+		.function = dpr_set
+	},
+	{
+		.cmd = "DPR",
+		.help = "Enable/disable DPR: 'on' or 'off'",
+		.function = dpr
 	},
 	{
 		.cmd = "switch1",
