@@ -66,7 +66,7 @@ static const PinMuxConfig pinmuxing[] = {
 
         // Analog inputs
         {0,  11, (IOCON_FUNC2 | IOCON_ADMODE_EN)},  // AD0: A_PREG_PRESSURE
-        {0,  12, (IOCON_FUNC2 | IOCON_ADMODE_EN)},  // AD1: A_FLOW
+        {0,  12, (IOCON_FUNC2 | IOCON_ADMODE_EN)},  // AD1: A_PRESSURE_MFC
         {0,  13, (IOCON_FUNC2 | IOCON_ADMODE_EN)},  // AD2: A_PRESSURE_2
         {0,  14, (IOCON_FUNC2 | IOCON_ADMODE_EN)},  // AD3: A_PRESSURE_1
 
@@ -138,7 +138,7 @@ STATIC_ASSERT( (GPIO_ID_MAX == (sizeof(pin_config)/sizeof(GPIOConfig))));
 static const enum ADCConfig ADC_config[] = {
 
     [ADC_ID_PREG_PRESSURE]      = ADC_CFG_CH0,
-    [ADC_ID_FLOW]               = ADC_CFG_CH1,
+    [ADC_ID_PRESSURE_MFC]       = ADC_CFG_CH1,
     [ADC_ID_PRESSURE_1]         = ADC_CFG_CH3,
     [ADC_ID_PRESSURE_2]         = ADC_CFG_CH2,
 };

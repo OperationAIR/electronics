@@ -4,7 +4,6 @@
 
 #include "sensors.h"
 #include "actuators/control_signals.h"
-#include "flow.h"
 #include "ADC.h"
 
 #include "MPRLS_pressure.h"
@@ -16,7 +15,7 @@
 
 
 struct {
-    int32_t flow;
+    int32_t pressure_MFC;
     int32_t pressure_1;
     int32_t pressure_2;
     int32_t pressure_regulator;
@@ -25,16 +24,16 @@ struct {
 // See schematics
 #define ADC_FACTOR_PRESSURE             (168.0/100.0)
 
-// TODO FIXME: voltage divider for flow may be wrong!
+// TODO FIXME: voltage divider for flow/MFC input is be wrong!
 // Datasheet table shows 1-5V instead of assumed 0-12!!
-#define ADC_FACTOR_FLOW                 (13.3/3.3)
+#define ADC_FACTOR_PRESSURE_MFC         (13.3/3.3)
 #define ADC_FACTOR_PREG_PRESSURE        (1.0)
 
 // Slew rate limits (in app ticks / full ADC range)
 // Tweak these to limit noise spikes.
 // 1 = lowest value (effectively no filtering)
 // 1024 (ADC_RANGE) = highest value (strong filter)
-#define SLEW_LIMIT_FLOW             (10)
+#define SLEW_LIMIT_PRESSURE_MFC             (10)
 #define SLEW_LIMIT_PRESSURE         (5)
 #define SLEW_LIMIT_PREG_PRESSURE    (400)
 
@@ -69,7 +68,7 @@ void sensors_init(void) {
 
 void sensors_reset(void)
 {
-    Sensors.flow = -1;
+    Sensors.pressure_MFC = -1;
     Sensors.pressure_1 = -1;
     Sensors.pressure_2 = -1;
     Sensors.pressure_regulator = -1;
@@ -90,8 +89,8 @@ static void filter_adc(int32_t* state, enum ADC_ID ID, int32_t slew_limit)
 
 void sensors_update(void)
 {
-    filter_adc(&Sensors.flow, ADC_ID_FLOW,
-            ADC_RANGE/SLEW_LIMIT_FLOW);
+    filter_adc(&Sensors.pressure_MFC, ADC_ID_PRESSURE_MFC,
+            ADC_RANGE/SLEW_LIMIT_PRESSURE_MFC);
     filter_adc(&Sensors.pressure_1, ADC_ID_PRESSURE_1,
             ADC_RANGE/SLEW_LIMIT_PRESSURE);
     filter_adc(&Sensors.pressure_2, ADC_ID_PRESSURE_2,
@@ -100,11 +99,15 @@ void sensors_update(void)
             ADC_RANGE/SLEW_LIMIT_PREG_PRESSURE);
 }
 
-int32_t sensors_read_flow_sccm(void)
+static float p_MFC_mbar;
+int32_t sensors_read_pressure_MFC_pa(void)
 {
-    const int v_flow = ADC_scale(Sensors.flow, ADC_FACTOR_FLOW);
+    const int p_raw = ADC_scale(Sensors.pressure_MFC, ADC_FACTOR_PRESSURE_MFC);
 
-    return flow_interpolate_sccm(v_flow);
+    // Calibrate raw input voltage --> real pressure [mBarcx]
+    p_MFC_mbar = 0.9 * p_MFC_mbar + 0.1 * (1.3223 * p_raw - 141.4876);
+
+    return (100 * p_MFC_mbar);
 }
 
 int32_t sensors_read_pressure_1_pa(void)
@@ -181,6 +184,5 @@ void sensors_read_all(SensorsAllData *data)
 {
     data->pressure_1_pa = sensors_read_pressure_1_pa();
     data->pressure_2_pa = sensors_read_pressure_2_pa();
-    data->flow = sensors_read_flow_sccm();
     data->oxygen = 0; //TODO
 }
