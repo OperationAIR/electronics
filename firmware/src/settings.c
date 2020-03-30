@@ -12,6 +12,8 @@ struct ValidSettings {
     AllowedRange frequency;
     AllowedRange tidal_volume;
     AllowedRange pressure;
+    AllowedRange ratio;
+    AllowedRange oxygen;
     AllowedRange max_pressure_alarm;
     AllowedRange min_pressure_alarm;
     AllowedRange max_TV_alarm;
@@ -54,7 +56,7 @@ static bool verify_settings(OperationSettings *settings)
     ok &= check_bounds(settings->min_TV_alarm, &g_bounds.min_TV_alarm);
     ok &= check_bounds(settings->max_fiO2_alarm, &g_bounds.max_fiO2_alarm);
     ok &= check_bounds(settings->min_fiO2_alarm, &g_bounds.min_fiO2_alarm);
-
+    //TODO check new settings fields
     return ok;
 }
 

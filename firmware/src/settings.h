@@ -5,10 +5,12 @@
 #include <stdbool.h>
 
 typedef struct __attribute__((packed)) {
-    uint16_t peep;
-    uint16_t frequency;
+    uint16_t peep; // exhale pressure
+    uint16_t frequency; // breathing cycles per minute
+    uint16_t ratio; // ratio between inhale exhale
     uint16_t tidal_volume;
-    uint16_t pressure;
+    uint16_t pressure; // inhale pressure
+    uint16_t oxygen; // oxygen percentage for mixer
     uint16_t max_pressure_alarm;
     uint16_t min_pressure_alarm;
     uint16_t max_TV_alarm;
