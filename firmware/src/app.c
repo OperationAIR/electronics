@@ -1,7 +1,10 @@
 #include <lpc_tools/boardconfig.h>
+#include <lpc_tools/irq.h>
 #include <c_utils/assert.h>
 #include <c_utils/f2strn.h>
 #include <c_utils/max.h>
+
+#include <string.h>
 
 #include "board.h"
 #include "board_GPIO_ID.h"
@@ -20,7 +23,7 @@
 #include "clock.h"
 
 #include "breathing.h"
-
+#include "settings.h"
 
 enum AppState {
     AppStateNone = -1,
@@ -49,6 +52,7 @@ static struct {
 
     volatile uint32_t idle_blink; // timestamp for blink start
     volatile uint32_t last_idle_blink; // timestamp last blink start
+    volatile OperationSettings settings;
 
 } g_app;
 
@@ -180,6 +184,13 @@ char* app_get_state(void)
     return get_state_name(g_app.next_state);
 }
 
+void app_apply_settings(OperationSettings *new_settings)
+{
+    const bool critical_section = irq_disable();
+    settings_copy(&g_app.settings, new_settings);
+    irq_restore(critical_section);
+}
+
 bool app_is_idle(void)
 {
     return ((g_app.last_state == AppStateIdle) || (g_app.last_state == AppStateNone))
@@ -281,7 +292,7 @@ void SysTick_Handler(void)
     }
 
     sensors_update();
-    
+
     // TODO the state-machine is not 7001-specific yet. Do we really need
     // all this complexity?
 

@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 typedef struct __attribute__((packed)) {
+    uint16_t start; // breathing is started
     uint16_t peep; // exhale pressure
     uint16_t frequency; // breathing cycles per minute
     uint16_t ratio; // ratio between inhale exhale
@@ -23,5 +24,6 @@ typedef struct __attribute__((packed)) {
 
 bool settings_update(OperationSettings *new_settings);
 
+void settings_copy(OperationSettings *dst, OperationSettings *src);
 
 #endif

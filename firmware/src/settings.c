@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "app.h"
+
 typedef struct {
     uint16_t min;
     uint16_t max;
@@ -35,8 +37,6 @@ static struct ValidSettings g_bounds = {
     .min_fiO2_alarm = {.min = 20, .max = 45},
 };
 
-OperationSettings g_settings;
-
 static inline bool check_bounds(uint16_t value, AllowedRange *bounds)
 {
     return (value >= bounds->min) && (value <= bounds->max);
@@ -64,10 +64,30 @@ bool settings_update(OperationSettings *new_settings)
 {
 
     if (verify_settings(new_settings)) {
-        memcpy(&g_settings, new_settings, sizeof(OperationSettings));
+        app_apply_settings(new_settings);
         return true;
     }
 
     return false;
 
+}
+
+void settings_copy(OperationSettings *dst, OperationSettings *src)
+{
+    dst->start = src->start;
+    dst->frequency = src->frequency;
+    dst->peep = src->peep;
+    dst->ratio = src->ratio;
+    dst->tidal_volume = src->tidal_volume;
+    dst->pressure = src->pressure;
+    dst->oxygen = src->oxygen;
+
+    dst->max_pressure_alarm = src->max_pressure_alarm;
+    dst->min_pressure_alarm = src->min_pressure_alarm;
+    dst->max_TV_alarm = src->max_TV_alarm;
+    dst->min_TV_alarm = src->min_TV_alarm;
+    dst->max_fiO2_alarm = src->max_fiO2_alarm;
+    dst->max_fiO2_alarm = src->max_fiO2_alarm;
+    dst->min_fiO2_alarm = src->min_fiO2_alarm;
+    dst->crc = src->crc;
 }

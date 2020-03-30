@@ -1,6 +1,7 @@
 #ifndef APP_H
 #define APP_H
 #include "global_settings.h"
+#include "settings.h"
 
 void app_init(int hw_version);
 
@@ -26,6 +27,13 @@ bool app_is_overheated_mode(void);
 
 
 void app_reset_use_count(void);
+
+/**
+ * Apply new operation settigns in a safe way
+ * This function uses a critical section to update all settings in
+ * a atomic way.
+ */
+void app_apply_settings(OperationSettings *new_settings);
 
 
 uint32_t get_last_pressure(void);

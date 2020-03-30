@@ -15,7 +15,6 @@
 #include "actuators/control_signals.h"
 #include "sensors/sensors.h"
 
-
 /* Transmit and receive ring buffer sizes */
 #define UART_SRB_SIZE 256	/* Send */
 #define UART_RRB_SIZE 256	/* Receive */
@@ -170,8 +169,6 @@ void pi_comm_tasks()
                 const bool settings_ok = settings_update(settings);
                 if (settings_ok) {
 					control_LED_status_on();
-					// pi_comm_send((uint8_t*)&g_settings, sizeof(g_settings));
-					// pi_comm_send((uint8_t*)"Settings Ok!\n", 14);
 					pi_comm_send_string("Settings Ok!\n");
                 } else {
 					control_LED_error_on();

@@ -20,9 +20,6 @@
 #include "generated/firmware_version.h"
 
 #include "pi_communication.h"
-#include "actuators/i2c_dac.h"
-#include "sensors/MPRLS_pressure.h"
-#include "actuators/DPR.h"
 
 #define CLK_FREQ (48e6)
 
@@ -36,149 +33,6 @@ void assert(bool should_be_true)
     // TODO alarm, reset? (enable watchdog, mcu will be reset..)
     while(1);
 }
-
-DPR dpr;
-
-// I2C DAC DEMO
-
-#define DEFAULT_I2C          I2C0
-
-#define SPEED_100KHZ         100000
-
-#define SPEED_400KHZ         400000
-
-#define I2C_DEFAULT_SPEED    SPEED_100KHZ
-
-static int mode_poll;	/* Poll/Interrupt mode flag */
-
-/* Set I2C mode to polling/interrupt */
-
-static void i2c_set_mode(I2C_ID_T id, int polling)
-
-{
-
-	if (!polling) {
-
-		mode_poll &= ~(1 << id);
-
-		Chip_I2C_SetMasterEventHandler(id, Chip_I2C_EventHandler);
-
-		NVIC_EnableIRQ(I2C0_IRQn);
-
-	}
-
-	else {
-
-		mode_poll |= 1 << id;
-
-		NVIC_DisableIRQ(I2C0_IRQn);
-
-		Chip_I2C_SetMasterEventHandler(id, Chip_I2C_EventHandlerPolling);
-
-	}
-
-}
-
-/* Initialize the I2C bus */
-
-static void i2c_app_init(I2C_ID_T id, int speed)
-
-{
-
-	Chip_SYSCTL_PeriphReset(RESET_I2C0);
-
-	/* Initialize I2C */
-
-	Chip_I2C_Init(id);
-
-	Chip_I2C_SetClockRate(id, speed);
-
-	i2c_set_mode(id, 0);
-
-}
-
-/* State machine handler for I2C0 and I2C1 */
-
-static void i2c_state_handling(I2C_ID_T id)
-
-{
-
-	if (Chip_I2C_IsMasterActive(id)) {
-
-		Chip_I2C_MasterStateHandler(id);
-
-	}
-
-	else {
-
-		Chip_I2C_SlaveStateHandler(id);
-
-	}
-
-}
-
-/**
-
- * @brief	I2C Interrupt Handler
-
- * @return	None
-
- */
-
-void I2C_IRQHandler(void)
-
-{
-
-	i2c_state_handling(I2C0);
-
-}
-
-
-
-static void I2C_DAC_DEMO(void)
-{
-	i2c_app_init(I2C0, I2C_DEFAULT_SPEED);
-
-	 /* I2C send/receive structure */
-
-	static I2C_XFER_T xfer;
-
-	/* Transfer and Receive buffers */
-
-	static uint8_t tx[10];//, rx[10];
-
-    memset(tx, 0, sizeof(tx));
-
-	uint8_t address = 0x62;
-
-	/* Setup I2C parameters to send 4 bytes of data */
-
-	xfer.slaveAddr = address;
-
-	tx[0] = 0x40;
-
-    // 400 is ca 15 l/m
-    uint16_t output = 400;
-
-    tx[1] = output / 16;
-
-    tx[2] = (output % 16) << 4;
-
-	xfer.txBuff = &tx[0];
-
-	/* Send data */
-
-	Chip_I2C_MasterSend(I2C0, xfer.slaveAddr, xfer.txBuff, 3);
-
-
-
-}
-
-
-
-// I2C DAC END
-
-
 
 int main(void)
 {
@@ -204,39 +58,13 @@ int main(void)
 
     control_signals_init();
 
-I2C_DAC_DEMO();
-
     const int hw_version = 0;
 
     app_init(hw_version);
     app_cli_init();
     watchdog_init();
 
-
-
-    /*
-    log_wtime("Operation Air firmware started");
-    char buf[SERIAL_NUM_STR_SIZE];
-    log_wtime("serial number: %s", log_get_serialnumber_str(buf, SERIAL_NUM_STR_SIZE));
-    log_wtime("Firmware version: %s", FIRMWARE_VERSION);
-    */
-
-
-    DPR_init(&dpr, LPC_SSP1, board_get_GPIO(GPIO_ID_PREG_CS));
-
-    // const GPIO *led_status = board_get_GPIO(GPIO_ID_LED_STATUS);
-    // const GPIO *led_error = board_get_GPIO(GPIO_ID_LED_ERROR);
-    // GPIO_HAL_set(led_status, 1);
-    // GPIO_HAL_set(led_error, 1);
-
     pi_comm_send_string("Hallo Ventilator!\n");
-
-
-	i2cdac_init(I2C_DEFAULT_SPEED);
-    i2cdac_set(0x62, 1024);
-    i2cdac_set(0x63, 3072);
-
-
 
     while (true)
     {
