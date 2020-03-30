@@ -5,9 +5,10 @@
 #include <string.h>
 #include <chip.h>
 
-#include "pi_communication.h"
-
 #include <c_utils/ringbuffer.h>
+#include <mcu_timing/delay.h>
+
+#include "pi_communication.h"
 
 #include "app.h"
 #include "settings.h"
@@ -136,29 +137,31 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 
 }
 
-extern OperationSettings g_settings;
+static delay_timeout_t pi_comm_timeout;
 
+static void pi_comm_reset()
+{
+	g_current_command = PiCommandNone;
+	ringbuffer_clear(&rb_Rx);
+}
 
 void pi_comm_tasks()
 {
-	// TODO: add timeout for current command to expire
-
     if (g_current_command == PiCommandNone) {
         g_current_command = match_start_sequence(&rb_Rx);
+		// start new command, set timout in case communication fails
+		if (g_current_command) {
+    		delay_timeout_set(&pi_comm_timeout, 10000);
+		}
     }
 
 	if (g_current_command == PiCommandRequestSensorValues) {
-			pi_comm_send_string("sensor values...!\n");
-
 			SensorsAllData data;
 			sensors_read_all(&data);
 			uint32_t prefix = PiCommandRequestSensorValues;
 			pi_comm_send((uint8_t*)&prefix, 4);
 			pi_comm_send((uint8_t*)&data, sizeof(SensorsAllData));
-			g_current_command = PiCommandNone;
-
-
-
+			pi_comm_reset();
 	} else if (g_current_command == PiCommandNewSettings) {
         size_t count = ringbuffer_used_count(&rb_Rx);
 		if (count >= sizeof(OperationSettings)) {
@@ -182,10 +185,15 @@ void pi_comm_tasks()
 				}
 
             } else {
-                // crc error
+                // crc error: send back settings so Rpi knows they're wrong
+				uint32_t prefix = PiCommandNewSettings;
+				pi_comm_send((uint8_t*)&prefix, 4);
+				pi_comm_send((uint8_t*)app_get_settings(), sizeof(OperationSettings));
             }
 			ringbuffer_clear(&rb_Rx);
 			g_current_command = PiCommandNone;
+		} else if (delay_timeout_done(&pi_comm_timeout)) {
+			pi_comm_reset();
 		}
     }
 
