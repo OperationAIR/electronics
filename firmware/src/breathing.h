@@ -13,6 +13,9 @@ bool breathing_init(void);
 bool breathing_start_program(void);
 void breathing_stop(void);
 
+void breathing_tune_PID(float kp, float ki, float kd);
+void breathing_print_PID(void);
+
 /**
  * Runs the breathing control loop.
  * This function needs to be called from the app timer at fixed frequency
