@@ -30,10 +30,14 @@ Ringbuffer rb_Tx;
 
 enum PiCommand {
     PiCommandNone 					= 0,
-	PiCommandLedOn 					= 0x55556666,
-	PiCommandLedOff 				= 0x66667777,
+	PiCommandLedOn 					= 0x55550000,
+	PiCommandLedOff 				= 0x66660000,
     PiCommandNewSettings 			= 0x41424344,
     PiCommandRequestSensorValues 	= 0x22226666,
+	PiCommandSwitch1On				= 0x55551111,
+	PiCommandSwitch1Off				= 0x66661111,
+	PiCommandSwitch2On				= 0x55553333,
+	PiCommandSwitch2Off				= 0x66663333,
 };
 static enum PiCommand g_current_command = PiCommandNone;
 
@@ -110,25 +114,46 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 			uint32_t *ptr = ringbuffer_get_readable(rb);
 			// uint32_t start = PiCommandNone;
 			memcpy(&cmd, ptr, 4); // = *ptr; memcpy to handle misaligned access.
-			if (cmd == PiCommandNewSettings) {
-				ringbuffer_flush(rb, 4);
-				return PiCommandNewSettings;
-			} else if (cmd == PiCommandRequestSensorValues) {
-				ringbuffer_flush(rb, 4);
-				return PiCommandRequestSensorValues;
-			} else if (cmd == PiCommandLedOn) {
-				ringbuffer_flush(rb, 4);
-				control_LED_status_on();
-				pi_comm_send_string("Status LED on\n");
-				return PiCommandNone;
-			} else if (cmd == PiCommandLedOff) {
-				ringbuffer_flush(rb, 4);
-				control_LED_status_off();
-				pi_comm_send_string("Status LED off\n");
-				return PiCommandNone;
-			} else {
-				// no match, advance rb 1 byte, try again until magic sequence is found
-				ringbuffer_advance(rb);
+			switch (cmd) {
+				case PiCommandNewSettings:
+					ringbuffer_flush(rb, 4);
+					return PiCommandNewSettings;
+				case PiCommandRequestSensorValues:
+					ringbuffer_flush(rb, 4);
+					return PiCommandRequestSensorValues;
+				case PiCommandLedOn:
+					ringbuffer_flush(rb, 4);
+					control_LED_status_on();
+					pi_comm_send_string("Status LED on\n");
+					return PiCommandNone;
+				case PiCommandLedOff:
+					ringbuffer_flush(rb, 4);
+					control_LED_status_off();
+					pi_comm_send_string("Status LED off\n");
+					return PiCommandNone;
+				case PiCommandSwitch1On:
+					ringbuffer_flush(rb, 4);
+					control_switch1_on();
+					pi_comm_send_string("Switch 1 On\n");
+					return PiCommandNone;
+				case PiCommandSwitch1Off:
+					ringbuffer_flush(rb, 4);
+					control_switch1_off();
+					pi_comm_send_string("Switch 1 Off\n");
+					return PiCommandNone;
+				case PiCommandSwitch2On:
+					ringbuffer_flush(rb, 4);
+					control_switch1_on();
+					pi_comm_send_string("Switch 2 On\n");
+					return PiCommandNone;
+				case PiCommandSwitch2Off:
+					ringbuffer_flush(rb, 4);
+					control_switch1_off();
+					pi_comm_send_string("Switch 2 Off\n");
+					return PiCommandNone;
+				default:
+					// no match, advance rb 1 byte, try again until magic sequence is found
+					ringbuffer_advance(rb);
 			}
 		}
 	}
