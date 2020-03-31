@@ -43,8 +43,6 @@ void control_signals_init()
 
     assert(PWM_init(&Control.pwm, LPC_TIMER16_0,
                 PWM_CH1, pwm_frequency, desired_pwm_resolution));
-
-    i2cdac_init(I2C_DEFAULT_SPEED);
 }
 
 bool control_DPR_on(void)

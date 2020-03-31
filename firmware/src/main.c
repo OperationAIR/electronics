@@ -9,6 +9,7 @@
 #include <lpc_tools/irq.h>
 #include <mcu_timing/delay.h>
 
+#include "i2c.h"
 #include "global_settings.h"
 #include "actuators/control_signals.h"
 #include "usb/app_usb.h"
@@ -60,6 +61,7 @@ int main(void)
         delay_us(2000 * 1000);
     }
 
+    i2c_init();
     control_signals_init();
 
     const int hw_version = 0;

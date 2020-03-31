@@ -56,7 +56,6 @@ static struct {
 
 } g_app;
 
-#define CALIBRATION_DURATION_MS     (1000)
 
 uint32_t get_last_pressure()
 {
