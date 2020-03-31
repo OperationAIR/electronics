@@ -57,10 +57,10 @@ A binary protocol is used where each command is a unique 4 byte sequence followe
 
 | Command             | Description                             | Prefix     | Payload  | Response         |
 | -------------       |---------------------------------------- | ---------: | -------  | --------         |
-| LedOn               | Turn on status LED (Green)              | 0x55556666 | None     | Log info (ascii) |
-| LedOff              | Turn off status LED (Green)             | 0x66667777 | None     | Log info (ascii) |
 | NewSettings         | Send and apply new operation settings   | 0x41424344 | Settings | Applied Settings |
 | RequestSensorValues | Request current samples for all sensors | 0x22226666 | None     | Sensor Values    |
+| LedOn               | Turn on status LED (Green)              | 0x55550000 | None     | Log info (ascii) |
+| LedOff              | Turn off status LED (Green)             | 0x66660000 | None     | Log info (ascii) |
 
 
 ### Settings

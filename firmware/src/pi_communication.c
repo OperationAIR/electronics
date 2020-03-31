@@ -112,8 +112,7 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 	if (count >= 4) {
 		while (0 < count--) {
 			uint32_t *ptr = ringbuffer_get_readable(rb);
-			// uint32_t start = PiCommandNone;
-			memcpy(&cmd, ptr, 4); // = *ptr; memcpy to handle misaligned access.
+			memcpy(&cmd, ptr, 4); // cmd = *ptr; memcpy to handle misaligned access.
 			switch (cmd) {
 				case PiCommandNewSettings:
 					ringbuffer_flush(rb, 4);
