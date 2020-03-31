@@ -34,6 +34,10 @@ void assert(bool should_be_true)
     while(1);
 }
 
+
+// TODO RM: flowsensor test
+#include "actuators/i2c_dac.h"
+
 int main(void)
 {
     board_setup();
@@ -65,6 +69,13 @@ int main(void)
     watchdog_init();
 
     pi_comm_send_string("Hallo Ventilator!\n");
+
+    control_LED_status_on();
+    // DEMO TODO RM
+    flowsensor_test();
+
+    delay_us(1000*1000);
+    control_LED_status_off();
 
     while (true)
     {

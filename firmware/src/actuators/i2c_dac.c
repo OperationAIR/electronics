@@ -1,4 +1,10 @@
 #include "i2c_dac.h"
+#include <c_utils/assert.h>
+#include <stddef.h>
+#include <c_utils/f2strn.h>
+
+// TODO RM
+#include "log.h"
 
 // lpc11ux only has 1 i2c peripheral
 #define DEFAULT_I2C          I2C0
@@ -69,5 +75,87 @@ void i2cdac_set(uint8_t address, uint16_t value)
 	/* Send data */
 	Chip_I2C_MasterSend(DEFAULT_I2C, xfer.slaveAddr, xfer.txBuff, 3);
 
+}
+
+
+static void _flowsensor_boot(void) {
+    // The flowsensor may be in 'bootloader mode' after first power-on.
+    // This command switches the sensor to 'sensor mode'.
+    uint8_t rx[1];
+    const uint8_t boot_addr = 0x42;
+    const uint8_t boot_reg = 0x45;
+    // If this fails, the sensor was probably already in 'sensor mode'.
+    Chip_I2C_MasterCmdRead(DEFAULT_I2C, boot_addr, boot_reg, rx, sizeof(rx));
+}
+
+static bool _flowsensor_selftest(void) {
+    uint8_t rx[1] = {0};
+    const uint8_t sensor_addr = 0x55;
+    const uint8_t boot_reg = 0x19;
+    size_t bytes_received = Chip_I2C_MasterCmdRead(DEFAULT_I2C, sensor_addr, boot_reg, rx, sizeof(rx));
+
+    return ((bytes_received == 1) && (rx[0] == sensor_addr));
+}
+
+static float _read_sensor(uint8_t data_reg) {
+    const uint8_t sensor_addr = 0x55;
+
+    union {
+        float value;
+        uint8_t bytes[4];
+    } conversion;
+
+
+    size_t result = Chip_I2C_MasterCmdRead(DEFAULT_I2C, sensor_addr, data_reg,
+            conversion.bytes, sizeof(conversion.bytes));
+    if(result != sizeof(conversion.bytes)) {
+        return 0.0;
+    }
+    return conversion.value;
+}
+
+static float _read_flow(void)
+{
+     return _read_sensor(0x1);
+}
+static float _read_temp_celcius(void)
+{
+     return _read_sensor(0x2);
+}
+
+
+bool flowsensor_enable(void)
+{
+    // boot sensor in case it is not already booted
+    _flowsensor_boot();
+
+    if(!_flowsensor_selftest()) {
+        log_debug("Flowsensor: enable FAIL");
+        return false;
+    }
+    log_debug("Flowsensor: enable OK");
+    return true;
+}
+
+void flowsensor_test(void)
+{
+    const bool ok = flowsensor_enable();
+    if(!ok) {
+        return;
+    }
+
+    const float temp_celcius = _read_temp_celcius();
+    const float flow = _read_flow();
+
+    char temp_str[32];
+    f2strn(temp_celcius, temp_str, sizeof(temp_str), 3);
+
+    char flow_str[32];
+    f2strn(flow, flow_str, sizeof(flow_str), 3);
+
+
+    log_debug("Flowsensor: temp='%s' C, flow='%s'",
+            temp_str,
+            flow_str);
 }
 

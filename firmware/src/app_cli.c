@@ -31,6 +31,9 @@
 #endif
 
 
+// TODO FIXME: this is for flowsensor test only...
+#include "actuators/i2c_dac.h"
+
 #define MAX_USB_PACKET_LENGHT 64
 char cmd_buf[MAX_USB_PACKET_LENGHT + 1]; // +1 byte for 0 terminator
 
@@ -112,6 +115,13 @@ static void mfc_PID(char *args) {
     }
     breathing_tune_MFC_PID(pid[0], pid[1], pid[2]);
     log_cli("MFC: PID updated");
+}
+
+static void flow_test(char *args) {
+    log_cli("Testing flow...");
+
+    flowsensor_test();
+
 }
 
 static void dpr_set(char *args) {
@@ -265,6 +275,11 @@ CliCommand cli_commands[] = {
 		.cmd = "led_error",
 		.help = "Control error led: 'on' or 'off'",
 		.function = led_error
+	},
+	{
+		.cmd = "flow_test",
+		.help = "Test flow sensor",
+		.function = flow_test
 	},
 	{
 		.cmd = "DPR_set",
