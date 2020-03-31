@@ -22,6 +22,8 @@ struct {
 } Sensors;
 
 static bool g_error = false;
+static int32_t g_offset_pressure_1 = 0;
+static int32_t g_offset_pressure_2 = 0;
 
 // See schematics
 #define ADC_FACTOR_PRESSURE             (168.0/100.0)
@@ -70,6 +72,19 @@ void sensors_init(void) {
      sensors_reset();
 }
 
+bool sensors_calibrate_offset(void)
+{
+    // reset offsets to zero. This is done because we dont
+    // want the sensors_read_XXX() calls below to include any previous offset.
+    g_offset_pressure_1 = 0;
+    g_offset_pressure_2 = 0;
+
+    g_offset_pressure_1 = sensors_read_pressure_1_pa();
+    g_offset_pressure_2 = sensors_read_pressure_2_pa();
+
+    return g_error;
+}
+
 void sensors_reset(void)
 {
     g_error = false;
@@ -77,6 +92,10 @@ void sensors_reset(void)
     Sensors.pressure_1 = -1;
     Sensors.pressure_2 = -1;
     Sensors.pressure_regulator = -1;
+
+    g_offset_pressure_1 = 0;
+    g_offset_pressure_2 = 0;
+
     sensors_update();
 }
 
@@ -156,8 +175,9 @@ int32_t sensors_read_pressure_MFC_pa(void)
 
 int32_t sensors_read_pressure_1_pa(void)
 { 
+    int32_t result = 0;
 #if(PRESSURE_SENSORS_DIGITAL)
-    return Sensors.pressure_1;
+    result = Sensors.pressure_1;
 #else
     // NXP MPVZ5010
     const int v_pressure = ADC_scale(Sensors.pressure_1, ADC_FACTOR_PRESSURE);
@@ -165,7 +185,7 @@ int32_t sensors_read_pressure_1_pa(void)
     // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
     const int offset_mv = 167;
     const int scale_factor = 2157;
-    return ((v_pressure-offset_mv)*scale_factor)/1000;
+    result = ((v_pressure-offset_mv)*scale_factor)/1000;
 
     /*
     // See MPVZ5010 datasheet
@@ -174,12 +194,15 @@ int32_t sensors_read_pressure_1_pa(void)
     return pressure_pa;
     */
 #endif
+
+    return result - g_offset_pressure_1;
 }
 
 int32_t sensors_read_pressure_2_pa(void)
 {
+    int32_t result = 0;
 #if(PRESSURE_SENSORS_DIGITAL)
-    return Sensors.pressure_2;
+    result = Sensors.pressure_2;
 #else
 
     const int v_pressure = ADC_scale(Sensors.pressure_2, ADC_FACTOR_PRESSURE);
@@ -187,7 +210,7 @@ int32_t sensors_read_pressure_2_pa(void)
     // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
     const int offset_mv = 167;
     const int scale_factor = 2157;
-    return ((v_pressure-offset_mv)*scale_factor)/1000;
+    result = ((v_pressure-offset_mv)*scale_factor)/1000;
 
     /*
     // See MPVZ5010 datasheet
@@ -196,6 +219,8 @@ int32_t sensors_read_pressure_2_pa(void)
     return pressure_pa;
     */
 #endif
+
+    return result - g_offset_pressure_2;
 }
 
 int32_t sensors_read_pressure_regulator(void)
@@ -213,6 +238,7 @@ int32_t sensors_read_pressure_regulator(void)
     // TODO implement
     return -1;
 }
+
 
 void sensors_read_all(SensorsAllData *data)
 {

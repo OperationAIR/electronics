@@ -56,6 +56,8 @@ static struct {
 
 } g_app;
 
+#define CALIBRATION_DURATION_MS     (1000)
+
 uint32_t get_last_pressure()
 {
     return g_app.current_max_pressure;
@@ -216,13 +218,29 @@ enum AppState app_state_pre_breathing(void)
 {
     g_app.current_max_pressure = 0;
 
-    log_wtime("Start Breathing Program");
-    if(!breathing_start_program()) {
-        return AppStateError;
+    // At startup, do offset calibration.
+    // During this time, the status led on PCB blinks.
+    if (g_app.time == 0) {
+        log_wtime("Calibrating offsets...");
+        breathing_start_calibration();
     }
-    control_LED_status_on();
 
-    return AppStateBreathing;
+    if((g_app.time % 50) == 0) {
+        control_LED_status_toggle();
+    }
+
+    if (g_app.time >= (CALIBRATION_DURATION_MS/2)) {
+        breathing_finish_calibration();
+
+        log_wtime("Start Breathing Program");
+        if(!breathing_start_program()) {
+            return AppStateError;
+        }
+        control_LED_status_on();
+
+        return AppStateBreathing;
+    }
+    return AppStatePreBreathing;
 }
 
 enum AppState app_state_breathing(void)

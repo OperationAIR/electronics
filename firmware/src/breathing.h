@@ -10,6 +10,10 @@ enum TestState {
 };
 
 bool breathing_init(void);
+
+void breathing_start_calibration(void);
+void breathing_finish_calibration(void);
+
 bool breathing_start_program(void);
 void breathing_stop(void);
 

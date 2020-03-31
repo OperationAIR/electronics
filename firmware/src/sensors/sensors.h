@@ -13,6 +13,7 @@ typedef struct SensorsAllData {
 
 void sensors_init(void);
 
+bool sensors_calibrate_offset(void);
 void sensors_reset(void);
 void sensors_update(void);
 

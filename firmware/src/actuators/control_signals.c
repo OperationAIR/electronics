@@ -113,6 +113,10 @@ void control_LED_status_off(void)
 {
     GPIO_HAL_set(Control.LED_status, LOW);
 }
+void control_LED_status_toggle(void)
+{
+    GPIO_HAL_toggle(Control.LED_status);
+}
 
 void control_LED_error_on(void)
 {

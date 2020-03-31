@@ -136,7 +136,15 @@ bool breathing_init(void)
     return true;
 }
 
-
+void breathing_start_calibration(void)
+{
+    // open Valve: startup auto-calibrate requires 0psi pressure in the system
+    control_switch1_on();
+}
+void breathing_finish_calibration(void)
+{
+    sensors_calibrate_offset();
+}
 
 bool breathing_start_program(void)
 {
