@@ -41,10 +41,12 @@ static int32_t g_offset_pressure_2 = 0;
 #define SLEW_LIMIT_PRESSURE         (5)
 #define SLEW_LIMIT_PREG_PRESSURE    (400)
 
-#define PRESSURE_SENSORS_DIGITAL    (1)
+#define PRESSURE_SENSORS_DIGITAL    (0)
 
+#if(PRESSURE_SENSORS_DIGITAL)
 static MPRLS mprls1;
 static MPRLS mprls2;
+#endif
 
 void sensors_init(void) {
 
@@ -129,7 +131,7 @@ void sensors_update(void)
 
         // Timeout! try to trigger next sample, but something is wrong here!
         // TODO handle error
-        
+
         g_error = true;
         mprls_trigger_read(&mprls1);
     }
@@ -144,7 +146,7 @@ void sensors_update(void)
 
         // Timeout! try to trigger next sample, but something is wrong here!
         // TODO handle error
-        
+
         g_error = true;
         mprls_trigger_read(&mprls2);
     }
@@ -174,7 +176,7 @@ int32_t sensors_read_pressure_MFC_pa(void)
 }
 
 int32_t sensors_read_pressure_1_pa(void)
-{ 
+{
     int32_t result = 0;
 #if(PRESSURE_SENSORS_DIGITAL)
     result = Sensors.pressure_1;
