@@ -21,7 +21,7 @@
 */
 
 // Offset calibration at startup takes this amount of time
-const unsigned int CALIBRATION_DURATION_MS = 1000;
+const unsigned int CALIBRATION_DURATION_MS = 2000;
 
 
 // Sensor data is logged during regular breathing program.
