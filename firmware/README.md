@@ -85,7 +85,7 @@ typedef struct __attribute__((packed)) {
 } OperationSettings;
 ```
 
-The final entry is a `crc16 usb` checksum withh the following specs:
+The final entry is a `crc16 usb` checksum with the following specs:
 
 ```
 CRC16 USB

@@ -158,16 +158,20 @@ void pi_comm_tasks()
 	if (g_current_command == PiCommandRequestSensorValues) {
 			SensorsAllData data;
 			sensors_read_all(&data);
+			uint16_t crc_state = 0xFFFF;
+            uint16_t crc16 = crc16_usb_stream_check(&crc_state, (uint8_t*)&data, sizeof(SensorsAllData));
 			uint32_t prefix = PiCommandRequestSensorValues;
 			pi_comm_send((uint8_t*)&prefix, 4);
 			pi_comm_send((uint8_t*)&data, sizeof(SensorsAllData));
+			pi_comm_send((uint8_t*)&crc16, 2);
 			pi_comm_reset();
 	} else if (g_current_command == PiCommandNewSettings) {
         size_t count = ringbuffer_used_count(&rb_Rx);
 		if (count >= sizeof(OperationSettings)) {
 			OperationSettings *settings = ringbuffer_get_readable(&rb_Rx);
 
-            uint16_t res = crc16_usb_stream_check(&settings->crc, (uint8_t*)settings, 20);
+			uint16_t crc_state = 0xFFFF;
+            uint16_t res = crc16_usb_stream_check(&crc_state, (uint8_t*)settings, sizeof(OperationSettings)-2);
 
             if (res == settings->crc) {
                 const bool settings_ok = settings_update(settings);
@@ -185,6 +189,7 @@ void pi_comm_tasks()
 				}
 
             } else {
+				pi_comm_send_string("CRC Error!\n");
                 // crc error: send back settings so Rpi knows they're wrong
 				uint32_t prefix = PiCommandNewSettings;
 				pi_comm_send((uint8_t*)&prefix, 4);

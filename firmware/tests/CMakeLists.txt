@@ -65,6 +65,7 @@ add_definitions(-DTEST_ALL=${TEST_ALL})
 # Note: these are relative to TEST_NORMAL_SOURCE_DIR.
 
 set(test_flow_src   sensors/flow.c)
+set(test_crc_src   crc/crc16.c)
 
 
 # all 'shared' c files: these are linked against every test.
