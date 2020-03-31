@@ -64,8 +64,10 @@ uint8_t mprls_trigger_read(MPRLS *ctx)
     Chip_SSP_RWFrames_Blocking(ctx->SSP, &xf_setup);
 
     GPIO_HAL_set(ctx->cs_pin, HIGH);
-    return (status >> 24) & 0xFF;
 
+    delay_timeout_set(&ctx->timeout, 7500);
+
+    return (status >> 24) & 0xFF;
 }
 
 
@@ -144,20 +146,28 @@ bool mprls_enable(MPRLS *ctx)
     return status & MPRLS_STATUS_POWERED;
 }
 
+bool mprls_is_ready(MPRLS *ctx)
+{
+    return GPIO_HAL_get(ctx->drdry_pin);
+}
+
+bool mprls_is_timeout(MPRLS *ctx) {
+    return delay_timeout_done(&ctx->timeout);
+}
+
 uint32_t mprls_read_blocking(MPRLS *ctx)
 {
     mprls_trigger_read(ctx);
 
-    delay_timeout_t timeout;
-    delay_timeout_set(&timeout, 7500);
 
     // wait for ready pin.
-    while(!GPIO_HAL_get(ctx->drdry_pin)) {
+    while(!mprls_is_ready(ctx)) {
         // error if never ready
-        if (delay_timeout_done(&timeout)) {
+        if (mprls_is_timeout(ctx)) {
            return 0; //TODO error code
         }
     }
 
     return mprls_read_data(ctx);
 }
+

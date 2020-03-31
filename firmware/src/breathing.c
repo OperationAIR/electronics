@@ -276,9 +276,19 @@ void breathing_run(void)
     //
 
     if(BREATHING_LOG_INTERVAL_ms && time_ms && ((time_ms % BREATHING_LOG_INTERVAL_ms) == 0)) {
+        /*
+        // MFC plot
         log_debug("%d,%d",
                 g_MFC_setpoint_pa,
                 MFC_pressure_pa);
+        */
+
+        // DPR plot
+        log_debug("%d,%d,%d,%d",
+                (int)g_DPR_setpoint_pa,
+                (int)g_sensor_state_1,
+                (int)g_sensor_state_2,
+                (int)DPR_pressure);
     }
 }
 

@@ -21,6 +21,8 @@ struct {
     int32_t pressure_regulator;
 } Sensors;
 
+static bool g_error = false;
+
 // See schematics
 #define ADC_FACTOR_PRESSURE             (168.0/100.0)
 
@@ -37,11 +39,14 @@ struct {
 #define SLEW_LIMIT_PRESSURE         (5)
 #define SLEW_LIMIT_PREG_PRESSURE    (400)
 
+#define PRESSURE_SENSORS_DIGITAL    (1)
+
 static MPRLS mprls1;
 static MPRLS mprls2;
 
 void sensors_init(void) {
 
+#if(PRESSURE_SENSORS_DIGITAL)
     mprls_init(&mprls1, LPC_SSP0,
         board_get_GPIO(GPIO_ID_PSENSE_1_CS),
         board_get_GPIO(GPIO_ID_PSENSE_1_DRDY),
@@ -52,14 +57,13 @@ void sensors_init(void) {
         board_get_GPIO(GPIO_ID_PSENSE_2_DRDY),
         board_get_GPIO(GPIO_ID_PSENSE_RESET));
 
-    // TODO enable and readout mprls. If they are on the PCB.
-    /*
     mprls_enable(&mprls1);
     mprls_enable(&mprls2);
+#endif
+
     uint32_t p1 = mprls_read_blocking(&mprls1);
     uint32_t p2 = mprls_read_blocking(&mprls2);
     log_debug("Pres: %u, %u", p1, p2);
-    */
 
      ADC_init();
 
@@ -68,6 +72,7 @@ void sensors_init(void) {
 
 void sensors_reset(void)
 {
+    g_error = false;
     Sensors.pressure_MFC = -1;
     Sensors.pressure_1 = -1;
     Sensors.pressure_2 = -1;
@@ -91,10 +96,46 @@ void sensors_update(void)
 {
     filter_adc(&Sensors.pressure_MFC, ADC_ID_PRESSURE_MFC,
             ADC_RANGE/SLEW_LIMIT_PRESSURE_MFC);
+
+
+#if(PRESSURE_SENSORS_DIGITAL)
+
+    // sample sensor1
+    if(mprls_is_ready(&mprls1)) {
+        // read value and trigger next sample
+        Sensors.pressure_1 = mprls_read_data(&mprls1);
+        mprls_trigger_read(&mprls1);
+
+    } else if(mprls_is_timeout(&mprls1)) {
+
+        // Timeout! try to trigger next sample, but something is wrong here!
+        // TODO handle error
+        
+        g_error = true;
+        mprls_trigger_read(&mprls1);
+    }
+
+    // sample sensor2
+    if(mprls_is_ready(&mprls2)) {
+        // read value and trigger next sample
+        Sensors.pressure_2 = mprls_read_data(&mprls2);
+        mprls_trigger_read(&mprls2);
+
+    } else if(mprls_is_timeout(&mprls2)) {
+
+        // Timeout! try to trigger next sample, but something is wrong here!
+        // TODO handle error
+        
+        g_error = true;
+        mprls_trigger_read(&mprls2);
+    }
+
+#else
     filter_adc(&Sensors.pressure_1, ADC_ID_PRESSURE_1,
             ADC_RANGE/SLEW_LIMIT_PRESSURE);
     filter_adc(&Sensors.pressure_2, ADC_ID_PRESSURE_2,
             ADC_RANGE/SLEW_LIMIT_PRESSURE);
+#endif
     filter_adc(&Sensors.pressure_regulator, ADC_ID_PREG_PRESSURE,
             ADC_RANGE/SLEW_LIMIT_PREG_PRESSURE);
 }
@@ -114,27 +155,11 @@ int32_t sensors_read_pressure_MFC_pa(void)
 }
 
 int32_t sensors_read_pressure_1_pa(void)
-{
-    /* // Calculations for ABP series
-    const int v_pressure = ADC_scale(Sensors.pressure_1, ADC_FACTOR_PRESSURE);
-
-    //log_wtime("v_pres: %d",v_pressure);
-    //const int vcc = 4900; // For now, prototype: laptop gives about 4.9V
-    const int offset = 476;
-
-
-    // See ABP-series datasheet
-    const int v_sense = (v_pressure - offset);
-
-    // 6894.757 pa per PSI
-    const float scale_factor = (1000*2500)/(768-476);
-
-
-    int pressure_pa = (scale_factor * v_sense)/1000;
-    return pressure_pa;
-    */
-
-
+{ 
+#if(PRESSURE_SENSORS_DIGITAL)
+    return Sensors.pressure_1;
+#else
+    // NXP MPVZ5010
     const int v_pressure = ADC_scale(Sensors.pressure_1, ADC_FACTOR_PRESSURE);
 
     // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
@@ -148,10 +173,15 @@ int32_t sensors_read_pressure_1_pa(void)
     int pressure_pa = ((1.079*v_pressure) - 195.211);
     return pressure_pa;
     */
+#endif
 }
 
 int32_t sensors_read_pressure_2_pa(void)
 {
+#if(PRESSURE_SENSORS_DIGITAL)
+    return Sensors.pressure_2;
+#else
+
     const int v_pressure = ADC_scale(Sensors.pressure_2, ADC_FACTOR_PRESSURE);
 
     // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
@@ -165,6 +195,7 @@ int32_t sensors_read_pressure_2_pa(void)
     int pressure_pa = ((1000*v_pressure) - (40*vcc)) / (0.09*vcc);
     return pressure_pa;
     */
+#endif
 }
 
 int32_t sensors_read_pressure_regulator(void)
