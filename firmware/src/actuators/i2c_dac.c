@@ -69,5 +69,5 @@ void i2cdac_set(uint8_t address, uint16_t value)
 	/* Send data */
 	Chip_I2C_MasterSend(DEFAULT_I2C, xfer.slaveAddr, xfer.txBuff, 3);
 
-
 }
+

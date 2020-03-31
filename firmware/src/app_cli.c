@@ -34,7 +34,7 @@
 #define MAX_USB_PACKET_LENGHT 64
 char cmd_buf[MAX_USB_PACKET_LENGHT + 1]; // +1 byte for 0 terminator
 
-void current_time(char *args) {
+static void current_time(char *args) {
 
 	char time[20];
 	log_get_time_as_str(time);
@@ -42,16 +42,16 @@ void current_time(char *args) {
 }
 
 
-void start(char *args) {
+static void start(char *args) {
 	app_program_start();
 }
 
-void stop(char *args) {
+static void stop(char *args) {
 	app_program_stop();
 }
 
 
-void dpr(char *args) {
+static void dpr(char *args) {
 	if (strncmp(args, "on", 2) == 0) {
 		control_DPR_on();
 		log_cli("Enable DPR");
@@ -62,7 +62,7 @@ void dpr(char *args) {
 }
 
 
-void mfc(char *args) {
+static void mfc(char *args) {
 
     float params[3];
     size_t n_params = 0;
@@ -76,10 +76,10 @@ void mfc(char *args) {
     control_MFC_set(flow_SLPM, 0.21);
 }
 
-void dpr_PID(char *args) {
+static void dpr_PID(char *args) {
 
     if(!strlen(args)) {
-        breathing_print_PID();
+        breathing_print_DPR_PID();
         return;
     }
     log_cli("Setting DPR PID...");
@@ -91,11 +91,30 @@ void dpr_PID(char *args) {
         log_cli("invalid PID values '%s': expected <P>,<I>,<D>", args);
         return;
     }
-    breathing_tune_PID(pid[0], pid[1], pid[2]);
+    breathing_tune_DPR_PID(pid[0], pid[1], pid[2]);
     log_cli("DPR: PID updated");
 }
 
-void dpr_set(char *args) {
+static void mfc_PID(char *args) {
+
+    if(!strlen(args)) {
+        breathing_print_MFC_PID();
+        return;
+    }
+    log_cli("Setting MFC PID...");
+
+    float pid[3];
+    size_t n_params = 0;
+
+    if(!parse_float_csv(&n_params, pid, array_length(pid), args) || (n_params != 3)) {
+        log_cli("invalid PID values '%s': expected <P>,<I>,<D>", args);
+        return;
+    }
+    breathing_tune_MFC_PID(pid[0], pid[1], pid[2]);
+    log_cli("MFC: PID updated");
+}
+
+static void dpr_set(char *args) {
     log_cli("Setting DPR..");
 
     if(!control_DPR_on()) {
@@ -111,7 +130,7 @@ void dpr_set(char *args) {
     log_cli("DPR setpoint %d %s", setpoint, (ok ? "OK" : "ERR"));
 }
 
-void led_status(char *args) {
+static void led_status(char *args) {
 	if (strncmp(args, "on", 2) == 0) {
 		control_LED_status_on();
 		log_cli("Enable status LED");
@@ -120,7 +139,7 @@ void led_status(char *args) {
 		log_cli("Disable status LED");
 	}
 }
-void led_error(char *args) {
+static void led_error(char *args) {
 	if (strncmp(args, "on", 2) == 0) {
 		control_LED_error_on();
 		log_cli("Enable error LED");
@@ -130,7 +149,7 @@ void led_error(char *args) {
 	}
 }
 
-void switch1(char *args) {
+static void switch1(char *args) {
 	if (strncmp(args, "on", 2) == 0) {
 		control_switch1_on();
 		log_cli("Enable switch 1");
@@ -146,14 +165,7 @@ void switch1(char *args) {
 	}
 }
 
-void sensors(char *args) {
-    log_cli("Pressure MFC: %d Pa", sensors_read_pressure_MFC_pa());
-    log_cli("Pressure 1: %d Pa", sensors_read_pressure_1_pa());
-    log_cli("Pressure 2: %d Pa", sensors_read_pressure_2_pa());
-    log_cli("Pressure DPR: %d Pa", sensors_read_pressure_regulator());
-}
-
-void switch2(char *args) {
+static void switch2(char *args) {
 	if (strncmp(args, "on", 2) == 0) {
 		control_switch2_on();
 		log_cli("Enable switch 2");
@@ -169,19 +181,26 @@ void switch2(char *args) {
 	}
 }
 
-void halt(char *args)
+static void sensors(char *args) {
+    log_cli("Pressure MFC: %d Pa", sensors_read_pressure_MFC_pa());
+    log_cli("Pressure 1: %d Pa", sensors_read_pressure_1_pa());
+    log_cli("Pressure 2: %d Pa", sensors_read_pressure_2_pa());
+    log_cli("Pressure DPR: %d Pa", sensors_read_pressure_regulator());
+}
+
+static void halt(char *args)
 {
 	app_halt();
 	log_cli("Halt application..");
 }
 
-void resume(char *args)
+static void resume(char *args)
 {
 	app_resume();
 	log_cli("Resume application..");
 }
 
-void app(char *args)
+static void app(char *args)
 {
 	if (app_is_running()) {
 		log_cli("app is running in state [%s]", app_get_state());
@@ -190,25 +209,20 @@ void app(char *args)
 	}
 }
 
-void test(char *args)
-{
-	app_self_test();
-}
-
-void serial_number(char *args)
+static void serial_number(char *args)
 {
 	char buf[SERIAL_NUM_STR_SIZE];
     log_wtime("serial number:\r\n%s", log_get_serialnumber_str(buf, SERIAL_NUM_STR_SIZE));
 }
 
-void version(char *args)
+static void version(char *args)
 {
 	log_cli("Firmware version:");
 	log_cli(FIRMWARE_VERSION);
 }
 
 
-void status() {
+static void status() {
 	app("");
     sensors("");
 	switch1("");
@@ -261,6 +275,11 @@ CliCommand cli_commands[] = {
 		.cmd = "DPR_PID",
 		.help = "Set DPR PID values <P>,<I>,<D>",
 		.function = dpr_PID
+	},
+	{
+		.cmd = "MFC_PID",
+		.help = "Set MFC PID values <P>,<I>,<D>",
+		.function = mfc_PID
 	},
 	{
 		.cmd = "DPR",

@@ -46,12 +46,19 @@ const int g_MFC_setpoint_pa = 65000;
 
 
 
-void breathing_print_PID(void)
+void breathing_print_DPR_PID(void)
 {
-    log_debug("PID: %d, %d, %d",
+    log_debug("DPR PID: %d, %d, %d",
             (int)DPR_PID_Kp,
             (int)DPR_PID_Ki,
             (int)DPR_PID_Kd);
+}
+void breathing_print_MFC_PID(void)
+{
+    log_debug("MFC PID: %d, %d, %d",
+            (int)MFC_PID_Kp,
+            (int)MFC_PID_Ki,
+            (int)MFC_PID_Kd);
 }
 
 static void _init_DPR_PID(void)
@@ -87,18 +94,29 @@ static void _init_MFC_PID(void)
     arm_pid_init_f32(&MFC_PID, 1);
 }
 
-void breathing_tune_PID(float kp, float ki, float kd)
+void breathing_tune_DPR_PID(float kp, float ki, float kd)
 {
     DPR_PID_Kp = kp;
     DPR_PID_Ki = ki;
     DPR_PID_Kd = kd;
     _init_DPR_PID();
-    _init_MFC_PID();
 
-    log_debug("PID: %d, %d, %d",
+    log_debug("DPR PID: %d, %d, %d",
             (int)DPR_PID_Kp,
             (int)DPR_PID_Ki,
             (int)DPR_PID_Kd);
+}
+void breathing_tune_MFC_PID(float kp, float ki, float kd)
+{
+    MFC_PID_Kp = kp;
+    MFC_PID_Ki = ki;
+    MFC_PID_Kd = kd;
+    _init_MFC_PID();
+
+    log_debug("PID: %d, %d, %d",
+            (int)MFC_PID_Kp,
+            (int)MFC_PID_Ki,
+            (int)MFC_PID_Kd);
 }
 
 static struct {
