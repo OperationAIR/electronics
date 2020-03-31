@@ -45,8 +45,12 @@ void i2cdac_init(int speed)
 
 void i2cdac_set(uint8_t address, uint16_t value)
 {
+    //log_debug("I2cDAC: set 0x%X to %d", (unsigned int)address, (int)value);
+    // TODO how long can this block at maximum?
+    // Should a timeout be added??
+
     // only use lower 12 bits
-    uint16_t v = value && 0x0FFF;
+    uint16_t v = value & 0x0FFF;
 
     // I2C send/receive structure
 	I2C_XFER_T xfer;

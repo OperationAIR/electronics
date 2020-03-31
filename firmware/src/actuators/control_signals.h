@@ -10,6 +10,7 @@ void control_LED_status_on(void);
 bool control_DPR_on(void);
 bool control_DPR_off(void);
 bool control_DPR_set_pa(int pressure_pa);
+bool control_MFC_set(float flow_SLPM, float O2_fraction);
 
 void control_LED_status_off(void);
 

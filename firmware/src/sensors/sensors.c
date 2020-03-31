@@ -100,9 +100,12 @@ void sensors_update(void)
 }
 
 static float p_MFC_mbar;
+const float MFC_scale_factor = 1024/5000.0;
+
 int32_t sensors_read_pressure_MFC_pa(void)
 {
-    const int p_raw = ADC_scale(Sensors.pressure_MFC, ADC_FACTOR_PRESSURE_MFC);
+    const int p_mv = ADC_scale(Sensors.pressure_MFC, ADC_FACTOR_PRESSURE_MFC);
+    const int p_raw = (MFC_scale_factor*p_mv);
 
     // Calibrate raw input voltage --> real pressure [mBarcx]
     p_MFC_mbar = 0.9 * p_MFC_mbar + 0.1 * (1.3223 * p_raw - 141.4876);

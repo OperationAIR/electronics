@@ -18,54 +18,87 @@
 
 static bool program_validation(void);
 
-float breathing_Kp = 3.3;
-float breathing_Ki = 0.025;
-float breathing_Kd = 1.7;
+// PID loop for DPR
+float DPR_PID_Kp = 3.3;
+float DPR_PID_Ki = 0.025;
+float DPR_PID_Kd = 1.7;
 
-
-static int g_setpoint_pa = 0;
-static arm_pid_instance_f32 pid_instance;
+static int g_DPR_setpoint_pa = 0;
+static arm_pid_instance_f32 DPR_PID;    // pressure regulator
+static arm_pid_instance_f32 MFC_PID;    // mass flow controllers
 static float g_sensor_state_1 = 0;
 static float g_sensor_state_2 = 0;
 static float g_to_DPR = 0;
 
 
+// PID loop for MFC
+float MFC_PID_Kp = 3.0;
+float MFC_PID_Ki = 0.0;
+float MFC_PID_Kd = 0.5;
+
+#define MFC_FLOW_MIN_SLPM   0.0
+
+// TODO 50
+#define MFC_FLOW_MAX_SLPM   10.0
+
+const float g_MFC_setpoint_oxygen_fraction = 0.21;
+const int g_MFC_setpoint_pa = 65000;
+
+
+
 void breathing_print_PID(void)
 {
     log_debug("PID: %d, %d, %d",
-            (int)breathing_Kp,
-            (int)breathing_Ki,
-            (int)breathing_Kd);
+            (int)DPR_PID_Kp,
+            (int)DPR_PID_Ki,
+            (int)DPR_PID_Kd);
 }
 
-static void _init_PID(void)
+static void _init_DPR_PID(void)
 {
     // Begin PID
 
-    arm_pid_reset_f32(&pid_instance);
-    pid_instance.Kp = breathing_Kp;
-    pid_instance.Ki = breathing_Ki;
-    pid_instance.Kd = breathing_Kd;
+    arm_pid_reset_f32(&DPR_PID);
+    DPR_PID.Kp = DPR_PID_Kp;
+    DPR_PID.Ki = DPR_PID_Ki;
+    DPR_PID.Kd = DPR_PID_Kd;
     // init calculates the required coefficients based on the PID input
     // A0 = Kp + Ki + Kd
     // A1 = (-Kp ) - (2 * Kd )
     // A2 = Kd
     // The PID controller calculates the following transfer function
     // y[n] = y[n-1] + A0 * x[n] + A1 * x[n-1] + A2 * x[n-2]
-    arm_pid_init_f32(&pid_instance, 1);
+    arm_pid_init_f32(&DPR_PID, 1);
+}
+static void _init_MFC_PID(void)
+{
+    // Begin PID
+
+    arm_pid_reset_f32(&MFC_PID);
+    MFC_PID.Kp = MFC_PID_Kp;
+    MFC_PID.Ki = MFC_PID_Ki;
+    MFC_PID.Kd = MFC_PID_Kd;
+    // init calculates the required coefficients based on the PID input
+    // A0 = Kp + Ki + Kd
+    // A1 = (-Kp ) - (2 * Kd )
+    // A2 = Kd
+    // The PID controller calculates the following transfer function
+    // y[n] = y[n-1] + A0 * x[n] + A1 * x[n-1] + A2 * x[n-2]
+    arm_pid_init_f32(&MFC_PID, 1);
 }
 
 void breathing_tune_PID(float kp, float ki, float kd)
 {
-    breathing_Kp = kp;
-    breathing_Ki = ki;
-    breathing_Kd = kd;
-    _init_PID();
+    DPR_PID_Kp = kp;
+    DPR_PID_Ki = ki;
+    DPR_PID_Kd = kd;
+    _init_DPR_PID();
+    _init_MFC_PID();
 
     log_debug("PID: %d, %d, %d",
-            (int)breathing_Kp,
-            (int)breathing_Ki,
-            (int)breathing_Kd);
+            (int)DPR_PID_Kp,
+            (int)DPR_PID_Ki,
+            (int)DPR_PID_Kd);
 }
 
 static struct {
@@ -89,8 +122,10 @@ bool breathing_init(void)
 
 bool breathing_start_program(void)
 {
-    _init_PID();
+    _init_DPR_PID();
+    _init_MFC_PID();
 
+    control_MFC_set(0, 0.0);
 
     // init state to sane value
     g_sensor_state_1 = sensors_read_pressure_1_pa();
@@ -105,6 +140,8 @@ void breathing_stop(void)
 {
     control_DPR_off();
     control_switch1_off();
+
+    control_MFC_set(0, 0.0);
 
     // TODO should we open switch1 temporarily to let the pressure out?
 }
@@ -135,8 +172,11 @@ void breathing_run(void)
 
     const uint32_t time_ms = breathing.breathing_time;
 
-    // Primitive 'control loop' 
 
+
+    //
+    // DPR control loop
+    //
 
     const unsigned int time_high = 666;//570;
     const unsigned int time_low = 1334;//1142;
@@ -147,7 +187,7 @@ void breathing_run(void)
         breathing.cycle_time = 0;
 
         // reset PID at start of peak
-        _init_PID();
+        _init_DPR_PID();
     }
 
     const int target_high = 3000;
@@ -158,52 +198,69 @@ void breathing_run(void)
     const int delta_p = (target_high - setpoint_low);
     const int setpoint_high = min(setpoint_low + (breathing.cycle_time*(delta_p/ramp_time)), target_high);
 
-
-
     g_sensor_state_1 = (0.7*g_sensor_state_1) + (0.3*sensors_read_pressure_1_pa());
     g_sensor_state_2 = (0.7*g_sensor_state_2) + (0.3*sensors_read_pressure_2_pa());
 
-    int pressure = (g_sensor_state_1 + g_sensor_state_2)/2;
+    int DPR_pressure = (g_sensor_state_1 + g_sensor_state_2)/2;
 
     // start building pressure
     if(breathing.cycle_time < time_high) {
         control_switch1_off();
-        g_setpoint_pa = setpoint_high;
-        //control_DPR_set_pa(g_setpoint_pa);
+        g_DPR_setpoint_pa = setpoint_high;
+        //control_DPR_set_pa(g_DPR_setpoint_pa);
 
     // start lower pressure
     } else if(breathing.cycle_time == time_high) {
         control_switch1_on();
-        g_setpoint_pa = setpoint_low;
-        //control_DPR_set_pa(g_setpoint_pa);
+        g_DPR_setpoint_pa = setpoint_low;
+        //control_DPR_set_pa(g_DPR_setpoint_pa);
         
     // during low pressure
     } else if(breathing.cycle_time > time_high) {
         // close valve if pressure goes below peep
-        if(pressure < setpoint_low) {
+        if(DPR_pressure < setpoint_low) {
             control_switch1_off();
         }
     }
 
-    float error = g_setpoint_pa - pressure;
+    float error = g_DPR_setpoint_pa - DPR_pressure;
 
-    float PID_out = arm_pid_f32(&pid_instance, error);
+    float DPR_PID_out = arm_pid_f32(&DPR_PID, error);
     // End PID
 
-    g_to_DPR = PID_out;//(0.95*g_to_DPR) + (0.05*PID_out);
+    g_to_DPR = DPR_PID_out;
 
     float to_DPR = constrain((g_to_DPR), 0, 10000);
-    //float to_DPR = g_setpoint_pa;
+    //float to_DPR = g_DPR_setpoint_pa;
     control_DPR_set_pa(to_DPR);
 
 
+
+    //
+    // MFC control loop
+    //
+
+    int MFC_pressure_pa = sensors_read_pressure_MFC_pa();
+    float MFC_error_mbar = (g_MFC_setpoint_pa - MFC_pressure_pa)/100.0;
+    float MFC_PID_out = arm_pid_f32(&MFC_PID, MFC_error_mbar);
+    MFC_PID_out = constrain(MFC_PID_out, MFC_FLOW_MIN_SLPM, MFC_FLOW_MAX_SLPM);
+
+    /*
+    log_debug("MFC: error=%d mbar PID_out=%d",
+            (int)MFC_error_mbar,
+            (int)MFC_PID_out);
+            */
+    
+    control_MFC_set(MFC_PID_out, g_MFC_setpoint_oxygen_fraction);
+
+    //
+    // Serial 'plot' output
+    //
+
     if(BREATHING_LOG_INTERVAL_ms && time_ms && ((time_ms % BREATHING_LOG_INTERVAL_ms) == 0)) {
         log_debug("%d,%d",
-                g_setpoint_pa,
-                //(int)g_sensor_state_1,
-                //(int)g_sensor_state_2,
-                (int)pressure);
-                //(int)to_DPR);
+                g_MFC_setpoint_pa,
+                MFC_pressure_pa);
     }
 }
 

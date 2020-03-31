@@ -61,6 +61,21 @@ void dpr(char *args) {
     }
 }
 
+
+void mfc(char *args) {
+
+    float params[3];
+    size_t n_params = 0;
+
+    if(!parse_float_csv(&n_params, params, array_length(params), args) || (n_params != 1)) {
+        log_cli("invalid flowrate '%s': expected <flow SLPM>", args);
+        return;
+    }
+
+    float flow_SLPM = params[0];
+    control_MFC_set(flow_SLPM, 0.21);
+}
+
 void dpr_PID(char *args) {
 
     if(!strlen(args)) {
@@ -251,6 +266,11 @@ CliCommand cli_commands[] = {
 		.cmd = "DPR",
 		.help = "Enable/disable DPR: 'on' or 'off'",
 		.function = dpr
+	},
+	{
+		.cmd = "MFC",
+		.help = "Set flowrate in SLPM",
+		.function = mfc
 	},
 	{
 		.cmd = "switch1",

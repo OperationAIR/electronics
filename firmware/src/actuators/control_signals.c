@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #include <lpc_tools/boardconfig.h>
 #include <lpc_tools/GPIO_HAL.h>
 #include <c_utils/constrain.h>
@@ -6,6 +8,7 @@
 #include "control_signals.h"
 #include "DPR.h"
 #include "actuators/PWM.h"
+#include "actuators/i2c_dac.h"
 #include "board.h"
 #include "board_GPIO_ID.h"
 
@@ -20,6 +23,10 @@ struct {
     PWM pwm;
 } Control;
 
+
+
+static void _setO2DAC(int mv_O2);
+static void _setAirDAC(int mv_O2);
 
 void control_signals_init()
 {
@@ -36,6 +43,8 @@ void control_signals_init()
 
     assert(PWM_init(&Control.pwm, LPC_TIMER16_0,
                 PWM_CH1, pwm_frequency, desired_pwm_resolution));
+
+    i2cdac_init(I2C_DEFAULT_SPEED);
 }
 
 bool control_DPR_on(void)
@@ -52,26 +61,48 @@ bool control_DPR_off(void)
     //return DPR_disable(&Control.DPR);
 }
 
-#include "log.h"
+bool control_MFC_set(float flow_SLPM, float O2_fraction)
+{
+     const float O2_ref = 0.21;
+    int max_flow = 50;
+
+    // flows in SLPM
+    float flow_O2 = (O2_fraction-O2_ref)*flow_SLPM / (1-O2_ref);
+    float flow_Air = (flow_SLPM-flow_O2);
+
+    float mV_O2 = flow_O2/max_flow*5000;
+    float mV_Air = flow_Air/max_flow*5000;
+
+    // Set DAC
+    _setO2DAC(mV_O2);
+    _setAirDAC(mV_Air);
+
+    // TODO can we check something? Do we know if I2C DAC is OK?
+    return true;
+}
+
+
+static void _setO2DAC(int mv_O2)
+{
+    const int vcc_mv = 5000;
+    int DAC_12bit = mv_O2*4095/(vcc_mv);
+
+    const int ADDDRESS_O2 = 0x62;
+    i2cdac_set(ADDDRESS_O2, DAC_12bit);
+}
+static void _setAirDAC(int mv_air)
+{
+    const int vcc_mv = 5000;
+    int DAC_12bit = mv_air*4095/(vcc_mv);
+
+    const int ADDDRESS_AIR = 0x63;
+    i2cdac_set(ADDDRESS_AIR, DAC_12bit);
+}
+
 bool control_DPR_set_pa(int pressure_pa)
 {
-    // correction for 1bar (voltage-controlled) DPR
-    //
-    //y = (x * 2.78) + 1000;
-    //(y-1000)/2.78 = x
-    //
-    //pressure_pa = (pressure_pa - 1000) / 2.78;
-
-    //log_debug("PWM RESOLUTION=%d", PWM_get_resolution(&Control.pwm));
-
-
-    // This assumes 4-20mA = 0-5000pa
-    //int DAC_12bit = (pressure_pa*819)/1000;
     int pwm = constrain(pressure_pa, 0, 10000);
-
     return PWM_set(&Control.pwm, PWM_CH1, pwm);
-
-    //return DPR_write(&Control.DPR, DAC_12bit);
 }
 
 void control_LED_status_on(void)
