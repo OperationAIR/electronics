@@ -189,6 +189,7 @@ void pi_comm_tasks()
 			pi_comm_send((uint8_t*)&data, sizeof(SensorsAllData));
 			pi_comm_send((uint8_t*)&crc16, 2);
 			pi_comm_reset();
+			control_LED_status_toggle();
 	} else if (g_current_command == PiCommandNewSettings) {
         size_t count = ringbuffer_used_count(&rb_Rx);
 		if (count >= sizeof(OperationSettings)) {

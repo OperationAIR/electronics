@@ -61,11 +61,11 @@ void sensors_init(void) {
 
     mprls_enable(&mprls1);
     mprls_enable(&mprls2);
-#endif
 
     uint32_t p1 = mprls_read_blocking(&mprls1);
     uint32_t p2 = mprls_read_blocking(&mprls2);
     log_debug("Pres: %u, %u", p1, p2);
+#endif
 
      ADC_init();
 
