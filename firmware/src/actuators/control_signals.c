@@ -63,8 +63,8 @@ bool control_DPR_off(void)
 
 bool control_MFC_set(float flow_SLPM, float O2_fraction)
 {
-     const float O2_ref = 0.21;
-    int max_flow = 50;
+    const float O2_ref = 0.21;
+    int max_flow = 150;
 
     // flows in SLPM
     float flow_O2 = (O2_fraction-O2_ref)*flow_SLPM / (1-O2_ref);
@@ -87,7 +87,6 @@ static void _setO2DAC(int mv_O2)
     const int vcc_mv = 5000;
     int DAC_12bit = mv_O2*4095/(vcc_mv);
 
-    const int ADDDRESS_O2 = 0x62;
     i2cdac_set(ADDDRESS_O2, DAC_12bit);
 }
 static void _setAirDAC(int mv_air)
@@ -95,7 +94,6 @@ static void _setAirDAC(int mv_air)
     const int vcc_mv = 5000;
     int DAC_12bit = mv_air*4095/(vcc_mv);
 
-    const int ADDDRESS_AIR = 0x63;
     i2cdac_set(ADDDRESS_AIR, DAC_12bit);
 }
 

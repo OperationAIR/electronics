@@ -47,6 +47,9 @@ void i2cdac_init(int speed)
 	Chip_I2C_SetClockRate(DEFAULT_I2C, speed);
 
 	i2c_set_mode(0);
+
+    i2cdac_set(ADDDRESS_O2, 0);
+    i2cdac_set(ADDDRESS_AIR, 0);
 }
 
 void i2cdac_set(uint8_t address, uint16_t value)

@@ -227,7 +227,9 @@ void breathing_run(void)
     g_sensor_state_1 = (0.7*g_sensor_state_1) + (0.3*sensors_read_pressure_1_pa());
     g_sensor_state_2 = (0.7*g_sensor_state_2) + (0.3*sensors_read_pressure_2_pa());
 
-    int DPR_pressure = (g_sensor_state_1 + g_sensor_state_2)/2;
+    // TODO FIXME: just sensor 2
+    //int DPR_pressure = (g_sensor_state_1 + g_sensor_state_2)/2;
+    int DPR_pressure = (g_sensor_state_2);// + g_sensor_state_2)/2;
 
     // start building pressure
     if(breathing.cycle_time < time_high) {
@@ -284,19 +286,21 @@ void breathing_run(void)
     //
 
     if(BREATHING_LOG_INTERVAL_ms && time_ms && ((time_ms % BREATHING_LOG_INTERVAL_ms) == 0)) {
-        /*
         // MFC plot
+        /*
         log_debug("%d,%d",
                 g_MFC_setpoint_pa,
                 MFC_pressure_pa);
-        */
+                */
 
         // DPR plot
+        //
         log_debug("%d,%d,%d,%d",
                 (int)g_DPR_setpoint_pa,
                 (int)g_sensor_state_1,
                 (int)g_sensor_state_2,
-                (int)DPR_pressure);
+                //(int)DPR_pressure,
+                (int)to_DPR);
     }
 }
 

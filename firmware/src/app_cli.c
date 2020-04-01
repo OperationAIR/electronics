@@ -77,6 +77,8 @@ static void mfc(char *args) {
 
     float flow_SLPM = params[0];
     control_MFC_set(flow_SLPM, 0.21);
+    log_cli("MFC flowrate set to ca '%d'", (int)flow_SLPM);
+
 }
 
 static void dpr_PID(char *args) {
