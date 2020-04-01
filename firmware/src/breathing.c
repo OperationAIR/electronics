@@ -166,14 +166,24 @@ bool breathing_start_program(void)
 }
 
 
+// Stop breathing, let air pressure equalize to zero
 void breathing_stop(void)
 {
     control_DPR_off();
-    control_switch1_off();
+
+    // open Valve: let all air out.
+    // TODO: is this the required behaviour? or should the pressure be
+    // kept at peep for as long as possible
+    control_switch1_on(10000);
 
     control_MFC_set(0, 0.0);
+}
 
-    // TODO should we open switch1 temporarily to let the pressure out?
+void breathing_power_off(void)
+{
+    control_DPR_off();
+    control_MFC_set(0, 0.0);
+    control_switch1_off();
 }
 
 enum TestState breathing_test_get_result(void)

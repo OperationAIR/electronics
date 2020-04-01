@@ -21,7 +21,10 @@
 */
 
 // Offset calibration at startup takes this amount of time
-const unsigned int CALIBRATION_DURATION_MS = 2000;
+const unsigned int CALIBRATION_DURATION_MS = 5000;
+
+// When breathing is stopped, valve is opened for this duration before closing
+const unsigned int BREATHING_FINAL_STOP_DURATION_MS = 3000;
 
 
 // Sensor data is logged during regular breathing program.

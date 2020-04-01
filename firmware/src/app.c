@@ -205,16 +205,29 @@ bool app_is_idle(void)
 
 enum AppState app_state_idle(void)
 {
+    // Start from CLI
     if(g_app.start_requested) {
         g_app.start_requested = false;
         return AppStatePreBreathing;
     }
+
+    // Start from GUI
+    if(g_app.settings.start) {
+        return AppStatePreBreathing;
+    }
+
 
     return AppStateIdle;
 }
 
 enum AppState app_state_pre_breathing(void)
 {
+    // Stop from GUI: abort calibration
+    if(!g_app.settings.start) {
+        breathing_power_off();
+        return AppStateIdle;
+    }
+
     g_app.current_max_pressure = 0;
 
     // At startup, do offset calibration.
@@ -244,8 +257,14 @@ enum AppState app_state_pre_breathing(void)
 
 enum AppState app_state_breathing(void)
 {
+    // Stop from CLI
     if(g_app.stop_requested) {
         g_app.stop_requested = false;
+        return AppStateAfterBreathing;
+    }
+
+    // Stop from GUI
+    if(!g_app.settings.start) {
         return AppStateAfterBreathing;
     }
 
@@ -258,13 +277,28 @@ enum AppState app_state_breathing(void)
 
 enum AppState app_state_after_breathing(void)
 {
-    log_wtime("Stop Breathing Program");
-    breathing_stop();
 
-    stats_increment_use_count();
-    control_LED_status_off();
+    if (g_app.time == 0) {
+        log_wtime("Stop Breathing Program");
+        breathing_stop();
+    }
 
-    return AppStateIdle;
+    if((g_app.time % 100) == 0) {
+        control_LED_status_toggle();
+    }
+
+    if (g_app.time >= (BREATHING_FINAL_STOP_DURATION_MS/2)) {
+        breathing_power_off();
+
+        log_wtime("Breathing is finished");
+
+        stats_increment_use_count();
+        control_LED_status_off();
+
+        return AppStateIdle;
+    }
+
+    return AppStateAfterBreathing;
 }
 
 enum AppState app_state_error(void)

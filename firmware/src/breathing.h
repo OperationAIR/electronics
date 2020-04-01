@@ -16,6 +16,7 @@ void breathing_finish_calibration(void);
 
 bool breathing_start_program(void);
 void breathing_stop(void);
+void breathing_power_off(void);
 
 void breathing_tune_DPR_PID(float kp, float ki, float kd);
 void breathing_tune_MFC_PID(float kp, float ki, float kd);
