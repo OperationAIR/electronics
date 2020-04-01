@@ -23,6 +23,7 @@ float DPR_PID_Kp = 1.0;
 float DPR_PID_Ki = 0.01;
 float DPR_PID_Kd = 3.0;
 
+static int g_signal_to_switch = 0;
 static int g_DPR_setpoint_pa = 0;
 static arm_pid_instance_f32 DPR_PID;    // pressure regulator
 static arm_pid_instance_f32 MFC_PID;    // mass flow controllers
@@ -35,6 +36,8 @@ static float g_to_DPR = 0;
 float MFC_PID_Kp = 3.0;
 float MFC_PID_Ki = 0.0;
 float MFC_PID_Kd = 0.5;
+
+#define CLOSE_TIME_MS 500
 
 #define MFC_FLOW_MIN_SLPM   0.0
 
@@ -123,6 +126,7 @@ static struct {
     volatile uint32_t cycle_time;
     volatile uint32_t breathing_time;
     enum TestState test_state;
+    volatile uint32_t timestamp_start_close;
 } breathing;
 
 
@@ -211,10 +215,12 @@ void breathing_run(void)
     breathing.cycle_time++;
     if(breathing.cycle_time > time_total) {
         breathing.cycle_time = 0;
+        breathing.timestamp_start_close = 0;
 
         // reset PID at start of peak
         _init_DPR_PID();
     }
+    g_signal_to_switch = 0;
 
     const int target_high = 3000;
     const int setpoint_low = 1000;
@@ -248,7 +254,22 @@ void breathing_run(void)
     } else if(breathing.cycle_time > time_high) {
         // close valve if pressure goes below peep
         if(DPR_pressure < setpoint_low) {
-            control_switch1_off();
+            if(breathing.timestamp_start_close == 0) {
+                breathing.timestamp_start_close = breathing.cycle_time;
+            }
+
+        }
+
+        // Close softly after closing has been initialized
+        if(breathing.timestamp_start_close > 0) {
+            const int time_since_close = (breathing.cycle_time - breathing.timestamp_start_close);
+            if(time_since_close >= 0) {
+
+                int pwm_value = (10000*time_since_close)/CLOSE_TIME_MS;
+                pwm_value = constrain(pwm_value, 0, 10000);
+                g_signal_to_switch = pwm_value;
+                control_switch1_on(10000-pwm_value);
+            }
         }
     }
 
@@ -300,6 +321,7 @@ void breathing_run(void)
                 (int)g_DPR_setpoint_pa,
                 (int)g_sensor_state_1,
                 (int)g_sensor_state_2,
+                (int)g_signal_to_switch,
                 //(int)DPR_pressure,
                 (int)to_DPR);
     }
