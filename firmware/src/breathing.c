@@ -44,7 +44,6 @@ float MFC_PID_Kd = 0.5;
 // TODO 50
 #define MFC_FLOW_MAX_SLPM   10.0
 
-const float g_MFC_setpoint_oxygen_fraction = 0.21;
 const int g_MFC_setpoint_pa = 65000;
 
 
@@ -132,7 +131,6 @@ static struct {
 
 bool breathing_init(void)
 {
-
     if (!program_validation()) {
         return false;
     }
@@ -152,6 +150,9 @@ void breathing_finish_calibration(void)
 
 bool breathing_start_program(void)
 {
+    breathing.breathing_time = 0;
+    breathing.cycle_time = 0;
+
     _init_DPR_PID();
     _init_MFC_PID();
 
@@ -203,14 +204,54 @@ enum TestState breathing_test(void)
     return breathing.test_state;
 }
 
+static struct {
+    int peep;
+    int pressure;
 
-void breathing_run(void)
+    unsigned int time_high_ms;
+    unsigned int time_low_ms;
+    unsigned int time_total_ms;
+
+    float oxygen_fraction;
+
+} cfg;
+
+static void _update_cfg(const OperationSettings *config)
+{
+    // Apply config. TODO only at start of cycle
+    cfg.peep = config->peep;
+    cfg.pressure = config->pressure;
+
+    // calculate duration of inhale/exhale in ms
+    const int freq_per_min = config->frequency;
+    const float ratio = config->ratio;
+    cfg.time_high_ms = (60000/(freq_per_min*(1+ratio)));
+    cfg.time_low_ms = ratio * cfg.time_high_ms;
+    cfg.time_total_ms = cfg.time_high_ms + cfg.time_low_ms;
+
+    // Oxygen fraction from 0-100 to 0.0-1.0
+    cfg.oxygen_fraction  = (config->oxygen * 0.01);
+}
+
+void breathing_run(const OperationSettings *config)
 {
     const int dt = 2;
-
     breathing.breathing_time+=dt;
 
     const uint32_t time_ms = breathing.breathing_time;
+
+    if(breathing.cycle_time > cfg.time_total_ms) {
+        breathing.cycle_time = 0;
+    }
+
+    if(breathing.cycle_time == 0) {
+        breathing.timestamp_start_close = 0;
+
+        _update_cfg(config);
+
+        // reset PID at start of peak
+        _init_DPR_PID();
+    }
 
 
 
@@ -218,22 +259,12 @@ void breathing_run(void)
     // DPR control loop
     //
 
-    const unsigned int time_high = 666;//570;
-    const unsigned int time_low = 1334;//1142;
-    const unsigned int time_total = time_high + time_low;
 
-    breathing.cycle_time++;
-    if(breathing.cycle_time > time_total) {
-        breathing.cycle_time = 0;
-        breathing.timestamp_start_close = 0;
-
-        // reset PID at start of peak
-        _init_DPR_PID();
-    }
     g_signal_to_switch = 0;
 
-    const int target_high = 3000;
-    const int setpoint_low = 1000;
+    // pressure in Pa
+    const int target_high = cfg.pressure;
+    const int setpoint_low = cfg.peep;
 
     // ramp is 50ms
     const int ramp_time = 50;
@@ -248,20 +279,20 @@ void breathing_run(void)
     int DPR_pressure = (g_sensor_state_1);// + g_sensor_state_2)/2;
 
     // start building pressure
-    if(breathing.cycle_time < time_high) {
+    if(breathing.cycle_time < cfg.time_high_ms) {
         control_switch1_off();
         g_DPR_setpoint_pa = setpoint_high;
         //control_DPR_set_pa(g_DPR_setpoint_pa);
 
     // start lower pressure
-    } else if(breathing.cycle_time == time_high) {
+    } else if(breathing.cycle_time == cfg.time_high_ms) {
         // TODO PWM value?
         control_switch1_on(10000);
         g_DPR_setpoint_pa = setpoint_low;
         //control_DPR_set_pa(g_DPR_setpoint_pa);
         
     // during low pressure
-    } else if(breathing.cycle_time > time_high) {
+    } else if(breathing.cycle_time > cfg.time_high_ms) {
         // close valve if pressure goes below peep
         if(DPR_pressure < setpoint_low) {
             if(breathing.timestamp_start_close == 0) {
@@ -275,7 +306,9 @@ void breathing_run(void)
             const int time_since_close = (breathing.cycle_time - breathing.timestamp_start_close);
             if(time_since_close >= 0) {
 
-                int pwm_value = (10000*time_since_close)/CLOSE_TIME_MS;
+                const int close_time = min(CLOSE_TIME_MS, cfg.time_low_ms/3);
+
+                int pwm_value = (10000*time_since_close)/close_time;
                 pwm_value = constrain(pwm_value, 0, 10000);
                 g_signal_to_switch = pwm_value;
                 control_switch1_on(10000-pwm_value);
@@ -311,7 +344,7 @@ void breathing_run(void)
             (int)MFC_PID_out);
             */
     
-    control_MFC_set(MFC_PID_out, g_MFC_setpoint_oxygen_fraction);
+    control_MFC_set(MFC_PID_out, cfg.oxygen_fraction);
 
     //
     // Serial 'plot' output
@@ -335,6 +368,9 @@ void breathing_run(void)
                 //(int)DPR_pressure,
                 (int)to_DPR);
     }
+
+
+    breathing.cycle_time+=dt;
 }
 
 

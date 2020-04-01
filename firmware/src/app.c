@@ -268,7 +268,8 @@ enum AppState app_state_breathing(void)
         return AppStateAfterBreathing;
     }
 
-    breathing_run();
+    // Note: new settings are only updated at start of new breathing cycle
+    breathing_run(&g_app.settings);
 
 
     return AppStateBreathing;

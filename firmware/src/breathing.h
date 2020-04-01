@@ -1,6 +1,8 @@
 #ifndef BREATHING_H
 #define BREATHING_H
 
+#include "settings.h"
+
 enum TestState {
     TestStateNone,
     TestStateBuildPressure,
@@ -27,7 +29,7 @@ void breathing_print_MFC_PID(void);
  * Runs the breathing control loop.
  * This function needs to be called from the app timer at fixed frequency
  */
-void breathing_run(void);
+void breathing_run(const OperationSettings *config);
 
 void breathing_start_test(void);
 enum TestState breathing_test(void);
