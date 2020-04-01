@@ -163,7 +163,7 @@ static void led_error(char *args) {
 
 static void switch1(char *args) {
 	if (strncmp(args, "on", 2) == 0) {
-		control_switch1_on();
+		control_switch1_on(10000);
 		log_cli("Enable switch 1");
 	} else if (strncmp(args, "off", 3) == 0) {
 		control_switch1_off();

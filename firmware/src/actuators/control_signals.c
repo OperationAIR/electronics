@@ -21,6 +21,7 @@ struct {
 
     DPR DPR;
     PWM pwm;
+    PWM output_pwm;
 } Control;
 
 
@@ -41,7 +42,12 @@ void control_signals_init()
     const int desired_pwm_resolution = 10000;
     const uint32_t pwm_frequency = 960;
 
+    // timer 0, ch 1
     assert(PWM_init(&Control.pwm, LPC_TIMER16_0,
+                PWM_CH1, pwm_frequency, desired_pwm_resolution));
+
+    // timer 1, ch 1
+    assert(PWM_init(&Control.output_pwm, LPC_TIMER16_1,
                 PWM_CH1, pwm_frequency, desired_pwm_resolution));
 
     i2cdac_init(I2C_DEFAULT_SPEED);
@@ -50,13 +56,17 @@ void control_signals_init()
 bool control_DPR_on(void)
 {
     PWM_set(&Control.pwm, PWM_CH1, 0);
-    return PWM_start(&Control.pwm);
-    //return DPR_enable(&Control.DPR);
+    PWM_set(&Control.output_pwm, PWM_CH1, 0);
+    bool ok  = PWM_start(&Control.pwm);
+    ok&= PWM_start(&Control.output_pwm);
+
+    return ok;
 }
 
 bool control_DPR_off(void)
 {
     PWM_stop(&Control.pwm);
+    PWM_stop(&Control.output_pwm);
     return true;
     //return DPR_disable(&Control.DPR);
 }
@@ -125,13 +135,16 @@ void control_LED_error_off(void)
     GPIO_HAL_set(Control.LED_error, LOW);
 }
 
-void control_switch1_on(void)
+void control_switch1_on(int pwm_value_below_10000)
 {
-    GPIO_HAL_set(Control.switch1, HIGH);
+    int pwm = constrain(pwm_value_below_10000, 0, 10000);
+    PWM_set(&Control.output_pwm, PWM_CH1, pwm);
+    //GPIO_HAL_set(Control.switch1, HIGH);
 }
 void control_switch1_off(void)
 {
-    GPIO_HAL_set(Control.switch1, LOW);
+    PWM_set(&Control.output_pwm, PWM_CH1, 0);
+    //GPIO_HAL_set(Control.switch1, LOW);
 }
 bool control_switch1_get_state(void)
 {
@@ -140,11 +153,13 @@ bool control_switch1_get_state(void)
 
 void control_switch2_on(void)
 {
-    GPIO_HAL_set(Control.switch2, HIGH);
+    PWM_set(&Control.pwm, PWM_CH1, 10000);
+    //GPIO_HAL_set(Control.switch2, HIGH);
 }
 void control_switch2_off(void)
 {
-    GPIO_HAL_set(Control.switch2, LOW);
+    PWM_set(&Control.pwm, PWM_CH1, 0);
+    //GPIO_HAL_set(Control.switch2, LOW);
 }
 bool control_switch2_get_state(void)
 {

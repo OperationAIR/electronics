@@ -19,9 +19,9 @@
 static bool program_validation(void);
 
 // PID loop for DPR
-float DPR_PID_Kp = 3.3;
-float DPR_PID_Ki = 0.025;
-float DPR_PID_Kd = 1.7;
+float DPR_PID_Kp = 1.0;
+float DPR_PID_Ki = 0.01;
+float DPR_PID_Kd = 3.0;
 
 static int g_DPR_setpoint_pa = 0;
 static arm_pid_instance_f32 DPR_PID;    // pressure regulator
@@ -139,7 +139,7 @@ bool breathing_init(void)
 void breathing_start_calibration(void)
 {
     // open Valve: startup auto-calibrate requires 0psi pressure in the system
-    control_switch1_on();
+    control_switch1_on(10000);
 }
 void breathing_finish_calibration(void)
 {
@@ -229,7 +229,7 @@ void breathing_run(void)
 
     // TODO FIXME: just sensor 2
     //int DPR_pressure = (g_sensor_state_1 + g_sensor_state_2)/2;
-    int DPR_pressure = (g_sensor_state_2);// + g_sensor_state_2)/2;
+    int DPR_pressure = (g_sensor_state_1);// + g_sensor_state_2)/2;
 
     // start building pressure
     if(breathing.cycle_time < time_high) {
@@ -239,7 +239,8 @@ void breathing_run(void)
 
     // start lower pressure
     } else if(breathing.cycle_time == time_high) {
-        control_switch1_on();
+        // TODO PWM value?
+        control_switch1_on(10000);
         g_DPR_setpoint_pa = setpoint_low;
         //control_DPR_set_pa(g_DPR_setpoint_pa);
         
@@ -256,7 +257,7 @@ void breathing_run(void)
     float DPR_PID_out = arm_pid_f32(&DPR_PID, error);
     // End PID
 
-    g_to_DPR = DPR_PID_out;
+    g_to_DPR = DPR_PID_out + 4000;
 
     float to_DPR = constrain((g_to_DPR), 0, 10000);
     //float to_DPR = g_DPR_setpoint_pa;

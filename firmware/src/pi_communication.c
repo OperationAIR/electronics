@@ -133,7 +133,7 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 					return PiCommandNone;
 				case PiCommandSwitch1On:
 					ringbuffer_flush(rb, 4);
-					control_switch1_on();
+					control_switch1_on(10000);
 					pi_comm_send_string("Switch 1 On\n");
 					return PiCommandNone;
 				case PiCommandSwitch1Off:
@@ -143,12 +143,12 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 					return PiCommandNone;
 				case PiCommandSwitch2On:
 					ringbuffer_flush(rb, 4);
-					control_switch1_on();
+					control_switch2_on();
 					pi_comm_send_string("Switch 2 On\n");
 					return PiCommandNone;
 				case PiCommandSwitch2Off:
 					ringbuffer_flush(rb, 4);
-					control_switch1_off();
+					control_switch2_off();
 					pi_comm_send_string("Switch 2 Off\n");
 					return PiCommandNone;
 				default:
