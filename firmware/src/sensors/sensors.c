@@ -246,6 +246,7 @@ void sensors_read_all(SensorsAllData *data)
 {
     data->pressure_1_pa = sensors_read_pressure_1_pa();
     data->pressure_2_pa = sensors_read_pressure_2_pa();
-    data->oxygen = 0; //TODO
+    data->oxygen = 0;   //TODO
+    data->flow = 0;     // TODO
 }
 

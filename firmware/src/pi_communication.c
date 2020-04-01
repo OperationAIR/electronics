@@ -189,7 +189,6 @@ void pi_comm_tasks()
 			pi_comm_send((uint8_t*)&data, sizeof(SensorsAllData));
 			pi_comm_send((uint8_t*)&crc16, 2);
 			pi_comm_reset();
-			control_LED_status_toggle();
 	} else if (g_current_command == PiCommandNewSettings) {
         size_t count = ringbuffer_used_count(&rb_Rx);
 		if (count >= sizeof(OperationSettings)) {
@@ -201,7 +200,6 @@ void pi_comm_tasks()
             if (res == settings->crc) {
                 const bool settings_ok = settings_update(settings);
                 if (settings_ok) {
-					control_LED_status_on();
 					pi_comm_send_string("Settings Ok!\n");
 					// send settings back for verification
 
@@ -210,7 +208,7 @@ void pi_comm_tasks()
 					pi_comm_send((uint8_t*)app_get_settings(), sizeof(OperationSettings));
                 } else {
 					control_LED_error_on();
-					pi_comm_send_string("Error: settings verification failed!");
+					pi_comm_send_string("Error: settings verification failed!\n");
 				}
 
             } else {

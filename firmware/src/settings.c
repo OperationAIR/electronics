@@ -5,8 +5,8 @@
 #include "app.h"
 
 typedef struct {
-    uint16_t min;
-    uint16_t max;
+    int min;
+    int max;
 } AllowedRange;
 
 struct ValidSettings {
@@ -24,15 +24,19 @@ struct ValidSettings {
 };
 
 static struct ValidSettings g_bounds = {
-    .peep = {.min = 5, .max = 25},
-    .frequency = {.min = 10, .max = 35},
-    .pressure = {.min = 10, .max = 85},
+    .peep               = {.min = 450, .max = 2500},
+    .frequency          = {.min = 10, .max = 35},
+    .pressure           = {.min = 900, .max = 8500},
+    .ratio              = {.min = 1, .max= 10},     // TODO what is the max ratio?
+    .oxygen             = {.min = 20, .max = 100},
+
+    // Note: these are not used by FW!
     .max_pressure_alarm = {.min = 10, .max = 50},
     .min_pressure_alarm = {.min = 5, .max = 30},
-    .max_TV_alarm = {.min = 100, .max = 800},
-    .min_TV_alarm = {.min = 100, .max = 300},
-    .max_fiO2_alarm = {.min = 40, .max = 80},
-    .min_fiO2_alarm = {.min = 20, .max = 45},
+    .max_TV_alarm       = {.min = 100, .max = 800},
+    .min_TV_alarm       = {.min = 100, .max = 300},
+    .max_fiO2_alarm     = {.min = 40, .max = 80},
+    .min_fiO2_alarm     = {.min = 20, .max = 45},
 };
 
 static inline bool check_bounds(uint16_t value, AllowedRange *bounds)
@@ -43,16 +47,23 @@ static inline bool check_bounds(uint16_t value, AllowedRange *bounds)
 static bool verify_settings(OperationSettings *settings)
 {
     bool ok = true;
-        ok &= check_bounds(settings->peep, &g_bounds.peep);
 
+
+    ok &= check_bounds(settings->peep, &g_bounds.peep);
     ok &= check_bounds(settings->frequency, &g_bounds.frequency);
     ok &= check_bounds(settings->pressure, &g_bounds.pressure);
+    ok &= check_bounds(settings->ratio, &g_bounds.ratio);
+    ok &= check_bounds(settings->oxygen, &g_bounds.oxygen);
+
+    // Note: these are not used by FW!
+    /*
     ok &= check_bounds(settings->max_pressure_alarm, &g_bounds.max_pressure_alarm);
     ok &= check_bounds(settings->min_pressure_alarm, &g_bounds.min_pressure_alarm);
     ok &= check_bounds(settings->max_TV_alarm, &g_bounds.max_TV_alarm);
     ok &= check_bounds(settings->min_TV_alarm, &g_bounds.min_TV_alarm);
     ok &= check_bounds(settings->max_fiO2_alarm, &g_bounds.max_fiO2_alarm);
     ok &= check_bounds(settings->min_fiO2_alarm, &g_bounds.min_fiO2_alarm);
+    */
     //TODO check new settings fields
     return ok;
 }
