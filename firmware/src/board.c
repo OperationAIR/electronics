@@ -55,13 +55,12 @@ static const PinMuxConfig pinmuxing[] = {
 
 
         // Switch outputs (GPIO for now)
-        {0,  22, (IOCON_FUNC0 | IOCON_DIGMODE_EN)},     // SWITCH_1_OUT
+        //{0,  22, (IOCON_FUNC0 | IOCON_DIGMODE_EN)},     // SWITCH_1_OUT as GPIO
+        {0,  22, (IOCON_FUNC2 | IOCON_DIGMODE_EN)},     // SWITCH_1_OUT as PWM
 
-        // As GPIO
-        //{1,  14, (IOCON_FUNC0)},                        // SWITCH_2_OUT
 
-        // As PWM
-        {1,  14, (IOCON_FUNC2)},                        // SWITCH_2_OUT
+        //{1,  14, (IOCON_FUNC0)},                        // SWITCH_2_OUT as GPIO
+        {1,  14, (IOCON_FUNC2)},                        // SWITCH_2_OUT as PWM
 
 
         // Analog inputs

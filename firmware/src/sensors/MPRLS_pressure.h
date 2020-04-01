@@ -23,11 +23,11 @@ bool mprls_enable(MPRLS *ctx);
 uint8_t mprls_trigger_read(MPRLS *ctx);
 bool mprls_is_ready(MPRLS *ctx);
 bool mprls_is_timeout(MPRLS *ctx);
-uint32_t mprls_read_data(MPRLS *ctx);
+int32_t mprls_read_data(MPRLS *ctx);
 
 /**
  * Returns pressure measurement in [pa]
  */
-uint32_t mprls_read_blocking(MPRLS *ctx);
+int32_t mprls_read_blocking(MPRLS *ctx);
 
 #endif

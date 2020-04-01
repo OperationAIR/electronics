@@ -21,6 +21,7 @@ struct {
 
     DPR DPR;
     PWM pwm;
+    PWM output_pwm;
 } Control;
 
 
@@ -41,28 +42,39 @@ void control_signals_init()
     const int desired_pwm_resolution = 10000;
     const uint32_t pwm_frequency = 960;
 
+    // timer 0, ch 1
     assert(PWM_init(&Control.pwm, LPC_TIMER16_0,
                 PWM_CH1, pwm_frequency, desired_pwm_resolution));
+
+    // timer 1, ch 1
+    assert(PWM_init(&Control.output_pwm, LPC_TIMER16_1,
+                PWM_CH1, pwm_frequency, desired_pwm_resolution));
+
+    i2cdac_init(I2C_DEFAULT_SPEED);
 }
 
 bool control_DPR_on(void)
 {
     PWM_set(&Control.pwm, PWM_CH1, 0);
-    return PWM_start(&Control.pwm);
-    //return DPR_enable(&Control.DPR);
+    PWM_set(&Control.output_pwm, PWM_CH1, 0);
+    bool ok  = PWM_start(&Control.pwm);
+    ok&= PWM_start(&Control.output_pwm);
+
+    return ok;
 }
 
 bool control_DPR_off(void)
 {
     PWM_stop(&Control.pwm);
+    PWM_stop(&Control.output_pwm);
     return true;
     //return DPR_disable(&Control.DPR);
 }
 
 bool control_MFC_set(float flow_SLPM, float O2_fraction)
 {
-     const float O2_ref = 0.21;
-    int max_flow = 50;
+    const float O2_ref = 0.21;
+    int max_flow = 150;
 
     // flows in SLPM
     float flow_O2 = (O2_fraction-O2_ref)*flow_SLPM / (1-O2_ref);
@@ -85,7 +97,6 @@ static void _setO2DAC(int mv_O2)
     const int vcc_mv = 5000;
     int DAC_12bit = mv_O2*4095/(vcc_mv);
 
-    const int ADDDRESS_O2 = 0x62;
     i2cdac_set(ADDDRESS_O2, DAC_12bit);
 }
 static void _setAirDAC(int mv_air)
@@ -93,7 +104,6 @@ static void _setAirDAC(int mv_air)
     const int vcc_mv = 5000;
     int DAC_12bit = mv_air*4095/(vcc_mv);
 
-    const int ADDDRESS_AIR = 0x63;
     i2cdac_set(ADDDRESS_AIR, DAC_12bit);
 }
 
@@ -125,13 +135,16 @@ void control_LED_error_off(void)
     GPIO_HAL_set(Control.LED_error, LOW);
 }
 
-void control_switch1_on(void)
+void control_switch1_on(int pwm_value_below_10000)
 {
-    GPIO_HAL_set(Control.switch1, HIGH);
+    int pwm = constrain(pwm_value_below_10000, 0, 10000);
+    PWM_set(&Control.output_pwm, PWM_CH1, pwm);
+    //GPIO_HAL_set(Control.switch1, HIGH);
 }
 void control_switch1_off(void)
 {
-    GPIO_HAL_set(Control.switch1, LOW);
+    PWM_set(&Control.output_pwm, PWM_CH1, 0);
+    //GPIO_HAL_set(Control.switch1, LOW);
 }
 bool control_switch1_get_state(void)
 {
@@ -140,11 +153,13 @@ bool control_switch1_get_state(void)
 
 void control_switch2_on(void)
 {
-    GPIO_HAL_set(Control.switch2, HIGH);
+    PWM_set(&Control.pwm, PWM_CH1, 10000);
+    //GPIO_HAL_set(Control.switch2, HIGH);
 }
 void control_switch2_off(void)
 {
-    GPIO_HAL_set(Control.switch2, LOW);
+    PWM_set(&Control.pwm, PWM_CH1, 0);
+    //GPIO_HAL_set(Control.switch2, LOW);
 }
 bool control_switch2_get_state(void)
 {

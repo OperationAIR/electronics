@@ -89,16 +89,16 @@ uint8_t mprls_trigger_read(MPRLS *ctx)
  *
  *  return PSI_TO_PA(Pressure)
  */
-static inline uint32_t scale(uint32_t raw)
+static inline int32_t scale(uint32_t raw)
 {
-    uint32_t A = ((raw - OUTPUT_MIN) * (P_MAX_psi - P_MIN_psi));
-    uint32_t B = (OUTPUT_MAX - OUTPUT_MIN);
+    int32_t A = ((raw - OUTPUT_MIN) * (P_MAX_psi - P_MIN_psi));
+    int32_t B = (OUTPUT_MAX - OUTPUT_MIN);
     float res_psi = A/(float)B;
 
-    return (uint32_t)(res_psi * PSI_TO_PA);
+    return (int32_t)(res_psi * PSI_TO_PA);
 }
 
-uint32_t mprls_read_data(MPRLS *ctx)
+int32_t mprls_read_data(MPRLS *ctx)
 {
     // Step 3
     uint8_t buffer[MPRLS_OUTPUT_MEASUREMENT_DATA_LENGTH];
@@ -155,7 +155,7 @@ bool mprls_is_timeout(MPRLS *ctx) {
     return delay_timeout_done(&ctx->timeout);
 }
 
-uint32_t mprls_read_blocking(MPRLS *ctx)
+int32_t mprls_read_blocking(MPRLS *ctx)
 {
     mprls_trigger_read(ctx);
 

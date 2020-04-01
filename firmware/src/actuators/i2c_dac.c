@@ -7,6 +7,15 @@
 // TODO RM
 #include "log.h"
 
+// lpc11ux only has 1 i2c peripheral
+#define DEFAULT_I2C          I2C0
+
+/* Initialize the I2C bus */
+void i2cdac_init(int speed)
+{
+    i2cdac_set(ADDDRESS_O2, 0);
+    i2cdac_set(ADDDRESS_AIR, 0);
+}
 
 void i2cdac_set(uint8_t address, uint16_t value)
 {
