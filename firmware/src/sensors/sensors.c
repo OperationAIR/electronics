@@ -175,6 +175,13 @@ int32_t sensors_read_pressure_MFC_pa(void)
     return (100 * p_MFC_mbar);
 }
 
+// Virtual 'sensor' that returns the current setpoint
+#include "breathing.h"
+int32_t sensors_read_pressure_target_pa(void)
+{
+    return breathing_read_setpoint_pa();
+}
+
 int32_t sensors_read_pressure_1_pa(void)
 {
     int32_t result = 0;
@@ -245,8 +252,12 @@ int32_t sensors_read_pressure_regulator(void)
 void sensors_read_all(SensorsAllData *data)
 {
     data->pressure_1_pa = sensors_read_pressure_1_pa();
+
     data->pressure_2_pa = sensors_read_pressure_2_pa();
-    data->oxygen = 0;   //TODO
-    data->flow = 0;     // TODO
+
+    data->oxygen = 0;   //TODO calculate from MFC feedback
+
+    // TODO this is dummy to test GUI
+    data->flow = sensors_read_pressure_target_pa();
 }
 

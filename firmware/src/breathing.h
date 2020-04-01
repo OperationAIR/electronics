@@ -25,6 +25,10 @@ void breathing_tune_MFC_PID(float kp, float ki, float kd);
 void breathing_print_DPR_PID(void);
 void breathing_print_MFC_PID(void);
 
+
+int breathing_read_setpoint_pa(void);
+
+
 /**
  * Runs the breathing control loop.
  * This function needs to be called from the app timer at fixed frequency

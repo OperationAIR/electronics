@@ -20,6 +20,7 @@ void sensors_update(void);
 int32_t sensors_read_pressure_1_pa(void);
 int32_t sensors_read_pressure_2_pa(void);
 int32_t sensors_read_pressure_MFC_pa(void);
+int32_t sensors_read_pressure_target_pa(void);
 
 // deprecated..?
 int32_t sensors_read_pressure_regulator(void);

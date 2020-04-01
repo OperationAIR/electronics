@@ -24,7 +24,7 @@ float DPR_PID_Ki = 0.01;
 float DPR_PID_Kd = 3.0;
 
 static int g_signal_to_switch = 0;
-static int g_DPR_setpoint_pa = 0;
+static volatile int g_DPR_setpoint_pa = 0;
 static arm_pid_instance_f32 DPR_PID;    // pressure regulator
 static arm_pid_instance_f32 MFC_PID;    // mass flow controllers
 static float g_sensor_state_1 = 0;
@@ -46,6 +46,10 @@ float MFC_PID_Kd = 0.5;
 
 const int g_MFC_setpoint_pa = 65000;
 
+int breathing_read_setpoint_pa(void)
+{
+    return g_DPR_setpoint_pa;
+}
 
 
 void breathing_print_DPR_PID(void)
