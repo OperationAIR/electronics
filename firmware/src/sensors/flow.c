@@ -7,7 +7,7 @@
 
 #include "chip.h"
 
-#include "log.h"
+#include <stddef.h>
 #include <c_utils/f2strn.h>
 
 
@@ -25,10 +25,8 @@ bool flowsensor_enable(void)
     _flowsensor_boot();
 
     if(!_flowsensor_selftest()) {
-        log_debug("Flowsensor: enable FAIL");
         return false;
     }
-    log_debug("Flowsensor: enable OK");
     return true;
 }
 
@@ -49,9 +47,11 @@ void flowsensor_test(void)
     f2strn(flow, flow_str, sizeof(flow_str), 3);
 
 
+    /*
     log_debug("Flowsensor: temp='%s' C, flow='%s'",
             temp_str,
             flow_str);
+            */
 }
 
 
