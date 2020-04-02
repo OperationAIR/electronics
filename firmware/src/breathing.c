@@ -283,18 +283,23 @@ void breathing_run(const OperationSettings *config)
     int DPR_pressure = (g_sensor_state_1);// + g_sensor_state_2)/2;
 
     // start building pressure
-    if(breathing.cycle_time < cfg.time_high_ms) {
+    if(breathing.cycle_time <= cfg.time_high_ms) {
         control_switch1_off();
         g_DPR_setpoint_pa = setpoint_high;
         //control_DPR_set_pa(g_DPR_setpoint_pa);
 
-    // start lower pressure
-    } else if(breathing.cycle_time == cfg.time_high_ms) {
-        // TODO PWM value?
-        control_switch1_on(10000);
-        g_DPR_setpoint_pa = setpoint_low;
-        //control_DPR_set_pa(g_DPR_setpoint_pa);
-        
+        // Note: cycle_time increases in steps of 'dt'.
+        // If the next time would be past time_high,
+        // the expiration should start.
+        if((breathing.cycle_time + dt) > cfg.time_high_ms) {
+
+            // start of lower pressure
+
+            control_switch1_on(10000);
+            g_DPR_setpoint_pa = setpoint_low;
+            //control_DPR_set_pa(g_DPR_setpoint_pa);
+        }
+
     // during low pressure
     } else if(breathing.cycle_time > cfg.time_high_ms) {
         // close valve if pressure goes below peep
