@@ -41,7 +41,7 @@ static int32_t g_offset_pressure_2 = 0;
 #define SLEW_LIMIT_PRESSURE         (5)
 #define SLEW_LIMIT_PREG_PRESSURE    (400)
 
-#define PRESSURE_SENSORS_DIGITAL    (0)
+#define PRESSURE_SENSORS_DIGITAL    (1)
 
 #if(PRESSURE_SENSORS_DIGITAL)
 static MPRLS mprls1;
