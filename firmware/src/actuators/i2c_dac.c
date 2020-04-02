@@ -4,9 +4,6 @@
 #include <stddef.h>
 
 
-// TODO RM
-#include "log.h"
-
 // lpc11ux only has 1 i2c peripheral
 #define DEFAULT_I2C          I2C0
 
@@ -19,7 +16,6 @@ void i2cdac_init(int speed)
 
 void i2cdac_set(uint8_t address, uint16_t value)
 {
-    //log_debug("I2cDAC: set 0x%X to %d", (unsigned int)address, (int)value);
     // TODO how long can this block at maximum?
     // Should a timeout be added??
 

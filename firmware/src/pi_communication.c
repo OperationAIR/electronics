@@ -33,7 +33,7 @@ enum PiCommand {
 	PiCommandLedOn 					= 0x55550000,
 	PiCommandLedOff 				= 0x66660000,
     PiCommandNewSettings 			= 0x41424344,
-    PiCommandRequestSensorValues 	= 0x22226666,
+    PiCommandRequestSensorValues 	= 0xF0F0F0F0,
 	PiCommandSwitch1On				= 0x55551111,
 	PiCommandSwitch1Off				= 0x66661111,
 	PiCommandSwitch2On				= 0x55553333,
@@ -232,7 +232,7 @@ void pi_comm_tasks()
 
 void pi_comm_send_string(char *string)
 {
-	pi_comm_send((uint8_t*)"###", 3);
+	pi_comm_send((uint8_t*)"####", 4);
 	pi_comm_send((uint8_t*)string, strlen(string));
 }
 

@@ -258,6 +258,6 @@ void sensors_read_all(SensorsAllData *data)
     data->oxygen = 0;   //TODO calculate from MFC feedback
 
     // TODO this is dummy to test GUI
-    data->flow = sensors_read_pressure_target_pa()/100;
+    data->flow = sensors_read_pressure_target_pa() / 100;
 }
 
