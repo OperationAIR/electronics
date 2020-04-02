@@ -17,6 +17,7 @@
 #include "actuators/control_signals.h"
 #include "sensors/sensors.h"
 
+#define BAUDRATE 500000
 /* Transmit and receive ring buffer sizes */
 #define UART_SRB_SIZE 256	/* Send */
 #define UART_RRB_SIZE 256	/* Receive */
@@ -33,7 +34,7 @@ enum PiCommand {
 	PiCommandLedOn 					= 0x55550000,
 	PiCommandLedOff 				= 0x66660000,
     PiCommandNewSettings 			= 0x41424344,
-    PiCommandRequestSensorValues 	= 0xF0F0F0F0,
+    PiCommandRequestSensorValues 	= 0x0D15EA5E,
 	PiCommandSwitch1On				= 0x55551111,
 	PiCommandSwitch1Off				= 0x66661111,
 	PiCommandSwitch2On				= 0x55553333,
@@ -86,7 +87,7 @@ static void Uart_Init(void)
 {
 	// Setup UART for 115.2K8N1
 	Chip_UART_Init(LPC_USART);
-	Chip_UART_SetBaud(LPC_USART, 115200);
+	Chip_UART_SetBaud(LPC_USART, BAUDRATE);
 	Chip_UART_ConfigData(LPC_USART, (UART_LCR_WLEN8 | UART_LCR_SBS_1BIT));
 	Chip_UART_SetupFIFOS(LPC_USART, (UART_FCR_FIFO_EN | UART_FCR_TRG_LEV2));
 	Chip_UART_TXEnable(LPC_USART);
