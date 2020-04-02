@@ -58,10 +58,11 @@ void UART_IRQHandler(void)
         /* Fill FIFO until full or until TX ring buffer is empty */
         while ((Chip_UART_ReadLineStatus(LPC_USART) & UART_LSR_THRE) != 0) {
             uint8_t *byte = ringbuffer_get_readable(&rb_Tx);
-            if (byte) {
-                Chip_UART_SendByte(LPC_USART, *byte);
-                ringbuffer_advance(&rb_Tx);
+            if (!byte) {
+                break;
             }
+            Chip_UART_SendByte(LPC_USART, *byte);
+            ringbuffer_advance(&rb_Tx);
         }
 
 		/* Disable transmit interrupt if the ring buffer is empty */
