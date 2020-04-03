@@ -3039,7 +3039,7 @@ U 1 1 5C0E7FF6
 P 700 10800
 F 0 "H1" H 800 10805 50  0000 L CNN
 F 1 "DNI (mounting hole)" H 800 10760 50  0001 L CNN
-F 2 "MountingHole:MountingHole_3.5mm_Pad_Via" H 700 10800 50  0001 C CNN
+F 2 "Jitter_Footprints:MountingHole_2.7mm_M2.5_Pad__wavesolder" H 700 10800 50  0001 C CNN
 F 3 "~" H 700 10800 50  0001 C CNN
 	1    700  10800
 	1    0    0    -1  
@@ -3061,7 +3061,7 @@ U 1 1 5EAC584F
 P 1050 10800
 F 0 "H2" H 1150 10805 50  0000 L CNN
 F 1 "DNI (mounting hole)" H 1150 10760 50  0001 L CNN
-F 2 "MountingHole:MountingHole_3.5mm_Pad_Via" H 1050 10800 50  0001 C CNN
+F 2 "Jitter_Footprints:MountingHole_2.7mm_M2.5_Pad__wavesolder" H 1050 10800 50  0001 C CNN
 F 3 "~" H 1050 10800 50  0001 C CNN
 	1    1050 10800
 	1    0    0    -1  
@@ -3077,17 +3077,17 @@ F 3 "" H 1050 10900 50  0001 C CNN
 	1    1050 10900
 	1    0    0    -1  
 $EndComp
-Text Notes 1700 11200 0    50   ~ 0
+Text Notes 1950 11200 0    50   ~ 0
 RPI mounting
 $Comp
 L Mechanical:MountingHole H5
 U 1 1 5F95D61B
-P 1750 11000
-F 0 "H5" H 1850 11046 50  0000 L CNN
-F 1 "DNI" H 1850 10955 50  0000 L CNN
-F 2 "MountingHole:MountingHole_2.7mm_M2.5" H 1750 11000 50  0001 C CNN
-F 3 "~" H 1750 11000 50  0001 C CNN
-	1    1750 11000
+P 1750 10750
+F 0 "H5" H 1850 10796 50  0000 L CNN
+F 1 "DNI" H 1850 10705 50  0000 L CNN
+F 2 "Jitter_Footprints:MountingHole_2.7mm_M2.5__wavesolder" H 1750 10750 50  0001 C CNN
+F 3 "~" H 1750 10750 50  0001 C CNN
+	1    1750 10750
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -3096,7 +3096,7 @@ U 1 1 5F95D34E
 P 2100 11000
 F 0 "H6" H 2200 11046 50  0000 L CNN
 F 1 "DNI" H 2200 10955 50  0000 L CNN
-F 2 "MountingHole:MountingHole_2.7mm_M2.5" H 2100 11000 50  0001 C CNN
+F 2 "Jitter_Footprints:MountingHole_2.7mm_M2.5__wavesolder" H 2100 11000 50  0001 C CNN
 F 3 "~" H 2100 11000 50  0001 C CNN
 	1    2100 11000
 	1    0    0    -1  
@@ -3107,21 +3107,21 @@ U 1 1 5F95D0C5
 P 2100 10750
 F 0 "H4" H 2200 10796 50  0000 L CNN
 F 1 "DNI" H 2200 10705 50  0000 L CNN
-F 2 "MountingHole:MountingHole_2.7mm_M2.5" H 2100 10750 50  0001 C CNN
+F 2 "Jitter_Footprints:MountingHole_2.7mm_M2.5__wavesolder" H 2100 10750 50  0001 C CNN
 F 3 "~" H 2100 10750 50  0001 C CNN
 	1    2100 10750
 	1    0    0    -1  
 $EndComp
 $Comp
-L Mechanical:MountingHole H3
+L Mechanical:MountingHole_Pad H3
 U 1 1 5F955C5F
-P 1750 10750
-F 0 "H3" H 1850 10796 50  0000 L CNN
-F 1 "DNI" H 1850 10705 50  0000 L CNN
-F 2 "MountingHole:MountingHole_2.7mm_M2.5" H 1750 10750 50  0001 C CNN
-F 3 "~" H 1750 10750 50  0001 C CNN
-	1    1750 10750
-	1    0    0    -1  
+P 1700 11000
+F 0 "H3" V 1650 11150 50  0000 L CNN
+F 1 "DNI" V 1750 11150 50  0000 L CNN
+F 2 "Jitter_Footprints:MountingHole_2.7mm_M2.5_Pad__wavesolder" H 1700 11000 50  0001 C CNN
+F 3 "~" H 1700 11000 50  0001 C CNN
+	1    1700 11000
+	0    1    1    0   
 $EndComp
 Text Label 3000 9000 0    50   ~ 0
 A_MFC_FEEDBACK_AIR
@@ -4319,7 +4319,7 @@ U 1 1 6140C98B
 P 1400 10800
 F 0 "H7" H 1500 10805 50  0000 L CNN
 F 1 "DNI (mounting hole)" H 1500 10760 50  0001 L CNN
-F 2 "MountingHole:MountingHole_3.5mm_Pad_Via" H 1400 10800 50  0001 C CNN
+F 2 "Jitter_Footprints:MountingHole_2.7mm_M2.5_Pad__wavesolder" H 1400 10800 50  0001 C CNN
 F 3 "~" H 1400 10800 50  0001 C CNN
 	1    1400 10800
 	1    0    0    -1  
@@ -4937,4 +4937,15 @@ NoConn ~ 5450 8600
 NoConn ~ 5450 8700
 NoConn ~ 5450 8800
 NoConn ~ 4050 7800
+$Comp
+L power:GND #PWR0109
+U 1 1 643A40BC
+P 1600 11000
+F 0 "#PWR0109" H 1600 10750 50  0001 C CNN
+F 1 "GND" H 1605 10827 50  0000 C CNN
+F 2 "" H 1600 11000 50  0001 C CNN
+F 3 "" H 1600 11000 50  0001 C CNN
+	1    1600 11000
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
