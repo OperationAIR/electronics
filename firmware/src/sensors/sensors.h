@@ -17,6 +17,8 @@ bool sensors_calibrate_offset(void);
 void sensors_reset(void);
 void sensors_update(void);
 
+float sensors_read_flow(void);
+
 int32_t sensors_read_pressure_1_pa(void);
 int32_t sensors_read_pressure_2_pa(void);
 int32_t sensors_read_pressure_MFC_pa(void);

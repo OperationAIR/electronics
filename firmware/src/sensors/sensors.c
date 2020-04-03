@@ -5,6 +5,7 @@
 #include "sensors.h"
 #include "actuators/control_signals.h"
 #include "ADC.h"
+#include "flow.h"
 
 #include "MPRLS_pressure.h"
 #include "board.h"
@@ -19,6 +20,7 @@ struct {
     int32_t pressure_1;
     int32_t pressure_2;
     int32_t pressure_regulator;
+    float flow;
 } Sensors;
 
 static bool g_error = false;
@@ -69,9 +71,12 @@ void sensors_init(void) {
     log_debug("Pres: %u, %u", p1, p2);
 #endif
 
-     ADC_init();
+    ADC_init();
 
-     sensors_reset();
+    bool success = flowsensor_enable();
+    float val = read_flow_sensor();
+
+    sensors_reset();
 }
 
 bool sensors_calibrate_offset(void)
@@ -113,10 +118,18 @@ static void filter_adc(int32_t* state, enum ADC_ID ID, int32_t slew_limit)
     *state+= delta;
 }
 
+static uint32_t count = 0;
 void sensors_update(void)
 {
     filter_adc(&Sensors.pressure_MFC, ADC_ID_PRESSURE_MFC,
             ADC_RANGE/SLEW_LIMIT_PRESSURE_MFC);
+
+    if (count++ % 5 == 0) {
+        Sensors.flow = read_flow_sensor();
+        Sensors.flow = Sensors.flow*3.14f*(0.0155f/2)*(0.0155f/2)*1000*60;
+    }
+//    Sensors.flow = read_flow_sensor();
+//    Sensors.flow = flowsensor_test();
 
 
 #if(PRESSURE_SENSORS_DIGITAL)
@@ -232,6 +245,10 @@ int32_t sensors_read_pressure_2_pa(void)
     return result - g_offset_pressure_2;
 }
 
+float sensors_read_flow(void) {
+    return Sensors.flow;
+}
+
 int32_t sensors_read_pressure_regulator(void)
 {
 
@@ -257,7 +274,9 @@ void sensors_read_all(SensorsAllData *data)
 
     data->oxygen = 0;   //TODO calculate from MFC feedback
 
-    // TODO this is dummy to test GUI
-    data->flow = sensors_read_pressure_target_pa() / 100;
+    data->flow = (int32_t)sensors_read_flow();
+
+//    flowsensor_test();
 }
+
 

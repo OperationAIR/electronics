@@ -74,13 +74,18 @@ bool control_DPR_off(void)
 bool control_MFC_set(float flow_SLPM, float O2_fraction)
 {
     const float O2_ref = 0.21;
-    int max_flow = 150;
+    if (O2_fraction < O2_ref) {
+        O2_fraction = O2_ref;
+    }
+
+    int max_flow = 50;
 
     // flows in SLPM
     float flow_O2 = (O2_fraction-O2_ref)*flow_SLPM / (1-O2_ref);
     float flow_Air = (flow_SLPM-flow_O2);
 
     float mV_O2 = flow_O2/max_flow*5000;
+
     float mV_Air = flow_Air/max_flow*5000;
 
     // Set DAC

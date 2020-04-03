@@ -46,6 +46,8 @@ float MFC_PID_Kd = 0.5;
 
 const int g_MFC_setpoint_pa = 65000;
 
+#include "sensors/flow.h"
+
 int breathing_read_setpoint_pa(void)
 {
     return g_DPR_setpoint_pa;
@@ -330,13 +332,11 @@ void breathing_run(const OperationSettings *config)
     float DPR_PID_out = arm_pid_f32(&DPR_PID, error);
     // End PID
 
-    g_to_DPR = DPR_PID_out + 4000;
+    g_to_DPR = DPR_PID_out + 5500;
 
     float to_DPR = constrain((g_to_DPR), 0, 10000);
     //float to_DPR = g_DPR_setpoint_pa;
     control_DPR_set_pa(to_DPR);
-
-
 
     //
     // MFC control loop
@@ -360,11 +360,11 @@ void breathing_run(const OperationSettings *config)
     //
 
     if(BREATHING_LOG_INTERVAL_ms && time_ms && ((time_ms % BREATHING_LOG_INTERVAL_ms) == 0)) {
-        // MFC plot
+//        float flow = flowsensor_test();
+//        log_debug("%d",
+//                  (int) flow);
 
-        log_debug("%d,%d",
-                g_MFC_setpoint_pa,
-                MFC_pressure_pa);
+        // MFC plot
 
 
         // DPR plot
@@ -378,6 +378,23 @@ void breathing_run(const OperationSettings *config)
                 //(int)DPR_pressure,
                 (int)to_DPR);
         */
+        log_debug("%d, %d, %d",
+                  (int) sensors_read_flow());
+//                    g_MFC_setpoint_pa,
+//                    MFC_pressure_pa);
+//                  (int) cfg.oxygen_fraction*100);
+
+        // DPR plot
+        //
+
+//        log_debug("%d,%d,%d,%d",
+//                (int)g_DPR_setpoint_pa,
+//                (int)g_sensor_state_1,
+//                (int)g_sensor_state_2,
+//                (int)g_signal_to_switch,
+//                //(int)DPR_pressure,
+//                (int)to_DPR);
+
     }
     
     breathing.cycle_time+=dt;

@@ -426,9 +426,10 @@ void app_init(int hw_version)
 void app_program_start(void)
 {
     if (!g_app.start_requested) {
-       // log_debug("Start Request");
+        log_debug("Start Request");
         g_app.stop_requested = false;
         g_app.start_requested = true;
+        g_app.settings.start = true;
     }
 }
 

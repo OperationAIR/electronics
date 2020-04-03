@@ -9,6 +9,7 @@
 
 #include <stddef.h>
 #include <c_utils/f2strn.h>
+#include <log.h>
 
 
 static void _flowsensor_boot(void);
@@ -30,11 +31,11 @@ bool flowsensor_enable(void)
     return true;
 }
 
-void flowsensor_test(void)
+float flowsensor_test(void)
 {
     const bool ok = flowsensor_enable();
     if(!ok) {
-        return;
+        return 0;
     }
 
     const float temp_celcius = _read_temp_celcius();
@@ -45,16 +46,22 @@ void flowsensor_test(void)
 
     char flow_str[32];
     f2strn(flow, flow_str, sizeof(flow_str), 3);
-
-
-    /*
-    log_debug("Flowsensor: temp='%s' C, flow='%s'",
-            temp_str,
-            flow_str);
-            */
+//
+//    log_debug("Flowsensor: temp='%s' C, flow='%s'",
+//            temp_str,
+//            flow_str);
+    return flow;
 }
 
+float read_flow_sensor(void) {
+    const bool ok = flowsensor_enable();
+    if(!ok) {
+        return 0.f;
+    }
+    const float flow = _read_flow();
 
+    return flow;
+}
 
 static void _flowsensor_boot(void) {
     // The flowsensor may be in 'bootloader mode' after first power-on.
@@ -63,6 +70,7 @@ static void _flowsensor_boot(void) {
     const uint8_t boot_addr = 0x42;
     const uint8_t boot_reg = 0x45;
     // If this fails, the sensor was probably already in 'sensor mode'.
+
     Chip_I2C_MasterCmdRead(DEFAULT_I2C, boot_addr, boot_reg, rx, sizeof(rx));
 }
 
