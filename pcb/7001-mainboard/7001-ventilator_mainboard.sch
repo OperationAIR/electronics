@@ -1472,21 +1472,6 @@ Wire Wire Line
 	3350 4500 3850 4500
 Text Notes 1100 2500 0    50   ~ 0
 Input filter + reverse polarity protection
-$Comp
-L Connector_Generic_MountingPin:Conn_01x06_MountingPin J?
-U 1 1 5EBAFE44
-P 15700 8650
-AR Path="/5BF2E340/5EBAFE44" Ref="J?"  Part="1" 
-AR Path="/5EBAFE44" Ref="J7"  Part="1" 
-F 0 "J7" H 15700 8950 50  0000 C CNN
-F 1 "6-pin FFC connector" H 15700 8450 50  0001 C CNN
-F 2 "Jitter_Footprints:Hirose_FH12-6S-0.5SH_1x06-1MP_P0.50mm_Horizontal" H 15700 8650 50  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2691078.pdf" H 15700 8650 50  0001 C CNN
-F 4 "FH12-6S-0.5SH" H 15700 8650 50  0001 C CNN "MPN"
-F 5 "1324538" H 15700 8650 50  0001 C CNN "Farnell"
-	1    15700 8650
-	1    0    0    1   
-$EndComp
 Wire Wire Line
 	15500 8350 15350 8350
 Text Notes 15900 9750 2    50   ~ 0
@@ -1521,8 +1506,6 @@ Text Label 14650 8550 0    50   ~ 0
 FLOW_I2C_SCL
 Text Label 14650 8650 0    50   ~ 0
 FLOW_I2C_SDA
-Wire Wire Line
-	15500 8850 15500 9150
 Wire Wire Line
 	15500 9150 14750 9150
 Text Notes 14650 9000 0    50   ~ 0
@@ -2559,7 +2542,6 @@ F 3 "~" H 4000 7200 50  0001 C CNN
 	1    4000 7200
 	-1   0    0    1   
 $EndComp
-NoConn ~ 4050 8200
 $Comp
 L Mechanical:Fiducial FID5
 U 1 1 610BC399
@@ -2617,7 +2599,6 @@ F 3 "~" H 2500 10200 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	5450 8000 6500 8000
-NoConn ~ 5450 8500
 Wire Wire Line
 	3000 9200 4050 9200
 Wire Wire Line
@@ -2629,11 +2610,11 @@ Text Label 6900 7350 0    50   ~ 0
 ~RESET~
 Text Label 3000 9200 0    50   ~ 0
 MCU_IO_1
-Text Notes 5500 7800 0    50   ~ 0
+Text Notes 5450 7800 0    50   ~ 0
 SCK1
-Text Notes 5500 8300 0    50   ~ 0
+Text Notes 5450 8300 0    50   ~ 0
 MOSI_1
-Text Notes 5500 8200 0    50   ~ 0
+Text Notes 5450 8200 0    50   ~ 0
 MISO_1
 Text Notes 5500 9000 0    50   ~ 0
 SCK0
@@ -2710,11 +2691,11 @@ F 4 "20021521-00010T1LF" H 7300 5450 50  0001 C CNN "MPN"
 	1    7300 5450
 	1    0    0    -1  
 $EndComp
-Text Label 6500 7800 2    50   ~ 0
+Text Label 6500 8900 2    50   ~ 0
 MCU_IO_4
-Text Label 6500 8300 2    50   ~ 0
+Text Label 6500 9100 2    50   ~ 0
 MCU_IO_3
-Text Label 6500 7900 2    50   ~ 0
+Text Label 6500 8200 2    50   ~ 0
 MCU_IO_2
 Wire Wire Line
 	4050 9300 3000 9300
@@ -2850,7 +2831,7 @@ F 4 "61032021121" H 7600 7250 50  0001 C CNN "MPN"
 $EndComp
 Text Label 3000 9900 0    50   ~ 0
 BATT_LEVEL
-Text Label 3200 7800 0    50   ~ 0
+Text Label 6500 8400 2    50   ~ 0
 LED_STATUS
 Wire Notes Line
 	600  10550 600  8600
@@ -3036,11 +3017,9 @@ Wire Wire Line
 	5450 7600 5950 7600
 Text Label 3550 9800 0    50   ~ 0
 EXHALE_PWM
-Text Label 3000 8300 0    50   ~ 0
+Text Label 6500 8300 2    50   ~ 0
 PSENSE_2_SPI_~CS~
-Wire Wire Line
-	5450 8600 6500 8600
-Text Label 6500 8400 2    50   ~ 0
+Text Label 6500 7800 2    50   ~ 0
 PSENSE_2_DATA_READY
 Wire Wire Line
 	6500 8400 5450 8400
@@ -3144,21 +3123,21 @@ F 3 "~" H 1750 10750 50  0001 C CNN
 	1    1750 10750
 	1    0    0    -1  
 $EndComp
-Text Label 3000 8900 0    50   ~ 0
+Text Label 3000 9000 0    50   ~ 0
 A_MFC_FEEDBACK_AIR
 Wire Wire Line
 	3000 9000 4050 9000
-Text Label 3000 9000 0    50   ~ 0
+Text Label 3000 8900 0    50   ~ 0
 A_MFC_FEEDBACK_O2
 Wire Notes Line
 	600  6000 2400 6000
 Wire Wire Line
 	3000 8900 4050 8900
-Text Label 6500 8900 2    50   ~ 0
+Text Label 6500 8100 2    50   ~ 0
 PSENSE_RESET
 Wire Wire Line
 	5450 8100 6500 8100
-Text Label 6500 8600 2    50   ~ 0
+Text Label 6500 7900 2    50   ~ 0
 PSENSE_1_DATA_READY
 Wire Wire Line
 	4050 8300 3000 8300
@@ -3224,12 +3203,7 @@ F 3 "~" H 5450 5300 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	6650 9100 6450 9100
-Wire Wire Line
-	6100 9400 6450 9400
-Wire Wire Line
-	6450 9400 6900 9400
-Connection ~ 6450 9400
+	7000 8900 6800 8900
 Text Label 5500 9500 0    50   ~ 0
 MCU_DM
 Text Label 5500 9400 0    50   ~ 0
@@ -3273,12 +3247,12 @@ $EndComp
 $Comp
 L power:+3.3V #PWR0146
 U 1 1 5E799208
-P 6650 9100
-F 0 "#PWR0146" H 6650 8950 50  0001 C CNN
-F 1 "+3.3V" H 6665 9273 50  0000 C CNN
-F 2 "" H 6650 9100 50  0001 C CNN
-F 3 "" H 6650 9100 50  0001 C CNN
-	1    6650 9100
+P 7000 8900
+F 0 "#PWR0146" H 7000 8750 50  0001 C CNN
+F 1 "+3.3V" H 7015 9073 50  0000 C CNN
+F 2 "" H 7000 8900 50  0001 C CNN
+F 3 "" H 7000 8900 50  0001 C CNN
+	1    7000 8900
 	1    0    0    -1  
 $EndComp
 Text Label 11500 10950 2    50   ~ 0
@@ -3563,14 +3537,14 @@ Wire Wire Line
 $Comp
 L Device:R R?
 U 1 1 5E7D4B03
-P 6450 9250
+P 6800 9050
 AR Path="/5BF2E340/5E7D4B03" Ref="R?"  Part="1" 
 AR Path="/5E7D4B03" Ref="R3"  Part="1" 
-F 0 "R3" H 6520 9296 50  0000 L CNN
-F 1 "1k5" H 6520 9205 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 6380 9250 50  0001 C CNN
-F 3 "~" H 6450 9250 50  0001 C CNN
-	1    6450 9250
+F 0 "R3" H 6870 9096 50  0000 L CNN
+F 1 "1k5" H 6870 9005 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" V 6730 9050 50  0001 C CNN
+F 3 "~" H 6800 9050 50  0001 C CNN
+	1    6800 9050
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
@@ -4035,7 +4009,7 @@ Connection ~ 2950 1850
 Connection ~ 1350 3650
 Wire Wire Line
 	850  3650 1350 3650
-Text Label 6500 8700 2    50   ~ 0
+Text Label 6500 8500 2    50   ~ 0
 USER_SWITCH
 $Comp
 L Regulator_Linear:LD1086DTTR U16
@@ -4228,8 +4202,6 @@ Wire Wire Line
 	9300 8600 10250 8600
 Text Label 3000 8700 0    50   ~ 0
 A_PSENSE_3
-Text Notes 7400 8450 0    118  ~ 0
-TODO REMAP GPIOS\nfor easier routing
 Wire Wire Line
 	2950 1850 4250 1850
 Text Notes 4250 2000 2    50   ~ 0
@@ -4247,10 +4219,6 @@ F 3 "~" H 2750 1850 50  0001 C CNN
 	1    2750 1850
 	0    -1   -1   0   
 $EndComp
-Wire Wire Line
-	6500 8700 5450 8700
-Wire Wire Line
-	5450 8800 6500 8800
 $Comp
 L power:GND #PWR?
 U 1 1 60DC1D4A
@@ -4268,12 +4236,8 @@ Wire Wire Line
 	3600 9600 4050 9600
 Text Notes 3750 9600 0    39   ~ 0
 HW_V1
-Wire Wire Line
-	3200 7800 4050 7800
 Text Label 6900 7450 0    50   ~ 0
 ~ISP~
-Text Notes 7400 8850 0    118  ~ 0
-TODO BUZZER(?)
 $Comp
 L Connector_Generic:Conn_01x05 J?
 U 1 1 60E8C3C0
@@ -4344,12 +4308,10 @@ $EndComp
 Connection ~ 13950 6650
 Wire Wire Line
 	13950 6650 13850 6650
-NoConn ~ 6500 8200
 Text Label 3500 8000 0    50   ~ 0
 I2C_3V3_SCL
 Text Label 3500 8100 0    50   ~ 0
 I2C_3V3_SDA
-NoConn ~ 5450 9100
 NoConn ~ 5900 2450
 $Comp
 L Mechanical:MountingHole_Pad H7
@@ -4482,9 +4444,9 @@ F 3 "~" H 2750 1000 50  0001 C CNN
 	1    2750 1000
 	0    -1   -1   0   
 $EndComp
-Text Label 6500 8100 2    50   ~ 0
+Text Label 3000 8200 0    50   ~ 0
 POWER_STATUS_DISCHARGING
-Text Label 6500 8800 2    50   ~ 0
+Text Label 3000 8300 0    50   ~ 0
 POWER_STATUS_FAIL
 Wire Wire Line
 	3200 7600 3550 7600
@@ -4521,20 +4483,16 @@ Wire Wire Line
 $Comp
 L power:GND #PWR?
 U 1 1 6220C0BE
-P 15500 8050
+P 15700 9050
 AR Path="/5BF2E340/6220C0BE" Ref="#PWR?"  Part="1" 
 AR Path="/6220C0BE" Ref="#PWR0218"  Part="1" 
-F 0 "#PWR0218" H 15500 7800 50  0001 C CNN
-F 1 "GND" H 15505 7877 50  0000 C CNN
-F 2 "" H 15500 8050 50  0001 C CNN
-F 3 "" H 15500 8050 50  0001 C CNN
-	1    15500 8050
+F 0 "#PWR0218" H 15700 8800 50  0001 C CNN
+F 1 "GND" H 15705 8877 50  0000 C CNN
+F 2 "" H 15700 9050 50  0001 C CNN
+F 3 "" H 15700 9050 50  0001 C CNN
+	1    15700 9050
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	15500 8050 15700 8050
-Wire Wire Line
-	15700 8050 15700 8150
 Text Label 3000 9700 0    50   ~ 0
 LED_ERROR
 Wire Wire Line
@@ -4666,17 +4624,17 @@ $EndComp
 $Comp
 L Connector_Generic_MountingPin:Conn_01x06_MountingPin J?
 U 1 1 62CC987F
-P 13750 8650
+P 13750 8550
 AR Path="/5BF2E340/62CC987F" Ref="J?"  Part="1" 
 AR Path="/62CC987F" Ref="J2"  Part="1" 
-F 0 "J2" H 13750 8950 50  0000 C CNN
-F 1 "6-pin FFC connector" H 13750 8450 50  0001 C CNN
-F 2 "Jitter_Footprints:Hirose_FH12-6S-0.5SH_1x06-1MP_P0.50mm_Horizontal" H 13750 8650 50  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2691078.pdf" H 13750 8650 50  0001 C CNN
-F 4 "FH12-6S-0.5SH" H 13750 8650 50  0001 C CNN "MPN"
-F 5 "1324538" H 13750 8650 50  0001 C CNN "Farnell"
-	1    13750 8650
-	1    0    0    1   
+F 0 "J2" H 13750 8850 50  0000 C CNN
+F 1 "6-pin FFC connector" H 13750 8350 50  0001 C CNN
+F 2 "Jitter_Footprints:Hirose_FH12-6S-0.5SH_1x06-1MP_P0.50mm_Horizontal" H 13750 8550 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2691078.pdf" H 13750 8550 50  0001 C CNN
+F 4 "FH12-6S-0.5SH" H 13750 8550 50  0001 C CNN "MPN"
+F 5 "1324538" H 13750 8550 50  0001 C CNN "Farnell"
+	1    13750 8550
+	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	13550 8350 13400 8350
@@ -4788,20 +4746,16 @@ $EndComp
 $Comp
 L power:GND #PWR?
 U 1 1 62CC98CB
-P 13550 8050
+P 13900 9000
 AR Path="/5BF2E340/62CC98CB" Ref="#PWR?"  Part="1" 
 AR Path="/62CC98CB" Ref="#PWR04"  Part="1" 
-F 0 "#PWR04" H 13550 7800 50  0001 C CNN
-F 1 "GND" H 13555 7877 50  0000 C CNN
-F 2 "" H 13550 8050 50  0001 C CNN
-F 3 "" H 13550 8050 50  0001 C CNN
-	1    13550 8050
+F 0 "#PWR04" H 13900 8750 50  0001 C CNN
+F 1 "GND" H 13905 8827 50  0000 C CNN
+F 2 "" H 13900 9000 50  0001 C CNN
+F 3 "" H 13900 9000 50  0001 C CNN
+	1    13900 9000
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	13550 8050 13750 8050
-Wire Wire Line
-	13750 8050 13750 8150
 Wire Notes Line
 	11850 9800 15950 9800
 Wire Notes Line
@@ -4929,4 +4883,58 @@ Text Label 800  1850 0    50   ~ 0
 UPS_FAIL
 Text Label 2750 2550 0    50   ~ 0
 24_CHOKE
+Wire Wire Line
+	15500 8850 15500 9150
+$Comp
+L Connector_Generic_MountingPin:Conn_01x06_MountingPin J?
+U 1 1 5EBAFE44
+P 15700 8550
+AR Path="/5BF2E340/5EBAFE44" Ref="J?"  Part="1" 
+AR Path="/5EBAFE44" Ref="J7"  Part="1" 
+F 0 "J7" H 15700 8850 50  0000 C CNN
+F 1 "6-pin FFC connector" H 15700 8350 50  0001 C CNN
+F 2 "Jitter_Footprints:Hirose_FH12-6S-0.5SH_1x06-1MP_P0.50mm_Horizontal" H 15700 8550 50  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2691078.pdf" H 15700 8550 50  0001 C CNN
+F 4 "FH12-6S-0.5SH" H 15700 8550 50  0001 C CNN "MPN"
+F 5 "1324538" H 15700 8550 50  0001 C CNN "Farnell"
+	1    15700 8550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	13750 9050 13800 9050
+Wire Wire Line
+	13800 9050 13800 9000
+Wire Wire Line
+	13800 9000 13900 9000
+Wire Wire Line
+	6100 9400 6550 9400
+Wire Wire Line
+	6800 9200 6550 9200
+Wire Wire Line
+	6550 9200 6550 9400
+Connection ~ 6550 9400
+Wire Wire Line
+	6550 9400 6900 9400
+Wire Wire Line
+	5450 9100 6500 9100
+Wire Wire Line
+	3000 8200 4050 8200
+Wire Wire Line
+	5450 8500 6500 8500
+$Comp
+L Jitter_Components:LOGO LOGO1
+U 1 1 63E630AD
+P 2850 11000
+F 0 "LOGO1" H 2928 11000 50  0000 L CNN
+F 1 "LOGO" H 2928 10955 50  0001 L CNN
+F 2 "Jitter_Logos:JitterLogo" H 2850 11000 50  0001 C CNN
+F 3 "" H 2850 11000 50  0001 C CNN
+F 4 "1" H 2850 11000 50  0001 C CNN "DNI"
+	1    2850 11000
+	1    0    0    -1  
+$EndComp
+NoConn ~ 5450 8600
+NoConn ~ 5450 8700
+NoConn ~ 5450 8800
+NoConn ~ 4050 7800
 $EndSCHEMATC

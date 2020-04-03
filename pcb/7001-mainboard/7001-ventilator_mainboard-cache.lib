@@ -670,6 +670,20 @@ X IN 4 -300 100 100 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
+# Jitter_Components_LOGO
+#
+DEF Jitter_Components_LOGO LOGO 0 40 Y Y 1 F N
+F0 "LOGO" 0 -100 50 H V C CNN
+F1 "Jitter_Components_LOGO" 0 100 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+F4 "1" 0 0 50 H I C CNN "DNI"
+DRAW
+C 0 0 0 0 1 0 N
+C 0 0 50 0 1 0 N
+ENDDRAW
+ENDDEF
+#
 # Jitter_Components_MCP4725
 #
 DEF Jitter_Components_MCP4725 U 0 40 Y Y 1 F N
