@@ -67,21 +67,6 @@ F 3 "" H 4250 2550 50  0001 C CNN
 $EndComp
 Text Notes 3700 5350 0    79   ~ 16
 5V -> 3.3V
-$Comp
-L Connector_Generic:Conn_01x08 J?
-U 1 1 5EBE6F1F
-P 650 2150
-AR Path="/5BF2E340/5EBE6F1F" Ref="J?"  Part="1" 
-AR Path="/5EBE6F1F" Ref="J5"  Part="1" 
-F 0 "J5" H 650 2600 50  0000 C CNN
-F 1 "2-pin screw terminal" H 650 1950 50  0001 C CNN
-F 2 "Jitter_Footprints:TerminalBlock_Wurth_WR-TBL_691322110008_1x08_P3.50mm_Horizontal" H 650 2150 50  0001 C CNN
-F 3 "~" H 650 2150 50  0001 C CNN
-F 4 "691321100008" H 650 2150 50  0001 C CNN "MPN"
-F 5 "1841314" H 650 2150 50  0001 C CNN "Farnell"
-	1    650  2150
-	-1   0    0    1   
-$EndComp
 Text Notes 1100 2400 0    50   ~ 0
 24VDC 4A
 $Comp
@@ -1389,9 +1374,7 @@ F 5 "2536572" V 1650 2800 50  0001 C CNN "Farnell"
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
-	2750 2700 2900 2700
-Wire Wire Line
-	2900 2700 2900 2550
+	2750 2700 2750 2550
 Wire Wire Line
 	2750 2900 2900 2900
 Wire Wire Line
@@ -1442,7 +1425,7 @@ Wire Wire Line
 Wire Wire Line
 	1250 2950 1250 3000
 Wire Wire Line
-	1000 2550 1250 2550
+	1100 2550 1250 2550
 Connection ~ 1250 2550
 Connection ~ 1250 3000
 $Comp
@@ -4059,11 +4042,11 @@ L Regulator_Linear:LD1086DTTR U16
 U 1 1 5FFD99A6
 P 14500 6650
 F 0 "U16" H 14500 6925 50  0000 C CNN
-F 1 "LD1086DT33TR" H 14500 6926 50  0001 C CNN
+F 1 "LD1086DTTR" H 14500 6926 50  0001 C CNN
 F 2 "Package_TO_SOT_SMD:TO-252-2" H 14500 7150 50  0001 C CNN
 F 3 "https://www.st.com/resource/en/datasheet/ld1086.pdf" H 14500 7150 50  0001 C CNN
-F 4 "LD1086DT33TR" H 14500 6650 50  0001 C CNN "MPN"
-F 5 "1467774" H 14500 6650 50  0001 C CNN "Farnell"
+F 4 "LD1086DTTR (adjustable)" H 14500 6650 50  0001 C CNN "MPN"
+F 5 "" H 14500 6650 50  0001 C CNN "Farnell"
 	1    14500 6650
 	1    0    0    -1  
 $EndComp
@@ -4129,8 +4112,6 @@ F 3 "~" H 14950 6800 50  0001 C CNN
 	1    14950 6800
 	1    0    0    1   
 $EndComp
-Text Notes 16150 6350 0    59   ~ 12
-TODO REVIEW FOOTPRINT\nNOTE: LDO may run hot!
 Text Notes 16150 8700 0    59   ~ 12
 TODO VERIFY\nFFC pinout\nmatches flow sensor
 Wire Wire Line
@@ -4207,7 +4188,7 @@ Connection ~ 3050 3000
 Wire Wire Line
 	3050 3000 3150 3000
 Wire Wire Line
-	3050 2550 2900 2550
+	3050 2550 2750 2550
 Connection ~ 3050 2550
 Wire Wire Line
 	3150 3050 3150 3000
@@ -4300,11 +4281,10 @@ P 15800 4450
 AR Path="/5BF2E340/60E8C3C0" Ref="J?"  Part="1" 
 AR Path="/60E8C3C0" Ref="J11"  Part="1" 
 F 0 "J11" H 15800 4150 50  0000 C CNN
-F 1 "2-pin screw terminal" H 15800 4250 50  0001 C CNN
+F 1 "5-pin screw terminal" H 15800 4250 50  0001 C CNN
 F 2 "Jitter_Footprints:TerminalBlock_Wurth_WR-TBL_691322110005_1x05_P3.50mm_Horizontal" H 15800 4450 50  0001 C CNN
 F 3 "~" H 15800 4450 50  0001 C CNN
 F 4 "691322110005" H 15800 4450 50  0001 C CNN "MPN"
-F 5 "1841318" H 15800 4450 50  0001 C CNN "Farnell"
 	1    15800 4450
 	1    0    0    1   
 $EndComp
@@ -4418,11 +4398,10 @@ P 15800 2100
 AR Path="/5BF2E340/61520C02" Ref="J?"  Part="1" 
 AR Path="/61520C02" Ref="J8"  Part="1" 
 F 0 "J8" H 15800 1800 50  0000 C CNN
-F 1 "2-pin screw terminal" H 15800 1900 50  0001 C CNN
+F 1 "5-pin screw terminal" H 15800 1900 50  0001 C CNN
 F 2 "Jitter_Footprints:TerminalBlock_Wurth_WR-TBL_691322110005_1x05_P3.50mm_Horizontal" H 15800 2100 50  0001 C CNN
 F 3 "~" H 15800 2100 50  0001 C CNN
 F 4 "691322110005" H 15800 2100 50  0001 C CNN "MPN"
-F 5 "1841318" H 15800 2100 50  0001 C CNN "Farnell"
 	1    15800 2100
 	1    0    0    1   
 $EndComp
@@ -4454,30 +4433,6 @@ Text Notes 15300 4550 0    50   ~ 0
 [0-5V]
 Text Label 4250 1000 2    50   ~ 0
 POWER_STATUS_FAIL
-$Comp
-L Device:R R?
-U 1 1 6173E463
-P 1300 1600
-AR Path="/5BF2E340/6173E463" Ref="R?"  Part="1" 
-AR Path="/6173E463" Ref="R23"  Part="1" 
-F 0 "R23" H 1150 1450 50  0000 L CNN
-F 1 "1k5" H 1100 1550 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 1230 1600 50  0001 C CNN
-F 3 "~" H 1300 1600 50  0001 C CNN
-	1    1300 1600
-	-1   0    0    1   
-$EndComp
-$Comp
-L power:+3.3V #PWR0215
-U 1 1 6173E469
-P 1300 1450
-F 0 "#PWR0215" H 1300 1300 50  0001 C CNN
-F 1 "+3.3V" H 1315 1623 50  0000 C CNN
-F 2 "" H 1300 1450 50  0001 C CNN
-F 3 "" H 1300 1450 50  0001 C CNN
-	1    1300 1450
-	1    0    0    -1  
-$EndComp
 $Comp
 L power:GND #PWR0216
 U 1 1 6173E46F
@@ -4527,10 +4482,6 @@ F 3 "~" H 2750 1000 50  0001 C CNN
 	1    2750 1000
 	0    -1   -1   0   
 $EndComp
-Text Notes 850  1850 0    50   ~ 0
-BATT_FAIL
-Text Notes 850  2050 0    50   ~ 0
-BATT_DISCHG
 Text Label 6500 8100 2    50   ~ 0
 POWER_STATUS_DISCHARGING
 Text Label 6500 8800 2    50   ~ 0
@@ -4552,55 +4503,21 @@ Connection ~ 3550 7400
 Wire Wire Line
 	3550 7400 3550 7600
 Wire Wire Line
-	1000 2550 1000 2150
+	1100 2550 1100 2150
 Wire Wire Line
-	1000 2150 850  2150
+	1100 2150 800  2150
 Wire Wire Line
-	1900 1850 1900 2050
-Wire Wire Line
-	1900 2050 850  2050
-Wire Wire Line
-	1900 1850 2600 1850
-Wire Wire Line
-	850  1850 1800 1850
+	800  1850 1800 1850
 Wire Wire Line
 	1800 1850 1800 1000
 Wire Wire Line
 	1800 1000 2600 1000
 Wire Wire Line
-	1300 1750 850  1750
-$Comp
-L power:GND #PWR?
-U 1 1 61E31F80
-P 850 2900
-AR Path="/5BF2E340/61E31F80" Ref="#PWR?"  Part="1" 
-AR Path="/61E31F80" Ref="#PWR0217"  Part="1" 
-F 0 "#PWR0217" H 850 2650 50  0001 C CNN
-F 1 "GND" H 855 2727 50  0000 C CNN
-F 2 "" H 850 2900 50  0001 C CNN
-F 3 "" H 850 2900 50  0001 C CNN
-	1    850  2900
-	-1   0    0    -1  
-$EndComp
+	800  2250 1000 2250
 Wire Wire Line
-	850  2250 950  2250
+	1000 2250 1000 3000
 Wire Wire Line
-	950  2250 950  3000
-Wire Wire Line
-	950  3000 1250 3000
-Wire Wire Line
-	850  2350 850  2450
-Connection ~ 850  2450
-Wire Wire Line
-	850  2450 850  2900
-Text Notes 350  2700 2    50   ~ 0
-TODO Earth:\ndirectly to GND?
-Text Notes 850  2900 1    50   ~ 0
-PSU_EARTH
-Text Notes 350  2150 2    50   ~ 0
-NOTE: this is \na vertical\nheader!\n3D Footprint\nis wrong..
-Text Notes 350  2450 2    50   ~ 0
-TODO 6-pins?
+	1000 3000 1250 3000
 $Comp
 L power:GND #PWR?
 U 1 1 6220C0BE
@@ -4618,11 +4535,6 @@ Wire Wire Line
 	15500 8050 15700 8050
 Wire Wire Line
 	15700 8050 15700 8150
-Wire Wire Line
-	850  1950 1300 1950
-Wire Wire Line
-	1300 1950 1300 1750
-Connection ~ 1300 1750
 Text Label 3000 9700 0    50   ~ 0
 LED_ERROR
 Wire Wire Line
@@ -4957,4 +4869,64 @@ $EndComp
 Connection ~ 12200 9150
 Wire Wire Line
 	12200 9150 12350 9150
+$Comp
+L Connector_Generic:Conn_01x05 J?
+U 1 1 5EBE6F1F
+P 600 2050
+AR Path="/5BF2E340/5EBE6F1F" Ref="J?"  Part="1" 
+AR Path="/5EBE6F1F" Ref="J5"  Part="1" 
+F 0 "J5" H 600 2400 50  0000 C CNN
+F 1 "5-pin screw terminal vertical" H 600 1850 50  0001 C CNN
+F 2 "Jitter_Footprints:TerminalBlock_Wurth_WR-TBL_691321100005_1x05_P3.50mm_Vertical" H 600 2050 50  0001 C CNN
+F 3 "~" H 600 2050 50  0001 C CNN
+F 4 "691321100005" H 600 2050 50  0001 C CNN "MPN"
+	1    600  2050
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:+3.3V #PWR0215
+U 1 1 6173E469
+P 1350 1450
+F 0 "#PWR0215" H 1350 1300 50  0001 C CNN
+F 1 "+3.3V" H 1365 1623 50  0000 C CNN
+F 2 "" H 1350 1450 50  0001 C CNN
+F 3 "" H 1350 1450 50  0001 C CNN
+	1    1350 1450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 6173E463
+P 1350 1600
+AR Path="/5BF2E340/6173E463" Ref="R?"  Part="1" 
+AR Path="/6173E463" Ref="R23"  Part="1" 
+F 0 "R23" H 1200 1450 50  0000 L CNN
+F 1 "1k5" H 1150 1550 50  0000 L CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" V 1280 1600 50  0001 C CNN
+F 3 "~" H 1350 1600 50  0001 C CNN
+	1    1350 1600
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	1350 2050 1350 1750
+Wire Wire Line
+	2100 1950 2100 1850
+Wire Wire Line
+	2100 1850 2600 1850
+Text Label 800  2150 0    50   ~ 0
+PWR+
+Text Label 800  2250 0    50   ~ 0
+PWR-
+Wire Wire Line
+	800  1950 2100 1950
+Text Label 800  2050 0    50   ~ 0
+UPS_3V3_PU
+Wire Wire Line
+	800  2050 1350 2050
+Text Label 800  1950 0    50   ~ 0
+UPS_DISCHG
+Text Label 800  1850 0    50   ~ 0
+UPS_FAIL
+Text Label 2750 2550 0    50   ~ 0
+24_CHOKE
 $EndSCHEMATC
