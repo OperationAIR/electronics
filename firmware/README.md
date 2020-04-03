@@ -53,6 +53,8 @@ The microcontroller communicates with a Raspberry Pi over `uart`. The PCB is des
 
 A binary protocol is used where each command is a unique 4 byte sequence followed by an optional payload.
 
+Binary responses from the microcontroller to the specific command are also prefixed with the same 4 bytes. ASCII responses, for logging or debug puposes are prefixed with `0x23232323` ('####').
+
 ### Command Overview
 
 | Command             | Description                             | Prefix     | Payload  | Response         |
