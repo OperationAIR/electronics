@@ -42,7 +42,7 @@ float MFC_PID_Kd = 0.5;
 #define MFC_FLOW_MIN_SLPM   0.0
 
 // TODO 50
-#define MFC_FLOW_MAX_SLPM   10.0
+#define MFC_FLOW_MAX_SLPM   50.0
 
 const int g_MFC_setpoint_pa = 65000;
 
@@ -361,14 +361,15 @@ void breathing_run(const OperationSettings *config)
 
     if(BREATHING_LOG_INTERVAL_ms && time_ms && ((time_ms % BREATHING_LOG_INTERVAL_ms) == 0)) {
         // MFC plot
-        /*
+
         log_debug("%d,%d",
                 g_MFC_setpoint_pa,
                 MFC_pressure_pa);
-                */
+
 
         // DPR plot
         //
+        /*
         log_debug("%d,%d,%d,%d",
                 (int)g_DPR_setpoint_pa,
                 (int)g_sensor_state_1,
@@ -376,9 +377,9 @@ void breathing_run(const OperationSettings *config)
                 (int)g_signal_to_switch,
                 //(int)DPR_pressure,
                 (int)to_DPR);
+        */
     }
-
-
+    
     breathing.cycle_time+=dt;
 }
 
