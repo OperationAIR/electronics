@@ -61,10 +61,10 @@ Binary responses from the microcontroller to the specific command are also prefi
 | -------------       |---------------------------------------- | ---------: | -------  | --------         |
 | NewSettings         | Send and apply new operation settings   | 0x41424344 | Settings | Applied Settings |
 | RequestSensorValues | Request current samples for all sensors | 0x0D15EA5E | None     | Sensor Values    |
-| LedOn               | Turn on status LED (Green)              | 0x55550000 | None     | Log info (ascii) |
-| LedOff              | Turn off status LED (Green)             | 0x66660000 | None     | Log info (ascii) |
-| Switch1On           | Turn on 24V switch 1                    | 0x55551111 | None     | Log info (ascii) |
-| Switch1Off          | Turn off 24V switch 1                   | 0x66661111 | None     | Log info (ascii) |
+| LedOn               | Turn on status LED (Green)              | 0x55551111 | None     | Log info (ascii) |
+| LedOff              | Turn off status LED (Green)             | 0x66661111 | None     | Log info (ascii) |
+| Switch1On           | Turn on 24V switch 1                    | 0x55552222 | None     | Log info (ascii) |
+| Switch1Off          | Turn off 24V switch 1                   | 0x66662222 | None     | Log info (ascii) |
 | Switch2On           | Turn on 24V switch 2                    | 0x55553333 | None     | Log info (ascii) |
 | Switch2Off          | Turn off 24V switch 2                   | 0x66663333 | None     | Log info (ascii) |
 

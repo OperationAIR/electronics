@@ -31,12 +31,12 @@ Ringbuffer rb_Tx;
 
 enum PiCommand {
     PiCommandNone 					= 0,
-	PiCommandLedOn 					= 0x55550000,
-	PiCommandLedOff 				= 0x66660000,
+	PiCommandLedOn 					= 0x55551111,
+	PiCommandLedOff 				= 0x66661111,
     PiCommandNewSettings 			= 0x41424344,
     PiCommandRequestSensorValues 	= 0x0D15EA5E,
-	PiCommandSwitch1On				= 0x55551111,
-	PiCommandSwitch1Off				= 0x66661111,
+	PiCommandSwitch1On				= 0x55552222,
+	PiCommandSwitch1Off				= 0x66662222,
 	PiCommandSwitch2On				= 0x55553333,
 	PiCommandSwitch2Off				= 0x66663333,
 };
@@ -112,7 +112,7 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 	uint32_t cmd = PiCommandNone;
 	size_t count = ringbuffer_used_count(rb);
 	if (count >= 4) {
-		while (0 < count--) {
+		while (4 <= count--) {
 			uint32_t *ptr = ringbuffer_get_readable(rb);
 			memcpy(&cmd, ptr, 4); // cmd = *ptr; memcpy to handle misaligned access.
 			switch (cmd) {

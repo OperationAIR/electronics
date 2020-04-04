@@ -134,6 +134,10 @@ void control_LED_error_off(void)
 {
     GPIO_HAL_set(Control.LED_error, LOW);
 }
+void control_LED_error_toggle(void)
+{
+    GPIO_HAL_toggle(Control.LED_error);
+}
 
 void control_switch1_on(int pwm_value_below_10000)
 {
