@@ -32,11 +32,16 @@ bool sensors_calibrate_offset(void);
 void sensors_reset(void);
 void sensors_update(unsigned int dt);
 
-// virtual sensors, calculated from breathing.c
-void sensors_set(int32_t volume_inhale_CC,
-        int32_t volume_exhale_CC,
-        float oxygen_fraction);
-
+/**
+ * Read sensor data with the functions below.
+ * Convention is to end the function with the (SI) unit of measurement
+ * to avoid confusion.
+ *
+ * Note: any process that outputs a meaningfull value
+ * is considered a 'sensor'. Not all of these sensors are 1-to-1 mapped
+ * to actual hardware-based sensors: some are based on calculations or
+ * conbined values from multiple sensors
+ */
 float sensors_read_flow_SLPM(void);
 int32_t sensors_read_flow_MFC_O2_SCCPM(void);
 int32_t sensors_read_flow_MFC_air_SCCPM(void);
@@ -48,6 +53,18 @@ int32_t sensors_read_pressure_target_pa(void);
 
 int32_t sensors_read_oxygen_percent(void);
 
+
+// Realtime volumes: value since start of cycle, at THIS moment
+// (usefull for plots)
+int32_t sensors_read_volume_realtime_MFC_O2_CC(void);
+int32_t sensors_read_volume_realtime_MFC_air_CC(void);
+
+// Tidal volumes: total volume during last cycle
+int32_t sensors_read_volume_cycle_in_CC(void);
+int32_t sensors_read_volume_cycle_out_CC(void);
+
+
+// Read all data relevant for communication to RPI
 void sensors_read_all(SensorsAllData *data);
 
 #endif

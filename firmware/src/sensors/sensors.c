@@ -3,6 +3,7 @@
 #include <c_utils/max.h>
 
 #include "sensors.h"
+#include "calculated.h"
 #include "actuators/control_signals.h"
 #include "ADC.h"
 #include "flow.h"
@@ -20,10 +21,6 @@ struct {
 
     int32_t flow_MFC_air;
     int32_t flow_MFC_O2;
-
-    int32_t inhale_volume_CC;
-    int32_t exhale_volume_CC;
-    int32_t oxygen_fraction;
 
     float flow; //SLPM
 } Sensors;
@@ -185,15 +182,6 @@ void sensors_update(unsigned int dt)
             ADC_RANGE/SLEW_LIMIT_MFC_FEEDBACK);
 }
 
-void sensors_set(int32_t volume_inhale_CC,
-        int32_t volume_exhale_CC,
-        float oxygen_fraction)
-{
-    Sensors.inhale_volume_CC = volume_inhale_CC;
-    Sensors.exhale_volume_CC = volume_exhale_CC;
-    Sensors.oxygen_fraction = oxygen_fraction;
-}
-
 static float p_MFC_mbar;
 const float MFC_scale_factor = 1024/5000.0;
 
@@ -213,21 +201,6 @@ int32_t sensors_read_pressure_MFC_pa(void)
 int32_t sensors_read_pressure_target_pa(void)
 {
     return breathing_read_setpoint_pa();
-}
-
-int32_t sensors_read_oxygen_percent(void)
-{
-    return Sensors.oxygen_fraction * 100;
-}
-
-int32_t sensors_read_volume_inhale_cc(void)
-{
-    return Sensors.inhale_volume_CC;
-}
-
-int32_t sensors_read_volume_exhale_cc(void)
-{
-    return Sensors.exhale_volume_CC;
 }
 
 int32_t sensors_read_pressure_1_pa(void)
@@ -301,18 +274,48 @@ int32_t sensors_read_flow_MFC_air_SCCPM(void)
 }
 
 
+/**
+ * Calculated 'sensors': based on one or more other sensor values.
+ * See calculated.c for implementation
+ */
+
+int32_t sensors_read_volume_realtime_MFC_O2_CC(void)
+{
+    return calculated_volume_realtime_MFC_O2_CC();
+}
+int32_t sensors_read_volume_realtime_MFC_air_CC(void)
+{
+    return calculated_volume_realtime_MFC_air_CC();
+}
+
+int32_t sensors_read_oxygen_percent(void)
+{
+    return calculated_oxygen_percent();
+}
+
+int32_t sensors_read_volume_cycle_in_CC(void)
+{
+    return calculated_volume_in_CC();
+}
+int32_t sensors_read_volume_cycle_out_CC(void)
+{
+    return calculated_volume_out_CC();
+}
+
+
+
+
+
 void sensors_read_all(SensorsAllData *data)
 {
     data->pressure_1_pa = sensors_read_pressure_1_pa();
-
     data->pressure_2_pa = sensors_read_pressure_2_pa();
 
-    data->oxygen = 0;   //TODO calculate from MFC feedback
+    data->oxygen = sensors_read_oxygen_percent();
 
     data->flow = (int32_t)sensors_read_flow_SLPM();
 
     data->cycle_state = breathing_get_cycle_state();
 //    flowsensor_test();
 }
-
 

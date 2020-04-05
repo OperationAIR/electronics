@@ -4,6 +4,7 @@
 
 #include "actuators/control_signals.h"
 #include "sensors/sensors.h"
+#include "sensors/calculated.h"
 
 #include "global_settings.h"
 #include "breathing.h"
@@ -45,7 +46,6 @@ float MFC_PID_Kd = 0.5;
 
 const int g_MFC_setpoint_pa = 65000;
 
-#include "sensors/flow.h"
 
 int breathing_read_setpoint_pa(void)
 {
@@ -133,45 +133,8 @@ static struct {
 } breathing;
 
 
-static struct {
-    int32_t volume_O2;
-    int32_t volume_air;
-
-    int32_t volume_out;
-
-} calc_state;
 
 
-
-static void _calculate(const int dt)
-{
-    if(breathing.breathing_time == 0) {
-
-        // Integrate MFC output flow over one cycle
-        const int32_t volume_O2_CC = calc_state.volume_O2 / 60000;
-        const int32_t volume_air_CC = calc_state.volume_air / 60000;
-        const int32_t volume_total_in_CC = volume_O2_CC + volume_air_CC;
-
-        float oxygen_fraction = (0.21*volume_air_CC + volume_O2_CC)/volume_total_in_CC;
-
-
-        // Integrate flow sensor values over one cycle
-        const int32_t volume_total_out_CC = calc_state.volume_out / 60;
-
-
-        sensors_set(volume_total_in_CC, volume_total_out_CC, oxygen_fraction);
-
-
-        memset(&calc_state, 0, sizeof(calc_state));
-    }
-
-    // volume is in CC * 60000
-    calc_state.volume_O2+=  (dt*sensors_read_flow_MFC_O2_SCCPM());
-    calc_state.volume_air+= (dt*sensors_read_flow_MFC_air_SCCPM());
-
-    // volume is in L * 60000  = CC * 60
-    calc_state.volume_out+= (dt*sensors_read_flow_SLPM());
-}
 
 
 
@@ -297,13 +260,15 @@ void breathing_run(const OperationSettings *config, const int dt)
         breathing.cycle_time = 0;
     }
 
+
+    // calculate tidal volume, oxygen percentage etc.
+    // The outputs are available as virtual 'sensors' via sensors.h
+    calculated_update((breathing.cycle_time == 0), dt);
+
     // start of breathing cycle
     if(breathing.cycle_time == 0) {
         breathing.timestamp_start_close = 0;
 
-
-        // calculate tidal volume, oxygen percentage etc
-        _calculate(dt);
 
         _update_cfg(config);
 
@@ -442,13 +407,18 @@ void breathing_run(const OperationSettings *config, const int dt)
         //
 
         log_debug("%d,%d",
+                //sensors_read_flow_MFC_O2_SCCPM(),
+                //sensors_read_flow_MFC_air_SCCPM(),
+                sensors_read_volume_realtime_MFC_O2_CC(),
+                sensors_read_volume_realtime_MFC_air_CC());
+                //(int)(1000*sensors_read_flow_SLPM()));
 //                (int)g_DPR_setpoint_pa,
 //                (int)g_sensor_state_1,
 //                (int)g_sensor_state_2);
 //                (int)g_signal_to_switch,
 //                (int)DPR_pressure,
 //                (int)to_DPR);
-                  (int) sensors_read_flow_SLPM());
+                  //(int) sensors_read_flow_SLPM());
 
     }
 
