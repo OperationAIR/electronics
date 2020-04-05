@@ -7,6 +7,7 @@
 
 #include <c_utils/ringbuffer.h>
 #include <mcu_timing/delay.h>
+#include <lpc_tools/irq.h>
 
 #include "pi_communication.h"
 
@@ -199,8 +200,14 @@ void pi_comm_tasks()
     }
 
 	if (g_current_command == PiCommandRequestSensorValues) {
+
 			SensorsAllData data;
+            // Critical section: sensor data should be read atomically.
+            // This guarantees no values are halfway being updated.
+            const bool critical_section = irq_disable();
 			sensors_read_all(&data);
+            irq_restore(critical_section);
+
 			uint16_t crc_state = 0xFFFF;
             uint16_t crc16 = crc16_usb_stream_check(&crc_state, (uint8_t*)&data, sizeof(SensorsAllData));
 			uint32_t prefix = PiCommandRequestSensorValues;
