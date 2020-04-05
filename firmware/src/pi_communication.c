@@ -31,10 +31,10 @@ Ringbuffer rb_Tx;
 
 enum PiCommand {
     PiCommandNone 					= 0,
-	PiCommandLedOn 					= 0x55551111,
-	PiCommandLedOff 				= 0x66661111,
     PiCommandNewSettings 			= 0x41424344,
     PiCommandRequestSensorValues 	= 0x0D15EA5E,
+	PiCommandLedOn 					= 0x55551111,
+	PiCommandLedOff 				= 0x66661111,
 	PiCommandSwitch1On				= 0x55552222,
 	PiCommandSwitch1Off				= 0x66662222,
 	PiCommandSwitch2On				= 0x55553333,
