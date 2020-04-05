@@ -13,13 +13,13 @@ typedef struct SensorsAllData {
 } SensorsAllData;
 
 typedef struct _SensorsAllData {
-    int32_t flow_inhale;
-    int32_t flow_exhale;
+    int32_t flow_inhale;        // Unknonwn (only average flow / total volume MFC)
+    int32_t flow_exhale;        // ml / minute ?
     int32_t pressure_inhale;
     int32_t pressure_exhale;
     int32_t pressure_patient;
     int32_t pressure_mfc;
-    int32_t oxygen;             // 0-100
+    int32_t oxygen;             // 0-100 (should never be below 21)
     int32_t tidal_volume;       // ml
     int32_t minute_volume;      // L / minute
     int32_t cycle_state;        // PeeP / Peak / None

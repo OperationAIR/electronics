@@ -12,9 +12,6 @@
 #include "board.h"
 #include "board_GPIO_ID.h"
 
-// TODO RM
-#include "log.h"
-
 
 struct {
     int32_t pressure_MFC;
@@ -66,10 +63,6 @@ void sensors_init(void) {
 
     mprls_enable(&mprls1);
     mprls_enable(&mprls2);
-
-    uint32_t p1 = mprls_read_blocking(&mprls1);
-    uint32_t p2 = mprls_read_blocking(&mprls2);
-    log_debug("Pres: %u, %u", p1, p2);
 #endif
 
     ADC_init();
