@@ -9,7 +9,22 @@ typedef struct SensorsAllData {
     int32_t pressure_1_pa;
     int32_t pressure_2_pa;
     int32_t oxygen;
+    int32_t cycle_state;        // PeeP / Peak / None
 } SensorsAllData;
+
+typedef struct _SensorsAllData {
+    int32_t flow_inhale;
+    int32_t flow_exhale;
+    int32_t pressure_inhale;
+    int32_t pressure_exhale;
+    int32_t pressure_patient;
+    int32_t pressure_mfc;
+    int32_t oxygen;             // 0-100
+    int32_t tidal_volume;       // ml
+    int32_t minute_volume;      // L / minute
+    int32_t cycle_state;        // PeeP / Peak / None
+    int32_t power_status;
+} _SensorsAllData;
 
 void sensors_init(void);
 
@@ -28,4 +43,5 @@ int32_t sensors_read_pressure_target_pa(void);
 int32_t sensors_read_pressure_regulator(void);
 
 void sensors_read_all(SensorsAllData *data);
+
 #endif

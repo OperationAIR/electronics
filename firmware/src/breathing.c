@@ -15,7 +15,6 @@
 
 #include "cmsis_dsp_lib/arm_math.h"
 
-
 static bool program_validation(void);
 
 // PID loop for DPR
@@ -30,7 +29,7 @@ static arm_pid_instance_f32 MFC_PID;    // mass flow controllers
 static float g_sensor_state_1 = 0;
 static float g_sensor_state_2 = 0;
 static float g_to_DPR = 0;
-
+static volatile enum BreathCycleState g_breath_cycle_state = BreathCycleStateNone;
 
 // PID loop for MFC
 float MFC_PID_Kp = 3.0;
@@ -52,7 +51,6 @@ int breathing_read_setpoint_pa(void)
 {
     return g_DPR_setpoint_pa;
 }
-
 
 void breathing_print_DPR_PID(void)
 {
@@ -156,6 +154,7 @@ void breathing_finish_calibration(void)
 
 bool breathing_start_program(void)
 {
+    g_breath_cycle_state = BreathCycleStateNone;
     breathing.breathing_time = 0;
     breathing.cycle_time = 0;
 
@@ -176,6 +175,7 @@ bool breathing_start_program(void)
 // Stop breathing, let air pressure equalize to zero
 void breathing_stop(void)
 {
+    g_breath_cycle_state = BreathCycleStateNone;
     control_DPR_off();
 
     // open Valve: let all air out.
@@ -286,6 +286,7 @@ void breathing_run(const OperationSettings *config)
 
     // start building pressure
     if(breathing.cycle_time <= cfg.time_high_ms) {
+        g_breath_cycle_state = BreathCycleStatePeakPressure;
         control_switch1_off();
         g_DPR_setpoint_pa = setpoint_high;
         //control_DPR_set_pa(g_DPR_setpoint_pa);
@@ -304,6 +305,7 @@ void breathing_run(const OperationSettings *config)
 
     // during low pressure
     } else if(breathing.cycle_time > cfg.time_high_ms) {
+        g_breath_cycle_state = BreathCycleStatePeep;
         // close valve if pressure goes below peep
         if(DPR_pressure < setpoint_low) {
             if(breathing.timestamp_start_close == 0) {
@@ -352,7 +354,7 @@ void breathing_run(const OperationSettings *config)
             (int)MFC_error_mbar,
             (int)MFC_PID_out);
             */
-    
+
     control_MFC_set(MFC_PID_out, cfg.oxygen_fraction);
 
     //
@@ -397,8 +399,14 @@ void breathing_run(const OperationSettings *config)
                   (int) sensors_read_flow());
 
     }
-    
+
     breathing.cycle_time+=dt;
+}
+
+
+enum BreathCycleState breathing_get_cycle_state(void)
+{
+    return g_breath_cycle_state;
 }
 
 

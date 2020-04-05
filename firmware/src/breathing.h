@@ -11,6 +11,14 @@ enum TestState {
     TestStateFailed
 };
 
+
+enum BreathCycleState {
+    BreathCycleStateNone            = 0,
+    BreathCycleStatePeakPressure    = 1,
+    BreathCycleStatePeep            = 2,
+} BreathCycleState;
+
+
 bool breathing_init(void);
 
 void breathing_start_calibration(void);
@@ -27,6 +35,7 @@ void breathing_print_MFC_PID(void);
 
 
 int breathing_read_setpoint_pa(void);
+enum BreathCycleState breathing_get_cycle_state(void);
 
 
 /**

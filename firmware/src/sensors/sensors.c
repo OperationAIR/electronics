@@ -6,6 +6,7 @@
 #include "actuators/control_signals.h"
 #include "ADC.h"
 #include "flow.h"
+#include "breathing.h"
 
 #include "MPRLS_pressure.h"
 #include "board.h"
@@ -277,6 +278,7 @@ void sensors_read_all(SensorsAllData *data)
 
     data->flow = (int32_t)sensors_read_flow();
 
+    data->cycle_state = breathing_get_cycle_state();
 //    flowsensor_test();
 }
 
