@@ -199,9 +199,9 @@ static void sensors(char *args) {
     char str[32];
     f2strn(sensors_read_flow_SLPM(), str, sizeof(str), 3);
     log_cli("Flow: '%s' SLPM", str);
-    f2strn(sensors_read_flow_MFC_O2_SLPM(), str, sizeof(str), 3);
+    f2strn(sensors_read_flow_MFC_O2_SCCPM()/1000.0, str, sizeof(str), 3);
     log_cli("MFC flow O2: '%s' SLPM", str);
-    f2strn(sensors_read_flow_MFC_air_SLPM(), str, sizeof(str), 3);
+    f2strn(sensors_read_flow_MFC_air_SCCPM()/1000.0, str, sizeof(str), 3);
     log_cli("MFC flow air: '%s' SLPM", str);
     log_cli("Pressure MFC: %d Pa", sensors_read_pressure_MFC_pa());
     log_cli("Pressure 1: %d Pa", sensors_read_pressure_1_pa());

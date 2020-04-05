@@ -42,7 +42,7 @@ enum BreathCycleState breathing_get_cycle_state(void);
  * Runs the breathing control loop.
  * This function needs to be called from the app timer at fixed frequency
  */
-void breathing_run(const OperationSettings *config);
+void breathing_run(const OperationSettings *config, const int dt);
 
 void breathing_start_test(void);
 enum TestState breathing_test(void);

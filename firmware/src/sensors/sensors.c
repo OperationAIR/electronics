@@ -21,6 +21,10 @@ struct {
     int32_t flow_MFC_air;
     int32_t flow_MFC_O2;
 
+    int32_t inhale_volume_CC;
+    int32_t exhale_volume_CC;
+    int32_t oxygen_fraction;
+
     float flow; //SLPM
 } Sensors;
 
@@ -106,7 +110,7 @@ void sensors_reset(void)
     g_offset_pressure_1 = 0;
     g_offset_pressure_2 = 0;
 
-    sensors_update();
+    sensors_update(1);
 }
 
 static void filter_adc(int32_t* state, enum ADC_ID ID, int32_t slew_limit)
@@ -122,7 +126,7 @@ static void filter_adc(int32_t* state, enum ADC_ID ID, int32_t slew_limit)
 }
 
 static uint32_t count = 0;
-void sensors_update(void)
+void sensors_update(unsigned int dt)
 {
     filter_adc(&Sensors.pressure_MFC, ADC_ID_PRESSURE_MFC,
             ADC_RANGE/SLEW_LIMIT_PRESSURE_MFC);
@@ -179,10 +183,15 @@ void sensors_update(void)
             ADC_RANGE/SLEW_LIMIT_MFC_FEEDBACK);
     filter_adc(&Sensors.flow_MFC_air, ADC_ID_MFC_AIR,
             ADC_RANGE/SLEW_LIMIT_MFC_FEEDBACK);
-    //TODO 
-    //Sensors.flow_MFC_O2 = -1;
-    //Sensors.flow_MFC_air = -1;
+}
 
+void sensors_set(int32_t volume_inhale_CC,
+        int32_t volume_exhale_CC,
+        float oxygen_fraction)
+{
+    Sensors.inhale_volume_CC = volume_inhale_CC;
+    Sensors.exhale_volume_CC = volume_exhale_CC;
+    Sensors.oxygen_fraction = oxygen_fraction;
 }
 
 static float p_MFC_mbar;
@@ -204,6 +213,21 @@ int32_t sensors_read_pressure_MFC_pa(void)
 int32_t sensors_read_pressure_target_pa(void)
 {
     return breathing_read_setpoint_pa();
+}
+
+int32_t sensors_read_oxygen_percent(void)
+{
+    return Sensors.oxygen_fraction * 100;
+}
+
+int32_t sensors_read_volume_inhale_cc(void)
+{
+    return Sensors.inhale_volume_CC;
+}
+
+int32_t sensors_read_volume_exhale_cc(void)
+{
+    return Sensors.exhale_volume_CC;
 }
 
 int32_t sensors_read_pressure_1_pa(void)
@@ -260,20 +284,20 @@ float sensors_read_flow_SLPM(void) {
     return Sensors.flow;
 }
 
-float sensors_read_flow_MFC_O2_SLPM(void)
+int32_t sensors_read_flow_MFC_O2_SCCPM(void)
 {
     const int v_MFC_O2 = ADC_scale(Sensors.flow_MFC_O2, ADC_FACTOR_FLOW_MFC);
-    // O-5000 mV / 100.0 = 0-50SLPM
+    // O-5000 mV / 100.0 = 0-50 000 SCCPM
 
-    return v_MFC_O2/100.0;
+    return v_MFC_O2 * 10;
 }
 
-float sensors_read_flow_MFC_air_SLPM(void)
+int32_t sensors_read_flow_MFC_air_SCCPM(void)
 {
     const int v_MFC_air = ADC_scale(Sensors.flow_MFC_air, ADC_FACTOR_FLOW_MFC);
-    // O-5000 mV / 100.0 = 0-50SLPM
+    // O-5000 mV / 100.0 = 0-50 000 SCCPM
 
-    return v_MFC_air/100.0;
+    return v_MFC_air * 10;
 }
 
 

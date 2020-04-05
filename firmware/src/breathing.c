@@ -133,6 +133,50 @@ static struct {
 } breathing;
 
 
+static struct {
+    int32_t volume_O2;
+    int32_t volume_air;
+
+    int32_t volume_out;
+
+} calc_state;
+
+
+
+static void _calculate(const int dt)
+{
+    if(breathing.breathing_time == 0) {
+
+        // Integrate MFC output flow over one cycle
+        const int32_t volume_O2_CC = calc_state.volume_O2 / 60000;
+        const int32_t volume_air_CC = calc_state.volume_air / 60000;
+        const int32_t volume_total_in_CC = volume_O2_CC + volume_air_CC;
+
+        float oxygen_fraction = (0.21*volume_air_CC + volume_O2_CC)/volume_total_in_CC;
+
+
+        // Integrate flow sensor values over one cycle
+        const int32_t volume_total_out_CC = calc_state.volume_out / 60;
+
+
+        sensors_set(volume_total_in_CC, volume_total_out_CC, oxygen_fraction);
+
+
+        memset(&calc_state, 0, sizeof(calc_state));
+    }
+
+    // volume is in CC * 60000
+    calc_state.volume_O2+=  (dt*sensors_read_flow_MFC_O2_SCCPM());
+    calc_state.volume_air+= (dt*sensors_read_flow_MFC_air_SCCPM());
+
+    // volume is in L * 60000  = CC * 60
+    calc_state.volume_out+= (dt*sensors_read_flow_SLPM());
+}
+
+
+
+
+
 bool breathing_init(void)
 {
     if (!program_validation()) {
@@ -239,10 +283,13 @@ static void _update_cfg(const OperationSettings *config)
     cfg.oxygen_fraction  = (config->oxygen * 0.01);
 }
 
-void breathing_run(const OperationSettings *config)
+
+void breathing_run(const OperationSettings *config, const int dt)
 {
-    const int dt = 2;
     breathing.breathing_time+=dt;
+
+
+
 
     const uint32_t time_ms = breathing.breathing_time;
 
@@ -250,8 +297,13 @@ void breathing_run(const OperationSettings *config)
         breathing.cycle_time = 0;
     }
 
+    // start of breathing cycle
     if(breathing.cycle_time == 0) {
         breathing.timestamp_start_close = 0;
+
+
+        // calculate tidal volume, oxygen percentage etc
+        _calculate(dt);
 
         _update_cfg(config);
 

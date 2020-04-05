@@ -30,17 +30,23 @@ void sensors_init(void);
 
 bool sensors_calibrate_offset(void);
 void sensors_reset(void);
-void sensors_update(void);
+void sensors_update(unsigned int dt);
+
+// virtual sensors, calculated from breathing.c
+void sensors_set(int32_t volume_inhale_CC,
+        int32_t volume_exhale_CC,
+        float oxygen_fraction);
 
 float sensors_read_flow_SLPM(void);
-float sensors_read_flow_MFC_O2_SLPM(void);
-float sensors_read_flow_MFC_air_SLPM(void);
+int32_t sensors_read_flow_MFC_O2_SCCPM(void);
+int32_t sensors_read_flow_MFC_air_SCCPM(void);
 
 int32_t sensors_read_pressure_1_pa(void);
 int32_t sensors_read_pressure_2_pa(void);
 int32_t sensors_read_pressure_MFC_pa(void);
 int32_t sensors_read_pressure_target_pa(void);
 
+int32_t sensors_read_oxygen_percent(void);
 
 void sensors_read_all(SensorsAllData *data);
 
