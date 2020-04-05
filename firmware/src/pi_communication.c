@@ -107,14 +107,31 @@ void pi_comm_init(void)
 }
 
 
+/**
+ * Read ringbuffer elements without advancing read pointer
+ */
+uint32_t ringbuffer_read_ahead(Ringbuffer *ringbuffer,
+        void *elements, uint32_t element_count)
+{
+    void *read;
+    uint8_t *elems = elements;
+    uint32_t elements_read = 0;
+    while((elements_read < element_count)
+            && (read = ringbuffer_get_readable_offset(ringbuffer, elements_read))) {
+        memcpy(elems, read, ringbuffer->elem_sz);
+        elems+= ringbuffer->elem_sz;
+        elements_read++;
+    }
+    return elements_read;
+}
+
 static enum PiCommand match_start_sequence(Ringbuffer *rb)
 {
 	uint32_t cmd = PiCommandNone;
 	size_t count = ringbuffer_used_count(rb);
 	if (count >= 4) {
 		while (4 <= count--) {
-			uint32_t *ptr = ringbuffer_get_readable(rb);
-			memcpy(&cmd, ptr, 4); // cmd = *ptr; memcpy to handle misaligned access.
+			ringbuffer_read_ahead(rb, &cmd, 4);
 			switch (cmd) {
 				case PiCommandNewSettings:
 					ringbuffer_flush(rb, 4);
@@ -194,13 +211,14 @@ void pi_comm_tasks()
 	} else if (g_current_command == PiCommandNewSettings) {
         size_t count = ringbuffer_used_count(&rb_Rx);
 		if (count >= sizeof(OperationSettings)) {
-			OperationSettings *settings = ringbuffer_get_readable(&rb_Rx);
+			OperationSettings settings;
+			ringbuffer_read(&rb_Rx, &settings, sizeof(OperationSettings));
 
 			uint16_t crc_state = 0xFFFF;
-            uint16_t res = crc16_usb_stream_check(&crc_state, (uint8_t*)settings, sizeof(OperationSettings)-2);
+            uint16_t res = crc16_usb_stream_check(&crc_state, (uint8_t*)&settings, sizeof(OperationSettings)-2);
 
-            if (res == settings->crc) {
-                const bool settings_ok = settings_update(settings);
+            if (res == settings.crc) {
+                const bool settings_ok = settings_update(&settings);
                 if (settings_ok) {
 					pi_comm_send_string("Settings Ok!\n");
 					// send settings back for verification
@@ -220,7 +238,6 @@ void pi_comm_tasks()
 				pi_comm_send((uint8_t*)&prefix, 4);
 				pi_comm_send((uint8_t*)app_get_settings(), sizeof(OperationSettings));
             }
-			ringbuffer_clear(&rb_Rx);
 			g_current_command = PiCommandNone;
 		} else if (delay_timeout_done(&pi_comm_timeout)) {
 			pi_comm_reset();
