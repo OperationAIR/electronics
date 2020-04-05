@@ -73,8 +73,6 @@ int main(void)
     pi_comm_send_string("Hallo Ventilator!\n");
 
     control_LED_status_on();
-    // DEMO TODO RM
-    flowsensor_test();
 
     delay_us(1000*1000);
     control_LED_status_off();

@@ -378,8 +378,8 @@ void breathing_run(const OperationSettings *config)
                 //(int)DPR_pressure,
                 (int)to_DPR);
         */
-        log_debug("%d, %d, %d",
-                  (int) sensors_read_flow());
+//        log_debug("%d, %d, %d",
+//                  (int) sensors_read_flow());
 //                    g_MFC_setpoint_pa,
 //                    MFC_pressure_pa);
 //                  (int) cfg.oxygen_fraction*100);
@@ -387,13 +387,14 @@ void breathing_run(const OperationSettings *config)
         // DPR plot
         //
 
-//        log_debug("%d,%d,%d,%d",
+        log_debug("%d,%d",
 //                (int)g_DPR_setpoint_pa,
 //                (int)g_sensor_state_1,
-//                (int)g_sensor_state_2,
+//                (int)g_sensor_state_2);
 //                (int)g_signal_to_switch,
-//                //(int)DPR_pressure,
+//                (int)DPR_pressure,
 //                (int)to_DPR);
+                  (int) sensors_read_flow());
 
     }
     

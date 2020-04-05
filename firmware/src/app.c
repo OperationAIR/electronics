@@ -439,6 +439,7 @@ void app_program_stop(void)
         log_debug("Stop Request");
         g_app.start_requested = false;
         g_app.stop_requested = true;
+        g_app.settings.start = false;
     }
 }
 
