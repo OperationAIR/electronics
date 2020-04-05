@@ -7,6 +7,7 @@
 
 #include <mcu_timing/delay.h>
 #include <c_utils/array.h>
+#include <c_utils/f2strn.h>
 #include <startup_lpc11xxx/stacktools.h>
 
 #include "watchdog.h"
@@ -194,10 +195,17 @@ static void switch2(char *args) {
 }
 
 static void sensors(char *args) {
+
+    char str[32];
+    f2strn(sensors_read_flow_SLPM(), str, sizeof(str), 3);
+    log_cli("Flow: '%s' SLPM", str);
+    f2strn(sensors_read_flow_MFC_O2_SLPM(), str, sizeof(str), 3);
+    log_cli("MFC flow O2: '%s' SLPM", str);
+    f2strn(sensors_read_flow_MFC_air_SLPM(), str, sizeof(str), 3);
+    log_cli("MFC flow air: '%s' SLPM", str);
     log_cli("Pressure MFC: %d Pa", sensors_read_pressure_MFC_pa());
     log_cli("Pressure 1: %d Pa", sensors_read_pressure_1_pa());
     log_cli("Pressure 2: %d Pa", sensors_read_pressure_2_pa());
-    log_cli("Pressure DPR: %d Pa", sensors_read_pressure_regulator());
 }
 
 static void halt(char *args)

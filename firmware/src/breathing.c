@@ -381,7 +381,7 @@ void breathing_run(const OperationSettings *config)
                 (int)to_DPR);
         */
 //        log_debug("%d, %d, %d",
-//                  (int) sensors_read_flow());
+//                  (int) sensors_read_flow_SLPM());
 //                    g_MFC_setpoint_pa,
 //                    MFC_pressure_pa);
 //                  (int) cfg.oxygen_fraction*100);
@@ -396,7 +396,7 @@ void breathing_run(const OperationSettings *config)
 //                (int)g_signal_to_switch,
 //                (int)DPR_pressure,
 //                (int)to_DPR);
-                  (int) sensors_read_flow());
+                  (int) sensors_read_flow_SLPM());
 
     }
 

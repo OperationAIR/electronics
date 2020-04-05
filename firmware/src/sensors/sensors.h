@@ -32,15 +32,15 @@ bool sensors_calibrate_offset(void);
 void sensors_reset(void);
 void sensors_update(void);
 
-float sensors_read_flow(void);
+float sensors_read_flow_SLPM(void);
+float sensors_read_flow_MFC_O2_SLPM(void);
+float sensors_read_flow_MFC_air_SLPM(void);
 
 int32_t sensors_read_pressure_1_pa(void);
 int32_t sensors_read_pressure_2_pa(void);
 int32_t sensors_read_pressure_MFC_pa(void);
 int32_t sensors_read_pressure_target_pa(void);
 
-// deprecated..?
-int32_t sensors_read_pressure_regulator(void);
 
 void sensors_read_all(SensorsAllData *data);
 
