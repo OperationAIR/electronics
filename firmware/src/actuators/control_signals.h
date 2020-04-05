@@ -17,10 +17,11 @@ void control_LED_status_toggle(void);
 
 void control_LED_error_on(void);
 void control_LED_error_off(void);
+void control_LED_error_toggle(void);
 
 //void control_switch1_on(void);
-void control_switch1_on(int pwm_value_below_10000);
 void control_switch1_off(void);
+void control_switch1_on(int pwm_value_below_10000);
 bool control_switch1_get_state(void);
 
 void control_switch2_on(void);

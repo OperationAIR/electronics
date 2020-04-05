@@ -1,4 +1,4 @@
-16899248173439850
+16907204392503079
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -50176,6 +50176,20 @@ mounting hole 2.7mm
 9
 1
 Jitter_Footprints
+MountingHole_2.7mm_M2.5_Pad__wavesolder
+Mounting Hole 2.7mm
+mounting hole 2.7mm
+0
+8
+1
+Jitter_Footprints
+MountingHole_2.7mm_M2.5__wavesolder
+Mounting Hole 2.7mm
+mounting hole 2.7mm
+0
+0
+0
+Jitter_Footprints
 MountingHole_M2_threaded_5mm
 Mounting Hole 2.7mm
 mounting hole 2.7mm
@@ -50316,6 +50330,13 @@ SPST button tactile switch
 2
 2
 Jitter_Footprints
+TO-252-2
+TO-252 / DPAK SMD package, http://www.infineon.com/cms/en/product/packages/PG-TO252/PG-TO252-3-1/
+DPAK TO-252 DPAK-3 TO-252-3 SOT-428
+0
+7
+3
+Jitter_Footprints
 TSDSON-8
 SON, 8-Leads, Body 5x6x1mm, Pitch 1.27mm; (see Texas Instruments CSD18531Q5A http://www.ti.com/lit/ds/symlink/csd18531q5a.pdf)
 VSONP 1.27
@@ -50336,6 +50357,13 @@ SSOP 0.65
 0
 25
 25
+Jitter_Footprints
+TerminalBlock_Wurth_WR-TBL_691321100005_1x05_P3.50mm_Vertical
+Terminal Block Phoenix PT-1,5-2-3.5-H, 2 pins, pitch 3.5mm, size 7x7.6mm^2, drill diamater 1.2mm, pad diameter 2.4mm, see , script-generated using https://github.com/pointhi/kicad-footprint-generator/scripts/TerminalBlock_Phoenix
+THT Terminal Block Phoenix PT-1,5-2-3.5-H pitch 3.5mm size 7x7.6mm^2 drill 1.2mm pad 2.4mm
+0
+5
+5
 Jitter_Footprints
 TerminalBlock_Wurth_WR-TBL_691322110002_1x02_P3.50mm_Horizontal
 Terminal Block Phoenix PT-1,5-2-3.5-H, 2 pins, pitch 3.5mm, size 7x7.6mm^2, drill diamater 1.2mm, pad diameter 2.4mm, see , script-generated using https://github.com/pointhi/kicad-footprint-generator/scripts/TerminalBlock_Phoenix
@@ -52716,6 +52744,13 @@ net tie
 0
 4
 4
+OperationAir
+OperationAir260
+
+
+0
+0
+0
 OptoDevice
 ADNS-9800
 Laser Gaming Sensor ADNS-9800

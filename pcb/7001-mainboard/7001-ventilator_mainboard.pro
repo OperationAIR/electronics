@@ -1,4 +1,4 @@
-update=Tue 24 Mar 2020 12:51:31 PM CET
+update=Fri 03 Apr 2020 11:18:16 AM CEST
 version=1
 last_client=kicad
 [general]
@@ -239,7 +239,7 @@ dPairViaGap=0.25
 [schematic_editor]
 version=1
 PageLayoutDescrFile=/home/s/dev/jitter/7001-ventilator/pcb/jitter_kicad_ws.kicad_wks
-PlotDirectoryName=
+PlotDirectoryName=/home/s/Desktop/
 SubpartIdSeparator=0
 SubpartFirstId=65
 NetFmtName=Pcbnew

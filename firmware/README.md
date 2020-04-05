@@ -53,14 +53,20 @@ The microcontroller communicates with a Raspberry Pi over `uart`. The PCB is des
 
 A binary protocol is used where each command is a unique 4 byte sequence followed by an optional payload.
 
+Binary responses from the microcontroller to the specific command are also prefixed with the same 4 bytes. ASCII responses, for logging or debug puposes are prefixed with `0x23232323` ('####').
+
 ### Command Overview
 
 | Command             | Description                             | Prefix     | Payload  | Response         |
 | -------------       |---------------------------------------- | ---------: | -------  | --------         |
 | NewSettings         | Send and apply new operation settings   | 0x41424344 | Settings | Applied Settings |
-| RequestSensorValues | Request current samples for all sensors | 0x22226666 | None     | Sensor Values    |
-| LedOn               | Turn on status LED (Green)              | 0x55550000 | None     | Log info (ascii) |
-| LedOff              | Turn off status LED (Green)             | 0x66660000 | None     | Log info (ascii) |
+| RequestSensorValues | Request current samples for all sensors | 0x0D15EA5E | None     | Sensor Values    |
+| LedOn               | Turn on status LED (Green)              | 0x55551111 | None     | Log info (ascii) |
+| LedOff              | Turn off status LED (Green)             | 0x66661111 | None     | Log info (ascii) |
+| Switch1On           | Turn on 24V switch 1                    | 0x55552222 | None     | Log info (ascii) |
+| Switch1Off          | Turn off 24V switch 1                   | 0x66662222 | None     | Log info (ascii) |
+| Switch2On           | Turn on 24V switch 2                    | 0x55553333 | None     | Log info (ascii) |
+| Switch2Off          | Turn off 24V switch 2                   | 0x66663333 | None     | Log info (ascii) |
 
 
 ### Settings
@@ -97,6 +103,16 @@ XorOut: 0xFFFF
 ```
 
 
-### Sensor Values
+### Sensor Values Response
 
-//TODO
+From microcontroller to host.
+Sensor values are prefixed with 4 bytes: `0x0D15EA5E` and followed by a crc16 usb checksum. The sensor data is a struct of 4 32bit signed integers.
+
+```
+typedef struct SensorsAllData {
+    int32_t flow;
+    int32_t pressure_1_pa;
+    int32_t pressure_2_pa;
+    int32_t oxygen;
+} SensorsAllData;
+```
