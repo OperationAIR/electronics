@@ -66,8 +66,8 @@ Binary responses from the microcontroller for the specific command are also pref
 | RequestSensorValues | Request current samples for all sensors | `0x0D15EA5E` | None         | [Sensor Values](#Sensor-Values-Response)    |
 | StatusLedOn         | Turn on status LED (Green)              | `0x55551111` | None         | Log info (ascii) |
 | StatusLedOff        | Turn off status LED (Green)             | `0x55661111` | None         | Log info (ascii) |
-| ErrorLedOn          | Turn on error LED (Red)                 | `0x55662222` | None         | Log info (ascii) |
-| ErrorLedOff         | Turn off error LED (Red)                | `0x66662222` | None         | Log info (ascii) |
+| ErrorLedOn          | Turn on error LED (Red)                 | `0x55552222` | None         | Log info (ascii) |
+| ErrorLedOff         | Turn off error LED (Red)                | `0x55662222` | None         | Log info (ascii) |
 | SwitchExhaleOn      | Turn on 24V switch for exhale           | `0x66663333` | None         | Log info (ascii) |
 | SwitchExhaleOff     | Turn off 24V switch for exhale          | `0x66773333` | None         | Log info (ascii) |
 | SwitchInhaleOn      | Turn on 24V switch for inhale           | `0x66664444` | None         | Log info (ascii) |
