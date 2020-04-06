@@ -13,11 +13,9 @@
 #include "watchdog.h"
 #include "cdc_vcom.h"
 #include "log.h"
-#include "board.h"
 #include "global_settings.h"
 #include "app.h"
 #include "actuators/control_signals.h"
-#include "actuators/DPR.h"
 #include "sensors/sensors.h"
 #include "stats.h"
 #include "clock.h"
@@ -176,12 +174,6 @@ static void switch1(char *args) {
 	} else if (strncmp(args, "off", 3) == 0) {
 		control_switch1_off();
 		log_cli("Disable switch 1");
-	} else {
-		if (control_switch1_get_state()) {
-			log_cli("Switch 1: on");
-		} else {
-			log_cli("Switch 1: off");
-		}
 	}
 }
 
@@ -192,12 +184,6 @@ static void switch2(char *args) {
 	} else if (strncmp(args, "off", 3) == 0) {
 		control_switch2_off();
 		log_cli("Disable switch 2");
-	} else {
-		if (control_switch2_get_state()) {
-			log_cli("Switch 2: on");
-		} else {
-			log_cli("Switch 2: off");
-		}
 	}
 }
 

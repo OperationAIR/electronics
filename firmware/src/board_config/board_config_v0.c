@@ -1,4 +1,4 @@
-#include "board.h"
+//#include "board.h"
 #include "board_GPIO_ID.h"
 #include "board_ADC_ID.h"
 
@@ -9,8 +9,6 @@
 
 #include <chip.h>
 
-// Oscillator frequency, needed by chip libraries
-const uint32_t OscRateIn = 12000000;
 
 
 static const NVICConfig NVIC_config[] = {
@@ -41,17 +39,6 @@ static const PinMuxConfig pinmuxing[] = {
         {1,  23, (IOCON_FUNC0) | IOCON_MODE_PULLDOWN},      // PSENSE_2_DRDY
 
         {1,  20, (IOCON_FUNC0)},                            // PSENSE_RESET
-
-
-        // PREG (SPI1)
-        {1,  15, (IOCON_FUNC3)},                            // PREG_SPI_CLK
-        {1,  21, (IOCON_FUNC2 | IOCON_MODE_PULLUP)},        // PREG_SPI_MISO
-        {1,  22, (IOCON_FUNC2)},                            // PREG_SPI_MOSI
-
-        {1,  31, (IOCON_FUNC0)},                            // PREG_SPI_!CS
- 
-        {0,   7, (IOCON_FUNC0)},                            // PREG_CLEAR
-        {1,  28, (IOCON_FUNC0)},                            // PREG_OK
 
 
         // Switch outputs (GPIO for now)
@@ -108,26 +95,28 @@ static const PinMuxConfig pinmuxing[] = {
 
 static const GPIOConfig pin_config[] = {
 
-    [GPIO_ID_PSENSE_RESET]  = {{1, 20}, GPIO_CFG_DIR_OUTPUT_HIGH},
-    [GPIO_ID_PSENSE_1_CS]   = {{1, 19}, GPIO_CFG_DIR_OUTPUT_HIGH},
-    [GPIO_ID_PSENSE_2_CS]   = {{0, 16}, GPIO_CFG_DIR_OUTPUT_HIGH},
-    [GPIO_ID_PSENSE_1_DRDY] = {{1, 25}, GPIO_CFG_DIR_INPUT},
-    [GPIO_ID_PSENSE_2_DRDY] = {{1, 23}, GPIO_CFG_DIR_INPUT},
+    // Pressure sensors
+    [GPIO_ID_PSENSE_RESET]          = {{1, 20}, GPIO_CFG_DIR_OUTPUT_HIGH},
+    [GPIO_ID_PSENSE_1_CS]           = {{1, 19}, GPIO_CFG_DIR_OUTPUT_HIGH},
+    [GPIO_ID_PSENSE_2_CS]           = {{0, 16}, GPIO_CFG_DIR_OUTPUT_HIGH},
+    [GPIO_ID_PSENSE_1_DRDY]         = {{1, 25}, GPIO_CFG_DIR_INPUT},
+    [GPIO_ID_PSENSE_2_DRDY]         = {{1, 23}, GPIO_CFG_DIR_INPUT},
 
-    [GPIO_ID_PREG_CS]       = {{1, 31}, GPIO_CFG_DIR_OUTPUT_HIGH},
-    [GPIO_ID_PREG_CLEAR]    = {{0,  7}, GPIO_CFG_DIR_OUTPUT_LOW},
-    [GPIO_ID_PREG_OK]       = {{1, 28}, GPIO_CFG_DIR_INPUT},
+    // Status LEDs
+    [GPIO_ID_LED_STATUS]            = {{0, 17}, GPIO_CFG_DIR_OUTPUT_LOW},
+    [GPIO_ID_LED_ERROR]             = {{0, 23}, GPIO_CFG_DIR_OUTPUT_LOW},
 
-    [GPIO_ID_SWITCH_1]      = {{0, 22}, GPIO_CFG_DIR_OUTPUT_LOW},
-    [GPIO_ID_SWITCH_2]      = {{1, 14}, GPIO_CFG_DIR_OUTPUT_LOW},
+    // Power status & on/off
+    [GPIO_ID_STATUS_FAIL]           = {{0,  0}, GPIO_CFG_DIR_INVALID},
+    [GPIO_ID_STATUS_DISCHARGING]    = {{0,  0}, GPIO_CFG_DIR_INVALID},
+    [GPIO_ID_USER_SWITCH]           = {{0,  0}, GPIO_CFG_DIR_INVALID},
+    [GPIO_ID_RPI_ON_OFF]            = {{0,  0}, GPIO_CFG_DIR_INVALID},
 
-    [GPIO_ID_LED_STATUS]    = {{0, 17}, GPIO_CFG_DIR_OUTPUT_LOW},
-    [GPIO_ID_LED_ERROR]     = {{0, 23}, GPIO_CFG_DIR_OUTPUT_LOW},
-
-    [GPIO_ID_EXTRA_1]       = {{1, 13}, GPIO_CFG_DIR_OUTPUT_LOW},
-    [GPIO_ID_EXTRA_2]       = {{1, 16}, GPIO_CFG_DIR_OUTPUT_LOW},
-    [GPIO_ID_EXTRA_3]       = {{0, 19}, GPIO_CFG_DIR_OUTPUT_LOW},
-    [GPIO_ID_EXTRA_4]       = {{0, 18}, GPIO_CFG_DIR_OUTPUT_LOW},
+    // Extra I/O (on header)
+    [GPIO_ID_EXTRA_1]               = {{1, 13}, GPIO_CFG_DIR_OUTPUT_LOW},
+    [GPIO_ID_EXTRA_2]               = {{1, 16}, GPIO_CFG_DIR_OUTPUT_LOW},
+    [GPIO_ID_EXTRA_3]               = {{0, 19}, GPIO_CFG_DIR_OUTPUT_LOW},
+    [GPIO_ID_EXTRA_4]               = {{0, 18}, GPIO_CFG_DIR_OUTPUT_LOW},
 
 };
 
@@ -136,10 +125,13 @@ STATIC_ASSERT( (GPIO_ID_MAX == (sizeof(pin_config)/sizeof(GPIOConfig))));
 
 static const enum ADCConfig ADC_config[] = {
 
-    [ADC_ID_PRESSURE_PATIENT]   = ADC_CFG_CH0,
     [ADC_ID_PRESSURE_MFC]       = ADC_CFG_CH1,
-    [ADC_ID_PRESSURE_IN]        = ADC_CFG_CH3,
-    [ADC_ID_PRESSURE_OUT]       = ADC_CFG_CH2,
+    [ADC_ID_MFC_O2]             = ADC_CFG_CH3,
+    [ADC_ID_MFC_AIR]            = ADC_CFG_CH2,
+
+    // Not supported yet on V0 hardware
+    [ADC_ID_PRESSURE_PATIENT]   = ADC_CFG_INVALID,
+    [ADC_ID_BATTERY_LEVEL]      = ADC_CFG_INVALID,
 };
 
 // adc config struct should match ADC_ID enum
@@ -160,15 +152,8 @@ static const BoardConfig config = {
 };
 
 
-void board_setup(void)
+void board_config_v0_setup(void)
 {
     board_set_config(&config);
 }
 
-void board_reset(void)
-{
-    // Wait for ISP pin to become low
-    // in case of reset via button
-    delay_us(1500*1000);
-	NVIC_SystemReset();
-}

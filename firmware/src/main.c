@@ -1,5 +1,5 @@
-#include "board.h"
-#include "board_GPIO_ID.h"
+#include "board_specific_config.h"
+#include "board_config/board_GPIO_ID.h"
 #include <lpc_tools/boardconfig.h>
 #include <chip.h>
 #include <stdio.h>

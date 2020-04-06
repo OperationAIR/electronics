@@ -6,9 +6,8 @@
 
 #include <string.h>
 
-#include "board.h"
-#include "board_GPIO_ID.h"
-#include "board_ADC_ID.h"
+#include "board_config/board_GPIO_ID.h"
+#include "board_config/board_ADC_ID.h"
 
 #include "actuators/control_signals.h"
 

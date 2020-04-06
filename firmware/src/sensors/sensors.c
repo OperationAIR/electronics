@@ -10,8 +10,7 @@
 #include "breathing.h"
 
 #include "MPRLS_pressure.h"
-#include "board.h"
-#include "board_GPIO_ID.h"
+#include "board_config/board_GPIO_ID.h"
 
 
 struct {
@@ -48,18 +47,14 @@ static int32_t g_offset_pressure_out = 0;
 #define SLEW_LIMIT_PREG_PRESSURE    (400)
 #define SLEW_LIMIT_MFC_FEEDBACK     (50)
 
-#define PRESSURE_SENSORS_DIGITAL    (1)
 
-#if(PRESSURE_SENSORS_DIGITAL)
 static MPRLS mprls1;
 static MPRLS mprls2;
-#endif
 
 void sensors_init(void) {
 
     calculated_init();
 
-#if(PRESSURE_SENSORS_DIGITAL)
     mprls_init(&mprls1, LPC_SSP0,
         board_get_GPIO(GPIO_ID_PSENSE_1_CS),
         board_get_GPIO(GPIO_ID_PSENSE_1_DRDY),
@@ -72,7 +67,6 @@ void sensors_init(void) {
 
     mprls_enable(&mprls1);
     mprls_enable(&mprls2);
-#endif
 
     ADC_init();
 
@@ -142,8 +136,6 @@ void sensors_update(unsigned int dt)
     }
 
 
-#if(PRESSURE_SENSORS_DIGITAL)
-
     // sample sensor1
     if(mprls_is_ready(&mprls1)) {
         // read value and trigger next sample
@@ -174,19 +166,16 @@ void sensors_update(unsigned int dt)
         mprls_trigger_read(&mprls2);
     }
 
-#else
-    filter_adc(&Sensors.pressure_in, ADC_ID_PRESSURE_IN,
-            ADC_RANGE/SLEW_LIMIT_PRESSURE);
-    filter_adc(&Sensors.pressure_out, ADC_ID_PRESSURE_OUT
-            ADC_RANGE/SLEW_LIMIT_PRESSURE);
-#endif
 
     filter_adc(&Sensors.flow_MFC_O2, ADC_ID_MFC_O2,
             ADC_RANGE/SLEW_LIMIT_MFC_FEEDBACK);
     filter_adc(&Sensors.flow_MFC_air, ADC_ID_MFC_AIR,
             ADC_RANGE/SLEW_LIMIT_MFC_FEEDBACK);
-    filter_adc(&Sensors.pressure_patient, ADC_ID_PRESSURE_PATIENT,
-            ADC_RANGE/SLEW_LIMIT_PRESSURE);
+
+    if(board_has_ADC(ADC_ID_PRESSURE_PATIENT)) {
+        filter_adc(&Sensors.pressure_patient, ADC_ID_PRESSURE_PATIENT,
+                ADC_RANGE/SLEW_LIMIT_PRESSURE);
+    }
 }
 
 static float p_MFC_mbar;
@@ -213,24 +202,7 @@ int32_t sensors_read_pressure_target_pa(void)
 int32_t sensors_read_pressure_in_pa(void)
 {
     int32_t result = 0;
-#if(PRESSURE_SENSORS_DIGITAL)
     result = Sensors.pressure_in;
-#else
-    // NXP MPVZ5010
-    const int v_pressure = ADC_scale(Sensors.pressure_in, ADC_FACTOR_PRESSURE);
-
-    // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
-    const int offset_mv = 167;
-    const int scale_factor = 2157;
-    result = ((v_pressure-offset_mv)*scale_factor)/1000;
-
-    /*
-    // See MPVZ5010 datasheet
-    const int vcc = 5000;
-    int pressure_pa = ((1.079*v_pressure) - 195.211);
-    return pressure_pa;
-    */
-#endif
 
     return result - g_offset_pressure_in;
 }
@@ -238,31 +210,14 @@ int32_t sensors_read_pressure_in_pa(void)
 int32_t sensors_read_pressure_out_pa(void)
 {
     int32_t result = 0;
-#if(PRESSURE_SENSORS_DIGITAL)
     result = Sensors.pressure_out;
-#else
-
-    const int v_pressure = ADC_scale(Sensors.pressure_out, ADC_FACTOR_PRESSURE);
-
-    // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
-    const int offset_mv = 167;
-    const int scale_factor = 2157;
-    result = ((v_pressure-offset_mv)*scale_factor)/1000;
-
-    /*
-    // See MPVZ5010 datasheet
-    const int vcc = 5000;
-    int pressure_pa = ((1000*v_pressure) - (40*vcc)) / (0.09*vcc);
-    return pressure_pa;
-    */
-#endif
 
     return result - g_offset_pressure_out;
 }
 
 int32_t sensors_read_pressure_patient_pa(void)
 {
-    const int v_pressure = ADC_scale(Sensors.pressure_out, ADC_FACTOR_PRESSURE);
+    const int v_pressure = ADC_scale(Sensors.pressure_patient, ADC_FACTOR_PRESSURE);
 
     // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
     const int offset_mv = 167;
