@@ -53,21 +53,32 @@ The microcontroller communicates with a Raspberry Pi over `uart`. The PCB is des
 
 A binary protocol is used where each command is a unique 4 byte sequence followed by an optional payload.
 
-Binary responses from the microcontroller to the specific command are also prefixed with the same 4 bytes. ASCII responses, for logging or debug puposes are prefixed with `0x23232323` ('####').
+Binary responses from the microcontroller for the specific command are also prefixed with the same 4 bytes. ASCII responses, for logging or debug puposes are prefixed with `0x23232323` ('####').
 
 ### Command Overview
 
-| Command             | Description                             | Prefix     | Payload  | Response         |
-| -------------       |---------------------------------------- | ---------: | -------  | --------         |
-| NewSettings         | Send and apply new operation settings   | 0x41424344 | Settings | Applied Settings |
-| RequestSensorValues | Request current samples for all sensors | 0x0D15EA5E | None     | Sensor Values    |
-| LedOn               | Turn on status LED (Green)              | 0x55551111 | None     | Log info (ascii) |
-| LedOff              | Turn off status LED (Green)             | 0x66661111 | None     | Log info (ascii) |
-| Switch1On           | Turn on 24V switch 1                    | 0x55552222 | None     | Log info (ascii) |
-| Switch1Off          | Turn off 24V switch 1                   | 0x66662222 | None     | Log info (ascii) |
-| Switch2On           | Turn on 24V switch 2                    | 0x55553333 | None     | Log info (ascii) |
-| Switch2Off          | Turn off 24V switch 2                   | 0x66663333 | None     | Log info (ascii) |
-
+| Command             | Description                             | Prefix     | Payload      | Response         |
+| -------------       |---------------------------------------- | ---------: | ------------ | --------         |
+| NewSettings         | Send and apply new operation settings   | 0x41424344 | [Settings](Settings)   | Applied Settings |
+| RequestSettings     | Request current settings                | 0x41424344 | None         | [Settings](Settings) |
+| RequestSensorValues | Request current samples for all sensors | 0x0D15EA5E | None         | [Sensor Values](Sensor-Values-Response)    |
+| StatusLedOn         | Turn on status LED (Green)              | 0x55551111 | None         | Log info (ascii) |
+| StatusLedOff        | Turn off status LED (Green)             | 0x66661111 | None         | Log info (ascii) |
+| ErrorLedOn          | Turn on error LED (Red)                 | 0x55551111 | None         | Log info (ascii) |
+| ErrorLedOff         | Turn off error LED (Red)                | 0x66661111 | None         | Log info (ascii) |
+| SwitchExhaleOn      | Turn on 24V switch 1                    | 0x55552222 | None         | Log info (ascii) |
+| SwitchExhaleOff     | Turn off 24V switch 1                   | 0x66662222 | None         | Log info (ascii) |
+| SwitchInhaleOn      | Turn on 24V switch 2                    | 0x55553333 | None         | Log info (ascii) |
+| SwitchInhaleOff     | Turn off 24V switch 2                   | 0x66663333 | None         | Log info (ascii) |
+| SwitchExtraOn       | Turn on 24V switch 2                    | 0x55554444 | None         | Log info (ascii) |
+| SwitchExtraOff      | Turn off 24V switch 2                   | 0x66664444 | None         | Log info (ascii) |
+| MFCAirSet           | Set 12 bit analog value for MFC (Air)   | 0x77771111 | uint16       | Log info (ascii) |
+| MFCAirGet           | Get analog MFC (Air) feedback value     | 0x77771111 | None         | MFC Feedback     |
+| MFCO2Set            | Set analog value for MFC (O2)           | 0x77772222 | uint16       | Log info (ascii) |
+| MFCO2Get            | Get analog MFC (O2) feedback value      | 0x77772222 | None         | MFC Feedback     |
+| RequestBatteryLevel | Request current battery level (24V DC)  | 0x88881111 | None         | Battery voltage  |
+| PowerStatus         | Request power status                    | 0x88882222 | None         | Status bitfield  |
+| UserSwitchGet       | Get current user switch status (0 or 1) | 0x88883333 | None         | 0 or 1           |
 
 ### Settings
 
@@ -108,11 +119,22 @@ XorOut: 0xFFFF
 From microcontroller to host.
 Sensor values are prefixed with 4 bytes: `0x0D15EA5E` and followed by a crc16 usb checksum. The sensor data is a struct of 4 32bit signed integers.
 
+The total data packet is then `4 + (11 x 4) + 2 = 50 bytes`
+
 ```
 typedef struct SensorsAllData {
-    int32_t flow;
-    int32_t pressure_1_pa;
-    int32_t pressure_2_pa;
-    int32_t oxygen;
+    int32_t flow_inhale;        // Inhale flow [mL / minute] (approximation)
+    int32_t flow_exhale;        // Exhale flow [mL / minute]
+
+    int32_t pressure_inhale;    // Inhale pressure [Pa]
+    int32_t pressure_exhale;    // Exhale pressure [Pa]
+    int32_t pressure_patient;   // Pressure at patient [Pa]
+    int32_t pressure_mfc;       // Pressure at MFC pressure vessel [Pa]
+
+    int32_t oxygen;             // Oxygen percentage [0-100]
+    int32_t tidal_volume;       // Tidal volume [mL] (Based on exhale flow)
+    int32_t minute_volume;      // Average flow [mL / minute] (average over last 10 sec interval)
+    int32_t cycle_state;        // PeeP / Peak / None
+    int32_t power_status;       // Status of PSU
 } SensorsAllData;
 ```

@@ -33,13 +33,25 @@ Ringbuffer rb_Tx;
 enum PiCommand {
     PiCommandNone 					= 0,
     PiCommandNewSettings 			= 0x41424344,
+	PiCommandRequestSettings 		= 0x45464748,
     PiCommandRequestSensorValues 	= 0x0D15EA5E,
 	PiCommandLedOn 					= 0x55551111,
 	PiCommandLedOff 				= 0x66661111,
-	PiCommandSwitch1On				= 0x55552222,
-	PiCommandSwitch1Off				= 0x66662222,
-	PiCommandSwitch2On				= 0x55553333,
-	PiCommandSwitch2Off				= 0x66663333,
+	PiCommandErrorOn 				= 0x55552222,
+	PiCommandErrorOff 				= 0x66662222,
+	PiCommandSwitchExhaleOn			= 0x55553333,
+	PiCommandSwitchExhaleOff		= 0x66663333,
+	PiCommandSwitchInhaleOn			= 0x55554444,
+	PiCommandSwitchInhaleOff		= 0x66664444,
+	PiCommandSwitchExtraOn			= 0x55555555,
+	PiCommandSwitchExtraOff			= 0x66665555,
+	PiCommandMFCAirSet				= 0,
+	PiCommandMFCAirGet				= 0,
+	PiCommandMFCO2Set				= 0,
+	PiCommandMFCO2Get				= 0,
+	PiCommandBatteryLevel			= 0,
+	PiCommandPowerStatus			= 0,
+	PiCommandUserSwitchGet			= 0,
 };
 static enum PiCommand g_current_command = PiCommandNone;
 
@@ -153,22 +165,22 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 					control_LED_status_off();
 					pi_comm_send_string("Status LED off\n");
 					return PiCommandNone;
-				case PiCommandSwitch1On:
+				case PiCommandSwitchExhaleOn:
 					ringbuffer_flush(rb, 4);
 					control_switch1_on(10000);
 					pi_comm_send_string("Switch 1 On\n");
 					return PiCommandNone;
-				case PiCommandSwitch1Off:
+				case PiCommandSwitchExhaleOff:
 					ringbuffer_flush(rb, 4);
 					control_switch1_off();
 					pi_comm_send_string("Switch 1 Off\n");
 					return PiCommandNone;
-				case PiCommandSwitch2On:
+				case PiCommandSwitchInhaleOn:
 					ringbuffer_flush(rb, 4);
 					control_switch2_on();
 					pi_comm_send_string("Switch 2 On\n");
 					return PiCommandNone;
-				case PiCommandSwitch2Off:
+				case PiCommandSwitchInhaleOff:
 					ringbuffer_flush(rb, 4);
 					control_switch2_off();
 					pi_comm_send_string("Switch 2 Off\n");
