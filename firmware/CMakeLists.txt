@@ -131,6 +131,7 @@ file(GLOB SOURCES
 "src/sensors/*.c"
 "src/actuators/*.c"
 "src/crc/*.c"
+"src/board_config/*.c"
 )
 
 set(CMAKE_SYSTEM_NAME Generic)

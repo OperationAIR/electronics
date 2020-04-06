@@ -2,7 +2,7 @@
 #define ADC_H
 
 #include <stdint.h>
-#include "board_ADC_ID.h"
+#include "board_config/board_ADC_ID.h"
 
 #define ADC_RANGE (1024.0)
 

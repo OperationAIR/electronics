@@ -9,8 +9,7 @@
 #include "DPR.h"
 #include "actuators/PWM.h"
 #include "actuators/i2c_dac.h"
-#include "board.h"
-#include "board_GPIO_ID.h"
+#include "board_config/board_GPIO_ID.h"
 
 struct {
     const GPIO *LED_status;

@@ -1,4 +1,4 @@
-#include "board.h"
+//#include "board.h"
 #include "board_GPIO_ID.h"
 #include "board_ADC_ID.h"
 
@@ -9,8 +9,6 @@
 
 #include <chip.h>
 
-// Oscillator frequency, needed by chip libraries
-const uint32_t OscRateIn = 12000000;
 
 
 static const NVICConfig NVIC_config[] = {
@@ -160,15 +158,9 @@ static const BoardConfig config = {
 };
 
 
-void board_setup(void)
+void board_config_v0_setup(void)
 {
     board_set_config(&config);
 }
 
-void board_reset(void)
-{
-    // Wait for ISP pin to become low
-    // in case of reset via button
-    delay_us(1500*1000);
-	NVIC_SystemReset();
-}
+

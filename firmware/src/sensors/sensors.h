@@ -2,7 +2,7 @@
 #define _SENSORS_H
 
 #include <stdint.h>
-#include "board_ADC_ID.h"
+#include "board_config/board_ADC_ID.h"
 
 
 

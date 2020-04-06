@@ -13,7 +13,6 @@
 #include "watchdog.h"
 #include "cdc_vcom.h"
 #include "log.h"
-#include "board.h"
 #include "global_settings.h"
 #include "app.h"
 #include "actuators/control_signals.h"

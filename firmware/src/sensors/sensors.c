@@ -10,8 +10,7 @@
 #include "breathing.h"
 
 #include "MPRLS_pressure.h"
-#include "board.h"
-#include "board_GPIO_ID.h"
+#include "board_config/board_GPIO_ID.h"
 
 
 struct {
