@@ -25,6 +25,8 @@
 #include "breathing.h"
 #include "settings.h"
 
+#define DT_MS (2)
+
 enum AppState {
     AppStateNone = -1,
     AppStateIdle = 0,
@@ -287,7 +289,7 @@ enum AppState app_state_breathing(void)
     }
 
     // Note: new settings are only updated at start of new breathing cycle
-    breathing_run(&g_app.settings);
+    breathing_run(&g_app.settings, DT_MS);
 
     return AppStateBreathing;
 
@@ -392,7 +394,7 @@ void SysTick_Handler(void)
         return;
     }
 
-    sensors_update();
+    sensors_update(DT_MS);
 
     // TODO the state-machine is not 7001-specific yet. Do we really need
     // all this complexity?
@@ -459,6 +461,7 @@ void app_resume()
     g_app.run = true;
 }
 
+
 void app_init(int hw_version)
 {
     if (!breathing_init()) {
@@ -474,7 +477,7 @@ void app_init(int hw_version)
 
     sensors_init();
 
-    const uint32_t update_frequency = 500;
+    const uint32_t update_frequency = 1000/DT_MS;
     assert(systick_init(update_frequency));
 }
 

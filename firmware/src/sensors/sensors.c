@@ -3,24 +3,26 @@
 #include <c_utils/max.h>
 
 #include "sensors.h"
+#include "calculated.h"
 #include "actuators/control_signals.h"
 #include "ADC.h"
 #include "flow.h"
+#include "breathing.h"
 
 #include "MPRLS_pressure.h"
 #include "board.h"
 #include "board_GPIO_ID.h"
-
-// TODO RM
-#include "log.h"
 
 
 struct {
     int32_t pressure_MFC;
     int32_t pressure_1;
     int32_t pressure_2;
-    int32_t pressure_regulator;
-    float flow;
+
+    int32_t flow_MFC_air;
+    int32_t flow_MFC_O2;
+
+    float flow; //SLPM
 } Sensors;
 
 static bool g_error = false;
@@ -29,6 +31,7 @@ static int32_t g_offset_pressure_2 = 0;
 
 // See schematics
 #define ADC_FACTOR_PRESSURE             (168.0/100.0)
+#define ADC_FACTOR_FLOW_MFC             (168.0/100.0)
 
 // TODO FIXME: voltage divider for flow/MFC input is be wrong!
 // Datasheet table shows 1-5V instead of assumed 0-12!!
@@ -42,6 +45,7 @@ static int32_t g_offset_pressure_2 = 0;
 #define SLEW_LIMIT_PRESSURE_MFC             (10)
 #define SLEW_LIMIT_PRESSURE         (5)
 #define SLEW_LIMIT_PREG_PRESSURE    (400)
+#define SLEW_LIMIT_MFC_FEEDBACK     (50)
 
 #define PRESSURE_SENSORS_DIGITAL    (1)
 
@@ -65,15 +69,13 @@ void sensors_init(void) {
 
     mprls_enable(&mprls1);
     mprls_enable(&mprls2);
-
-    uint32_t p1 = mprls_read_blocking(&mprls1);
-    uint32_t p2 = mprls_read_blocking(&mprls2);
-    log_debug("Pres: %u, %u", p1, p2);
 #endif
 
     ADC_init();
 
-//    flowsensor_enable();
+    if(!flowsensor_enable()) {
+        g_error = true;
+    }
 
     sensors_reset();
 }
@@ -97,12 +99,15 @@ void sensors_reset(void)
     Sensors.pressure_MFC = -1;
     Sensors.pressure_1 = -1;
     Sensors.pressure_2 = -1;
-    Sensors.pressure_regulator = -1;
+
+    Sensors.flow = -1;
+    Sensors.flow_MFC_O2 = -1;
+    Sensors.flow_MFC_air = -1;
 
     g_offset_pressure_1 = 0;
     g_offset_pressure_2 = 0;
 
-    sensors_update();
+    sensors_update(1);
 }
 
 static void filter_adc(int32_t* state, enum ADC_ID ID, int32_t slew_limit)
@@ -118,7 +123,7 @@ static void filter_adc(int32_t* state, enum ADC_ID ID, int32_t slew_limit)
 }
 
 static uint32_t count = 0;
-void sensors_update(void)
+void sensors_update(unsigned int dt)
 {
     filter_adc(&Sensors.pressure_MFC, ADC_ID_PRESSURE_MFC,
             ADC_RANGE/SLEW_LIMIT_PRESSURE_MFC);
@@ -170,8 +175,11 @@ void sensors_update(void)
     filter_adc(&Sensors.pressure_2, ADC_ID_PRESSURE_2,
             ADC_RANGE/SLEW_LIMIT_PRESSURE);
 #endif
-    filter_adc(&Sensors.pressure_regulator, ADC_ID_PREG_PRESSURE,
-            ADC_RANGE/SLEW_LIMIT_PREG_PRESSURE);
+
+    filter_adc(&Sensors.flow_MFC_O2, ADC_ID_MFC_O2,
+            ADC_RANGE/SLEW_LIMIT_MFC_FEEDBACK);
+    filter_adc(&Sensors.flow_MFC_air, ADC_ID_MFC_AIR,
+            ADC_RANGE/SLEW_LIMIT_MFC_FEEDBACK);
 }
 
 static float p_MFC_mbar;
@@ -245,38 +253,69 @@ int32_t sensors_read_pressure_2_pa(void)
     return result - g_offset_pressure_2;
 }
 
-float sensors_read_flow(void) {
+float sensors_read_flow_SLPM(void) {
     return Sensors.flow;
 }
 
-int32_t sensors_read_pressure_regulator(void)
+int32_t sensors_read_flow_MFC_O2_SCCPM(void)
 {
+    const int v_MFC_O2 = ADC_scale(Sensors.flow_MFC_O2, ADC_FACTOR_FLOW_MFC);
+    // O-5000 mV / 100.0 = 0-50 000 SCCPM
 
-    // TODO see See RP200_C_??? specs (which version do we have? what is the range?):
-    // - ADC_FACTOR_PREG_PRESSURE
-    const int v_pressure = ADC_scale(Sensors.pressure_regulator, ADC_FACTOR_PREG_PRESSURE);
-
-    const int resistor_ohm = 150;
-    const int dpr_range_pa = 5000;
-    const int offset_ma = 4;
-    return ((v_pressure*dpr_range_pa)/resistor_ohm - (dpr_range_pa*offset_ma))/16;
-
-    // TODO implement
-    return -1;
+    return v_MFC_O2 * 10;
 }
+
+int32_t sensors_read_flow_MFC_air_SCCPM(void)
+{
+    const int v_MFC_air = ADC_scale(Sensors.flow_MFC_air, ADC_FACTOR_FLOW_MFC);
+    // O-5000 mV / 100.0 = 0-50 000 SCCPM
+
+    return v_MFC_air * 10;
+}
+
+
+/**
+ * Calculated 'sensors': based on one or more other sensor values.
+ * See calculated.c for implementation
+ */
+
+int32_t sensors_read_volume_realtime_MFC_O2_CC(void)
+{
+    return calculated_volume_realtime_MFC_O2_CC();
+}
+int32_t sensors_read_volume_realtime_MFC_air_CC(void)
+{
+    return calculated_volume_realtime_MFC_air_CC();
+}
+
+int32_t sensors_read_oxygen_percent(void)
+{
+    return calculated_oxygen_percent();
+}
+
+int32_t sensors_read_volume_cycle_in_CC(void)
+{
+    return calculated_volume_in_CC();
+}
+int32_t sensors_read_volume_cycle_out_CC(void)
+{
+    return calculated_volume_out_CC();
+}
+
+
+
 
 
 void sensors_read_all(SensorsAllData *data)
 {
     data->pressure_1_pa = sensors_read_pressure_1_pa();
-
     data->pressure_2_pa = sensors_read_pressure_2_pa();
 
-    data->oxygen = 0;   //TODO calculate from MFC feedback
+    data->oxygen = sensors_read_oxygen_percent();
 
-    data->flow = (int32_t)sensors_read_flow();
+    data->flow = (int32_t)sensors_read_flow_SLPM();
 
+    data->cycle_state = breathing_get_cycle_state();
 //    flowsensor_test();
 }
-
 

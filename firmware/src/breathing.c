@@ -4,6 +4,7 @@
 
 #include "actuators/control_signals.h"
 #include "sensors/sensors.h"
+#include "sensors/calculated.h"
 
 #include "global_settings.h"
 #include "breathing.h"
@@ -14,7 +15,6 @@
 #include <stdlib.h>
 
 #include "cmsis_dsp_lib/arm_math.h"
-
 
 static bool program_validation(void);
 
@@ -31,7 +31,10 @@ static float g_sensor_state_1 = 0;
 static float g_sensor_state_2 = 0;
 static float g_to_DPR = 0;
 
+
 static int time_after_inspiration = 0;
+
+static volatile enum BreathCycleState g_breath_cycle_state = BreathCycleStateNone;
 
 
 // PID loop for MFC
@@ -48,13 +51,11 @@ float MFC_PID_Kd = 0.5;
 
 const int g_MFC_setpoint_pa = 65000;
 
-#include "sensors/flow.h"
 
 int breathing_read_setpoint_pa(void)
 {
     return g_DPR_setpoint_pa;
 }
-
 
 void breathing_print_DPR_PID(void)
 {
@@ -139,6 +140,13 @@ static struct {
 } breathing;
 
 
+
+
+
+
+
+
+
 bool breathing_init(void)
 {
     if (!program_validation()) {
@@ -160,6 +168,7 @@ void breathing_finish_calibration(void)
 
 bool breathing_start_program(void)
 {
+    g_breath_cycle_state = BreathCycleStateNone;
     breathing.breathing_time = 0;
     breathing.cycle_time = 0;
 
@@ -180,6 +189,7 @@ bool breathing_start_program(void)
 // Stop breathing, let air pressure equalize to zero
 void breathing_stop(void)
 {
+    g_breath_cycle_state = BreathCycleStateNone;
     control_DPR_off();
 
     // open Valve: let all air out.
@@ -267,10 +277,13 @@ void _MFC_control_loop(void) {
     control_MFC_set(MFC_PID_out, cfg.oxygen_fraction);
 }
 
-void breathing_run(const OperationSettings *config)
+
+void breathing_run(const OperationSettings *config, const int dt)
 {
-    const int dt = 2;
     breathing.breathing_time+=dt;
+
+
+
 
     const uint32_t time_ms = breathing.breathing_time;
 
@@ -279,8 +292,15 @@ void breathing_run(const OperationSettings *config)
         /// TODO set breathing_cycle_finished to false
     }
 
+
+    // calculate tidal volume, oxygen percentage etc.
+    // The outputs are available as virtual 'sensors' via sensors.h
+    calculated_update((breathing.cycle_time == 0), dt);
+
+    // start of breathing cycle
     if(breathing.cycle_time == 0) {
         breathing.timestamp_start_close = 0;
+
 
         _update_cfg(config);
 
@@ -311,6 +331,7 @@ void breathing_run(const OperationSettings *config)
 
     // start building pressure
     if(breathing.cycle_time <= cfg.time_high_ms) {
+        g_breath_cycle_state = BreathCycleStatePeakPressure;
         control_switch1_off();
         g_DPR_setpoint_pa = setpoint_high;
         //control_DPR_set_pa(g_DPR_setpoint_pa);
@@ -329,6 +350,7 @@ void breathing_run(const OperationSettings *config)
 
     // during low pressure
     } else if(breathing.cycle_time > cfg.time_high_ms) {
+        g_breath_cycle_state = BreathCycleStatePeep;
         // close valve if pressure goes below peep
         if(DPR_pressure < setpoint_low) {
             if(breathing.timestamp_start_close == 0) {
@@ -362,7 +384,26 @@ void breathing_run(const OperationSettings *config)
     //float to_DPR = g_DPR_setpoint_pa;
     control_DPR_set_pa(to_DPR);
 
+
     _MFC_control_loop();
+
+    //
+    // MFC control loop
+    //
+
+    int MFC_pressure_pa = sensors_read_pressure_MFC_pa();
+    float MFC_error_mbar = (g_MFC_setpoint_pa - MFC_pressure_pa)/100.0;
+    float MFC_PID_out = arm_pid_f32(&MFC_PID, MFC_error_mbar);
+    MFC_PID_out = constrain(MFC_PID_out, MFC_FLOW_MIN_SLPM, MFC_FLOW_MAX_SLPM);
+
+    /*
+    log_debug("MFC: error=%d mbar PID_out=%d",
+            (int)MFC_error_mbar,
+            (int)MFC_PID_out);
+            */
+
+    control_MFC_set(MFC_PID_out, cfg.oxygen_fraction);
+
 
     //
     // Serial 'plot' output
@@ -374,6 +415,7 @@ void breathing_run(const OperationSettings *config)
 
         // DPR plot
         //
+
 //        log_debug("%d",
 //                (int)g_DPR_setpoint_pa);
 //                (int)g_sensor_state_1,
@@ -383,24 +425,19 @@ void breathing_run(const OperationSettings *config)
 //                (int)to_DPR);
 
 //        log_debug("%d, %d",
-//                    g_MFC_setpoint_pa,
-//                    MFC_pressure_pa);
-//                  MFC_PID_out);
 
-        // DPR plot
-        //
-/*
-        log_debug("%d,%d",
-//                (int)g_DPR_setpoint_pa,
-//                (int)g_sensor_state_1,
-//                (int)g_sensor_state_2);
-//                (int)g_signal_to_switch,
-//                (int)DPR_pressure,
-//                (int)to_DPR);
-  (int) sensors_read_flow());
-*/
+        /*
+        log_debug("%d,%d,%d,%d",
+                (int)g_DPR_setpoint_pa,
+                (int)g_sensor_state_1,
+                (int)g_sensor_state_2,
+                (int)g_signal_to_switch,
+                //(int)DPR_pressure,
+                (int)to_DPR);
+        */
+
     }
-    
+
     breathing.cycle_time+=dt;
 
     if(breathing.cycle_time > cfg.time_total_ms) {
@@ -491,6 +528,7 @@ bool post_inspiratory_hold(const OperationSettings *config) {
 
                 const int close_time = min(CLOSE_TIME_MS, cfg.time_low_ms/3);
 
+
                 int pwm_value = (10000*time_since_close)/close_time;
                 pwm_value = constrain(pwm_value, 0, 10000);
                 g_signal_to_switch = pwm_value;
@@ -509,6 +547,14 @@ bool post_inspiratory_hold(const OperationSettings *config) {
 
     return false;
 }
+
+enum BreathCycleState breathing_get_cycle_state(void)
+{
+    return g_breath_cycle_state;
+}
+
+
+
 
 
 static bool program_validation(void)

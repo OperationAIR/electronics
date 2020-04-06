@@ -11,6 +11,14 @@ enum TestState {
     TestStateFailed
 };
 
+
+enum BreathCycleState {
+    BreathCycleStateNone            = 0,
+    BreathCycleStatePeakPressure    = 1,
+    BreathCycleStatePeep            = 2,
+} BreathCycleState;
+
+
 bool breathing_init(void);
 
 void breathing_start_calibration(void);
@@ -27,13 +35,14 @@ void breathing_print_MFC_PID(void);
 
 
 int breathing_read_setpoint_pa(void);
+enum BreathCycleState breathing_get_cycle_state(void);
 
 
 /**
  * Runs the breathing control loop.
  * This function needs to be called from the app timer at fixed frequency
  */
-void breathing_run(const OperationSettings *config);
+void breathing_run(const OperationSettings *config, const int dt);
 
 void pre_inspiratory_hold(const OperationSettings *config);
 bool inspiratory_hold_run(const OperationSettings *config);
