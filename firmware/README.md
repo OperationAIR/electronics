@@ -59,26 +59,26 @@ Binary responses from the microcontroller for the specific command are also pref
 
 | Command             | Description                             | Prefix     | Payload      | Response         |
 | -------------       |---------------------------------------- | ---------: | ------------ | --------         |
-| NewSettings         | Send and apply new operation settings   | 0x41424344 | [Settings](#Settings)   | Applied Settings |
-| RequestSettings     | Request current settings                | 0x45464748 | None         | [Settings](#Settings) |
-| RequestSensorValues | Request current samples for all sensors | 0x0D15EA5E | None         | [Sensor Values](#Sensor-Values-Response)    |
-| StatusLedOn         | Turn on status LED (Green)              | 0x55551111 | None         | Log info (ascii) |
-| StatusLedOff        | Turn off status LED (Green)             | 0x55661111 | None         | Log info (ascii) |
-| ErrorLedOn          | Turn on error LED (Red)                 | 0x55662222 | None         | Log info (ascii) |
-| ErrorLedOff         | Turn off error LED (Red)                | 0x66662222 | None         | Log info (ascii) |
-| SwitchExhaleOn      | Turn on 24V switch for exhale           | 0x66663333 | None         | Log info (ascii) |
-| SwitchExhaleOff     | Turn off 24V switch for exhale          | 0x66773333 | None         | Log info (ascii) |
-| SwitchInhaleOn      | Turn on 24V switch for inhale           | 0x66664444 | None         | Log info (ascii) |
-| SwitchInhaleOff     | Turn off 24V switch for ihale           | 0x66774444 | None         | Log info (ascii) |
-| SwitchExtraOn       | Turn on 24V switch (extra)              | 0x66665555 | None         | Log info (ascii) |
-| SwitchExtraOff      | Turn off 24V switch (extra)             | 0x66775555 | None         | Log info (ascii) |
-| MFCAirSet           | Set 12 bit analog value for MFC (Air)   | 0x77771111 | [uint16 (mV)](#MFC-set-point) | Log info (ascii) |
-| MFCAirGet           | Get analog MFC (Air) feedback value     | 0x77881111 | None         | [MFC Feedback (mV)](MFC-analog-in)  |
-| MFCO2Set            | Set analog value for MFC (O2)           | 0x77772222 | [uint16 (mV)](#MFC-set-point) | Log info (ascii) |
-| MFCO2Get            | Get analog MFC (O2) feedback value      | 0x77882222 | None         | [MFC Feedback (mV)](MFC-analog-in)  |
-| RequestBatteryLevel | Request current battery level (24V DC)  | 0x88881111 | None         | Battery voltage  |
-| PowerStatus         | Request power status                    | 0x88882222 | None         | Status bitfield  |
-| UserSwitchGet       | Get current user switch status (0 or 1) | 0x88883333 | None         | 0 or 1           |
+| NewSettings         | Send and apply new operation settings   | `0x41424344` | [Settings](#Settings)   | Applied Settings |
+| RequestSettings     | Request current settings                | `0x45464748` | None         | [Settings](#Settings) |
+| RequestSensorValues | Request current samples for all sensors | `0x0D15EA5E` | None         | [Sensor Values](#Sensor-Values-Response)    |
+| StatusLedOn         | Turn on status LED (Green)              | `0x55551111` | None         | Log info (ascii) |
+| StatusLedOff        | Turn off status LED (Green)             | `0x55661111` | None         | Log info (ascii) |
+| ErrorLedOn          | Turn on error LED (Red)                 | `0x55662222` | None         | Log info (ascii) |
+| ErrorLedOff         | Turn off error LED (Red)                | `0x66662222` | None         | Log info (ascii) |
+| SwitchExhaleOn      | Turn on 24V switch for exhale           | `0x66663333` | None         | Log info (ascii) |
+| SwitchExhaleOff     | Turn off 24V switch for exhale          | `0x66773333` | None         | Log info (ascii) |
+| SwitchInhaleOn      | Turn on 24V switch for inhale           | `0x66664444` | None         | Log info (ascii) |
+| SwitchInhaleOff     | Turn off 24V switch for ihale           | `0x66774444` | None         | Log info (ascii) |
+| SwitchExtraOn       | Turn on 24V switch (extra)              | `0x66665555` | None         | Log info (ascii) |
+| SwitchExtraOff      | Turn off 24V switch (extra)             | `0x66775555` | None         | Log info (ascii) |
+| MFCAirSet           | Set 12 bit analog value for MFC (Air)   | `0x77771111` | [uint16 (mV)](#MFC-set-point) | Log info (ascii) |
+| MFCAirGet           | Get analog MFC (Air) feedback value     | `0x77881111` | None         | [MFC Feedback (mV)](MFC-analog-in)  |
+| MFCO2Set            | Set analog value for MFC (O2)           | `0x77772222` | [uint16 (mV)](#MFC-set-point) | Log info (ascii) |
+| MFCO2Get            | Get analog MFC (O2) feedback value      | `0x77882222` | None         | [MFC Feedback (mV)](MFC-analog-in)  |
+| RequestBatteryLevel | Request current battery level (24V DC)  | `0x88881111` | None         | Battery voltage (mV) |
+| PowerStatus         | Request power status                    | `0x88882222` | None         | Status bitfield  |
+| UserSwitchGet       | Get current user switch status (0 or 1) | `0x88883333` | None         | 0 or 1 (ascii)   |
 
 ### Settings
 
@@ -147,11 +147,10 @@ Set point for the mass flow controller. The MFC is controlled through a 12bit i2
 
 Analog-in scaled to millivolts as int32
 
-
 ### BatteryLevel
 
-TODO..
+Battery level in millivolts as int32. This is measured on the +24V power signal
 
 ### PowerStatus
 
-TODO..
+Status signals from powersupply. TODO..
