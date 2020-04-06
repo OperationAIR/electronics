@@ -35,6 +35,10 @@ int breathing_read_setpoint_pa(void);
  */
 void breathing_run(const OperationSettings *config);
 
+void pre_inspiratory_hold(const OperationSettings *config);
+bool inspiratory_hold_run(const OperationSettings *config);
+bool post_inspiratory_hold(const OperationSettings *config);
+
 void breathing_start_test(void);
 enum TestState breathing_test(void);
 enum TestState breathing_test_get_result(void);

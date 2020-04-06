@@ -31,6 +31,9 @@ enum AppState {
     AppStatePreBreathing,
     AppStateBreathing,
     AppStateAfterBreathing,
+    AppStatePreInspiratoryHold,
+    AppStateInspiratoryHold,
+    AppStatePostInspiratoryHold,
     AppStateError,
     AppStateSelfTest,
     AppStateSelfTestResult,
@@ -54,6 +57,7 @@ static struct {
     volatile uint32_t last_idle_blink; // timestamp last blink start
     OperationSettings settings;
 
+    volatile bool inspiratory_hold;
 } g_app;
 
 
@@ -126,6 +130,12 @@ static char* get_state_name(enum AppState state)
             return "pre-breathing";
         case AppStateAfterBreathing:
             return "after-breathing";
+        case AppStatePreInspiratoryHold:
+            return "pre-inspiratory-hold-manoeuvre";
+        case AppStateInspiratoryHold:
+            return "inspiratory-hold-manoeuvre";
+        case AppStatePostInspiratoryHold:
+            return "post-inspiratory-hold-manoeuvre";
         case AppStateError:
             return "not-allowed";
         case AppStateSelfTest:
@@ -144,6 +154,9 @@ enum AppState app_state_charging(void);
 enum AppState app_state_pre_breathing(void);
 enum AppState app_state_breathing(void);
 enum AppState app_state_after_breathing(void);
+enum AppState app_state_pre_inspiratory_hold(void);
+enum AppState app_state_inspiratory_hold(void);
+enum AppState app_state_post_inspiratory_hold(void);
 enum AppState app_state_error(void);
 enum AppState app_state_self_test(void);
 enum AppState app_state_self_test_result(void);
@@ -268,9 +281,13 @@ enum AppState app_state_breathing(void)
         return AppStateAfterBreathing;
     }
 
+    // Start Inspiratory Hold
+    if(g_app.inspiratory_hold) {
+        return AppStatePreInspiratoryHold;
+    }
+
     // Note: new settings are only updated at start of new breathing cycle
     breathing_run(&g_app.settings);
-
 
     return AppStateBreathing;
 
@@ -278,7 +295,6 @@ enum AppState app_state_breathing(void)
 
 enum AppState app_state_after_breathing(void)
 {
-
     if (g_app.time == 0) {
         log_wtime("Stop Breathing Program");
         breathing_stop();
@@ -300,6 +316,36 @@ enum AppState app_state_after_breathing(void)
     }
 
     return AppStateAfterBreathing;
+}
+
+enum AppState app_state_pre_inspiratory_hold(void) {
+    pre_inspiratory_hold(&g_app.settings);
+    return AppStateInspiratoryHold;
+}
+
+enum AppState app_state_inspiratory_hold(void)
+{
+    bool finised = inspiratory_hold_run(&g_app.settings);
+
+    if (finised) {
+        g_app.inspiratory_hold = false;
+        return  AppStatePostInspiratoryHold;
+    }
+
+    if (!g_app.inspiratory_hold) {
+        return AppStatePostInspiratoryHold;
+    }
+
+    return AppStateInspiratoryHold;
+}
+
+enum AppState app_state_post_inspiratory_hold(void) {
+    bool finised = post_inspiratory_hold(&g_app.settings);
+
+    if (finised) {
+        return AppStateBreathing;
+    }
+    return AppStatePostInspiratoryHold;
 }
 
 enum AppState app_state_error(void)
@@ -367,6 +413,15 @@ void SysTick_Handler(void)
         case AppStateAfterBreathing:
             next_state = app_state_after_breathing();
             break;
+        case AppStatePreInspiratoryHold:
+            next_state = app_state_pre_inspiratory_hold();
+            break;
+        case AppStateInspiratoryHold:
+            next_state = app_state_inspiratory_hold();
+            break;
+        case AppStatePostInspiratoryHold:
+            next_state = app_state_post_inspiratory_hold();
+            break;
         case AppStateError:
             next_state = app_state_error();
             break;
@@ -430,6 +485,11 @@ void app_program_start(void)
         g_app.stop_requested = false;
         g_app.start_requested = true;
         g_app.settings.start = true;
+        g_app.settings.peep = 1000;
+        g_app.settings.pressure = 3000;
+        g_app.settings.frequency = 12;
+        g_app.settings.ratio = 2;
+        g_app.settings.oxygen = 21;
     }
 }
 
@@ -448,6 +508,24 @@ void app_self_test(void)
     if (!g_app.test_requested) {
         log_wtime("Self Test Request");
         g_app.test_requested = true;
+    }
+}
+
+void app_start_inspiratory_hold() {
+    if (g_app.next_state == AppStateBreathing) {
+        g_app.inspiratory_hold = true;
+//        log_cli("Inspiratory hold mode on");
+    } else {
+        log_cli("Inspiratory only possible during breathing");
+    }
+}
+
+void app_stop_inspiratory_hold() {
+    g_app.inspiratory_hold = false;
+    if (g_app.next_state == AppStateInspiratoryHold) {
+//        log_cli("Inspiratory hold mode off");
+    } else {
+        log_cli("Inspiratory hold not turned on");
     }
 }
 

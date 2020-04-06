@@ -31,6 +31,8 @@ static float g_sensor_state_1 = 0;
 static float g_sensor_state_2 = 0;
 static float g_to_DPR = 0;
 
+static int time_after_inspiration = 0;
+
 
 // PID loop for MFC
 float MFC_PID_Kp = 3.0;
@@ -130,8 +132,10 @@ void breathing_tune_MFC_PID(float kp, float ki, float kd)
 static struct {
     volatile uint32_t cycle_time;
     volatile uint32_t breathing_time;
+    volatile uint32_t inspiration_hold_time;
     enum TestState test_state;
     volatile uint32_t timestamp_start_close;
+    volatile bool breathing_cycle_finished;
 } breathing;
 
 
@@ -239,6 +243,30 @@ static void _update_cfg(const OperationSettings *config)
     cfg.oxygen_fraction  = (config->oxygen * 0.01);
 }
 
+void _read_and_filter_pressure_sensor(void) {
+    g_sensor_state_1 = (0.7*g_sensor_state_1) + (0.3*sensors_read_pressure_1_pa());
+    g_sensor_state_2 = (0.7*g_sensor_state_2) + (0.3*sensors_read_pressure_2_pa());
+}
+
+void _MFC_control_loop(void) {
+    //
+    // MFC control loop
+    //
+
+    int MFC_pressure_pa = sensors_read_pressure_MFC_pa();
+    float MFC_error_mbar = (g_MFC_setpoint_pa - MFC_pressure_pa)/100.0;
+    float MFC_PID_out = arm_pid_f32(&MFC_PID, MFC_error_mbar);
+    MFC_PID_out = constrain(MFC_PID_out, MFC_FLOW_MIN_SLPM, MFC_FLOW_MAX_SLPM);
+
+    /*
+    log_debug("MFC: error=%d mbar PID_out=%d",
+            (int)MFC_error_mbar,
+            (int)MFC_PID_out);
+            */
+
+    control_MFC_set(MFC_PID_out, cfg.oxygen_fraction);
+}
+
 void breathing_run(const OperationSettings *config)
 {
     const int dt = 2;
@@ -248,6 +276,7 @@ void breathing_run(const OperationSettings *config)
 
     if(breathing.cycle_time > cfg.time_total_ms) {
         breathing.cycle_time = 0;
+        /// TODO set breathing_cycle_finished to false
     }
 
     if(breathing.cycle_time == 0) {
@@ -259,12 +288,9 @@ void breathing_run(const OperationSettings *config)
         _init_DPR_PID();
     }
 
-
-
     //
     // DPR control loop
     //
-
 
     g_signal_to_switch = 0;
 
@@ -277,8 +303,7 @@ void breathing_run(const OperationSettings *config)
     const int delta_p = (target_high - setpoint_low);
     const int setpoint_high = min(setpoint_low + (breathing.cycle_time*(delta_p/ramp_time)), target_high);
 
-    g_sensor_state_1 = (0.7*g_sensor_state_1) + (0.3*sensors_read_pressure_1_pa());
-    g_sensor_state_2 = (0.7*g_sensor_state_2) + (0.3*sensors_read_pressure_2_pa());
+    _read_and_filter_pressure_sensor();
 
     // TODO FIXME: just sensor 2
     //int DPR_pressure = (g_sensor_state_1 + g_sensor_state_2)/2;
@@ -309,7 +334,6 @@ void breathing_run(const OperationSettings *config)
             if(breathing.timestamp_start_close == 0) {
                 breathing.timestamp_start_close = breathing.cycle_time;
             }
-
         }
 
         // Close softly after closing has been initialized
@@ -338,55 +362,34 @@ void breathing_run(const OperationSettings *config)
     //float to_DPR = g_DPR_setpoint_pa;
     control_DPR_set_pa(to_DPR);
 
-    //
-    // MFC control loop
-    //
-
-    int MFC_pressure_pa = sensors_read_pressure_MFC_pa();
-    float MFC_error_mbar = (g_MFC_setpoint_pa - MFC_pressure_pa)/100.0;
-    float MFC_PID_out = arm_pid_f32(&MFC_PID, MFC_error_mbar);
-    MFC_PID_out = constrain(MFC_PID_out, MFC_FLOW_MIN_SLPM, MFC_FLOW_MAX_SLPM);
-
-    /*
-    log_debug("MFC: error=%d mbar PID_out=%d",
-            (int)MFC_error_mbar,
-            (int)MFC_PID_out);
-            */
-    
-    control_MFC_set(MFC_PID_out, cfg.oxygen_fraction);
+    _MFC_control_loop();
 
     //
     // Serial 'plot' output
     //
 
     if(BREATHING_LOG_INTERVAL_ms && time_ms && ((time_ms % BREATHING_LOG_INTERVAL_ms) == 0)) {
-//        float flow = flowsensor_test();
-//        log_debug("%d",
-//                  (int) flow);
 
         // MFC plot
 
-
         // DPR plot
         //
-        /*
-        log_debug("%d,%d,%d,%d",
-                (int)g_DPR_setpoint_pa,
-                (int)g_sensor_state_1,
-                (int)g_sensor_state_2,
-                (int)g_signal_to_switch,
-                //(int)DPR_pressure,
-                (int)to_DPR);
-        */
-//        log_debug("%d, %d, %d",
-//                  (int) sensors_read_flow());
+//        log_debug("%d",
+//                (int)g_DPR_setpoint_pa);
+//                (int)g_sensor_state_1,
+//                (int)g_sensor_state_2);
+//                (int)10000-g_signal_to_switch,
+//                (int)DPR_pressure,
+//                (int)to_DPR);
+
+//        log_debug("%d, %d",
 //                    g_MFC_setpoint_pa,
 //                    MFC_pressure_pa);
-//                  (int) cfg.oxygen_fraction*100);
+//                  MFC_PID_out);
 
         // DPR plot
         //
-
+/*
         log_debug("%d,%d",
 //                (int)g_DPR_setpoint_pa,
 //                (int)g_sensor_state_1,
@@ -394,14 +397,118 @@ void breathing_run(const OperationSettings *config)
 //                (int)g_signal_to_switch,
 //                (int)DPR_pressure,
 //                (int)to_DPR);
-                  (int) sensors_read_flow());
-
+  (int) sensors_read_flow());
+*/
     }
     
     breathing.cycle_time+=dt;
+
+    if(breathing.cycle_time > cfg.time_total_ms) {
+        /// TODO set breathing_cycle_finished to true
+    }
 }
 
+void pre_inspiratory_hold(const OperationSettings *config) {
+    // Reload values, reset timers
+    breathing.inspiration_hold_time = 0;
+    _update_cfg(config);
+    time_after_inspiration = 0;
+}
 
+bool inspiratory_hold_run(const OperationSettings *config) {
+    const int dt = 2;
+    breathing.breathing_time+=dt;
+
+    // Read sensor values
+    _read_and_filter_pressure_sensor();
+
+    if(breathing.inspiration_hold_time <= cfg.time_high_ms) {
+        // Close all valves
+        // Inspiratory phase
+        control_switch1_off();
+        g_DPR_setpoint_pa = cfg.pressure;
+
+        // TODO FIXME: determine which sensor to use for inspiratory hold manouvre
+        int DPR_pressure = (g_sensor_state_1);// + g_sensor_state_2)/2;
+
+        float error = g_DPR_setpoint_pa - DPR_pressure;
+
+        float DPR_PID_out = arm_pid_f32(&DPR_PID, error);
+
+        g_to_DPR = DPR_PID_out + 5500;
+
+        float to_DPR = constrain((g_to_DPR), 0, 10000);
+        control_DPR_set_pa(to_DPR);
+
+        breathing.cycle_time+=dt;
+    } else {
+        // Close valves for 2 seconds, average the pressure between 2 and 2.5 seconds
+        g_DPR_setpoint_pa = cfg.peep;
+
+        control_DPR_set_pa(0);
+
+        if (time_after_inspiration >= 2000) {
+            _read_and_filter_pressure_sensor();
+        }
+
+        if (time_after_inspiration >= 2500) {
+            _read_and_filter_pressure_sensor();
+            log_cli("Inspiratory hold done");
+            log_cli("Sensor 1 value: '%d'", (int) g_sensor_state_1);
+            log_cli("Sensor 2 value: '%d'", (int) g_sensor_state_2);
+            return true;
+        }
+        time_after_inspiration+=dt;
+    }
+
+    _MFC_control_loop();
+
+    breathing.inspiration_hold_time+=dt;
+
+    return false;
+}
+
+bool post_inspiratory_hold(const OperationSettings *config) {
+    int dt = 2;
+
+    // expiration phase (exact the same as normal breathing
+
+    // TODO FIXME: determine which sensor to use for inspiratory hold manouvre
+    int DPR_pressure = (g_sensor_state_1);// + g_sensor_state_2)/2;
+
+    if(breathing.cycle_time > cfg.time_high_ms) {
+        // close valve if pressure goes below peep
+        if(DPR_pressure < cfg.peep) {
+            if(breathing.timestamp_start_close == 0) {
+                breathing.timestamp_start_close = breathing.cycle_time;
+            }
+        }
+
+        // Close softly after closing has been initialized
+        if(breathing.timestamp_start_close > 0) {
+            const int time_since_close = (breathing.cycle_time - breathing.timestamp_start_close);
+            if(time_since_close >= 0) {
+
+                const int close_time = min(CLOSE_TIME_MS, cfg.time_low_ms/3);
+
+                int pwm_value = (10000*time_since_close)/close_time;
+                pwm_value = constrain(pwm_value, 0, 10000);
+                g_signal_to_switch = pwm_value;
+                control_switch1_on(10000-pwm_value);
+            }
+        }
+    }
+
+    _MFC_control_loop();
+
+    breathing.cycle_time+=dt;
+
+    if (breathing.cycle_time > cfg.time_total_ms) {
+        return true;
+    }
+
+    return false;
+}
 
 
 static bool program_validation(void)

@@ -18,6 +18,8 @@ void app_self_test(void);
 void app_program_start(void);
 void app_program_stop(void);
 
+void app_start_inspiratory_hold(void);
+void app_stop_inspiratory_hold(void);
 
 void app_clear_maintenance_mode(void);
 bool app_is_maintenance_mode(void);

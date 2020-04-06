@@ -73,8 +73,7 @@ void sensors_init(void) {
 
     ADC_init();
 
-    bool success = flowsensor_enable();
-    float val = read_flow_sensor();
+//    flowsensor_enable();
 
     sensors_reset();
 }

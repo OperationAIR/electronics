@@ -44,7 +44,6 @@ static void current_time(char *args) {
 	log_cli(time);
 }
 
-
 static void start(char *args) {
 	app_program_start();
 }
@@ -53,6 +52,15 @@ static void stop(char *args) {
 	app_program_stop();
 }
 
+static void in_hold(char *args) {
+	if (strncmp(args, "on", 2) == 0) {
+		app_start_inspiratory_hold();
+	} else if (strncmp(args, "off", 3) == 0) {
+		app_stop_inspiratory_hold();
+	} else {
+		// TODO return current inspiratory state
+	}
+}
 
 static void dpr(char *args) {
 	if (strncmp(args, "on", 2) == 0) {
@@ -63,7 +71,6 @@ static void dpr(char *args) {
 		log_cli("Disable DPR");
     }
 }
-
 
 static void mfc(char *args) {
 
@@ -258,6 +265,11 @@ CliCommand cli_commands[] = {
 		.help = "start (demo) program",
 		.function = start
 	},
+    {
+	    .cmd = "in",
+	    .help = "'on' or 'off' Inspiratory Hold function [during breathing]",
+        .function = in_hold
+    },
 	{
 		.cmd = "stop",
 		.help = "stop (demo) program",

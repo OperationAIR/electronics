@@ -22,6 +22,7 @@ typedef struct __attribute__((packed)) {
     uint16_t min_fiO2_alarm;
 
     uint16_t crc;
+
 } OperationSettings;
 
 
