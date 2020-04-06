@@ -138,8 +138,8 @@ static const enum ADCConfig ADC_config[] = {
 
     [ADC_ID_PRESSURE_PATIENT]   = ADC_CFG_CH0,
     [ADC_ID_PRESSURE_MFC]       = ADC_CFG_CH1,
-    [ADC_ID_PRESSURE_IN]        = ADC_CFG_CH3,
-    [ADC_ID_PRESSURE_OUT]       = ADC_CFG_CH2,
+    [ADC_ID_MFC_O2]             = ADC_CFG_CH3,
+    [ADC_ID_MFC_AIR]            = ADC_CFG_CH2,
 };
 
 // adc config struct should match ADC_ID enum
