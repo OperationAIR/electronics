@@ -1,5 +1,6 @@
 #include "calculated.h"
 #include "sensors.h"
+#include "global_settings.h"
 
 #include <memory.h>
 
@@ -8,6 +9,7 @@ static struct {
 
     int32_t volume_in_CC;
     int32_t volume_out_CC;
+    int32_t flow_out_avg_CCPM;
 
     int32_t oxygen_promille;
 
@@ -19,8 +21,21 @@ static struct {
 
         // volume is in L * 60000
         int32_t volume_out;
-    } calc;
+    } cycle_calc;
+
+    struct {
+        unsigned int time_ms;
+
+        int32_t volume_out;
+
+    } avg_calc;
 } g_ctx;
+
+
+void calculated_init(void)
+{
+   memset(&g_ctx, 0, sizeof(g_ctx)); 
+}
 
 int32_t calculated_oxygen_percent(void)
 {
@@ -34,25 +49,30 @@ int32_t calculated_volume_out_CC(void)
 {
     return g_ctx.volume_out_CC;
 }
+int32_t calculated_flow_out_avg_SCCPM(void)
+{
+    return g_ctx.flow_out_avg_CCPM;
+}
+
 
 int32_t calculated_volume_realtime_MFC_O2_CC(void)
 {
-    return g_ctx.calc.volume_O2 / 60000;
+    return g_ctx.cycle_calc.volume_O2 / 60000;
 }
 
 int32_t calculated_volume_realtime_MFC_air_CC(void)
 {
-    return g_ctx.calc.volume_air / 60000;
+    return g_ctx.cycle_calc.volume_air / 60000;
 }
 
 int32_t calculated_volume_realtime_in_CC(void)
 {
-    return ((g_ctx.calc.volume_O2 + g_ctx.calc.volume_air) / 60000);
+    return ((g_ctx.cycle_calc.volume_O2 + g_ctx.cycle_calc.volume_air) / 60000);
 }
 
 int32_t calculated_volume_realtime_out_CC(void)
 {
-    return (g_ctx.calc.volume_out / 60000);
+    return (g_ctx.cycle_calc.volume_out / 60000);
 }
 
 void calculated_update(enum BreathCycleState cycle_state, int dt)
@@ -80,22 +100,38 @@ void calculated_update(enum BreathCycleState cycle_state, int dt)
         // (integrated flow sensor values)
         g_ctx.volume_out_CC = calculated_volume_realtime_out_CC();
 
-
         // Reset sensor state for next breathing cycle
-        memset(&g_ctx.calc, 0, sizeof(g_ctx.calc));
+        memset(&g_ctx.cycle_calc, 0, sizeof(g_ctx.cycle_calc));
 
     }
+
+    g_ctx.avg_calc.time_ms+=dt;
+    if(g_ctx.avg_calc.time_ms >= CALCULATED_AVERAGING_TIME_MS) {
+
+        // NOte: avg_calc volumes are in (CC * 60000). To calculate avg CCPM,
+        // we need the volume in CC * (60000/AVERAGING_TIME_MS).
+        g_ctx.flow_out_avg_CCPM = (g_ctx.avg_calc.volume_out / g_ctx.avg_calc.time_ms);
+
+        // Reset averaging state for next time period
+        memset(&g_ctx.avg_calc, 0, sizeof(g_ctx.avg_calc));
+    }
+    // integrate volume during CALCULATED_AVERAGING_TIME_MS
+    g_ctx.avg_calc.volume_out+= (dt*sensors_read_flow_out_SCCPM());
+
+    //avg_calc
+    //g_ctx.volume_out_avg
+
     g_ctx.cycle_state = cycle_state;
 
 
     // Integrate MFC output flow over one cycle
     // volume is in CC * 60000
-    g_ctx.calc.volume_O2+=  (dt*sensors_read_flow_MFC_O2_SCCPM());
-    g_ctx.calc.volume_air+= (dt*sensors_read_flow_MFC_air_SCCPM());
+    g_ctx.cycle_calc.volume_O2+=  (dt*sensors_read_flow_MFC_O2_SCCPM());
+    g_ctx.cycle_calc.volume_air+= (dt*sensors_read_flow_MFC_air_SCCPM());
 
     // Integrate exhale flow over one cycle
     // volume is in CC * 60000
-    g_ctx.calc.volume_out+= (dt*sensors_read_flow_out_SCCPM());
+    g_ctx.cycle_calc.volume_out+= (dt*sensors_read_flow_out_SCCPM());
 
 }
 

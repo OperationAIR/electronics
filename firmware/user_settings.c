@@ -32,4 +32,7 @@ const unsigned int BREATHING_FINAL_STOP_DURATION_MS = 3000;
 const unsigned int BREATHING_LOG_INTERVAL_ms = 30;
 
 
+// Averaging calculations (see calculated.c) are averaged over this time
+const unsigned int CALCULATED_AVERAGING_TIME_MS = 10000;
+
 /* === */

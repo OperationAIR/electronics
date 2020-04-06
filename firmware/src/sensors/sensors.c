@@ -57,6 +57,8 @@ static MPRLS mprls2;
 
 void sensors_init(void) {
 
+    calculated_init();
+
 #if(PRESSURE_SENSORS_DIGITAL)
     mprls_init(&mprls1, LPC_SSP0,
         board_get_GPIO(GPIO_ID_PSENSE_1_CS),
@@ -296,6 +298,11 @@ int32_t sensors_read_flow_MFC_air_SCCPM(void)
     return v_MFC_air * 10;
 }
 
+int32_t sensors_read_flow_out_avg_SCCPM(void)
+{
+    return calculated_flow_out_avg_SCCPM();
+}
+
 
 /**
  * Calculated 'sensors': based on one or more other sensor values.
@@ -350,7 +357,7 @@ void sensors_read_all(SensorsAllData *data)
     data->oxygen = sensors_read_oxygen_percent();
     data->tidal_volume = sensors_read_volume_cycle_out_CC();
 
-    data->minute_volume = 0;    // TODO 
+    data->minute_volume = sensors_read_flow_out_avg_SCCPM();
 
     data->cycle_state = breathing_get_cycle_state();
     data->power_status = 0;     // TODO

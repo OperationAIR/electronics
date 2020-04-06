@@ -17,7 +17,7 @@ typedef struct SensorsAllData {
 
     int32_t oxygen;             // Oxygen percentage [0-100]
     int32_t tidal_volume;       // Tidal volume [mL] (Based on exhale flow)
-    int32_t minute_volume;      // Average flow [L / minute] (TODO: Not Implemented Yet)
+    int32_t minute_volume;      // Average flow [mL / minute] (average over last 10 sec interval)
     int32_t cycle_state;        // PeeP / Peak / None
     int32_t power_status;       // Status of PSU (TODO: Not Implemented Yet)
 } SensorsAllData;
@@ -42,6 +42,9 @@ void sensors_update(unsigned int dt);
 // Flow into / out from patient
 int32_t sensors_read_flow_in_SCCPM(void);
 int32_t sensors_read_flow_out_SCCPM(void);
+
+// Average over last 10 seconds
+int32_t sensors_read_flow_out_avg_SCCPM(void);
 
 // Flows at MFC
 int32_t sensors_read_flow_MFC_O2_SCCPM(void);

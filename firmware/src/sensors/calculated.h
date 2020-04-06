@@ -12,6 +12,7 @@
  * See sensors.h
  */
 
+void calculated_init(void);
 
 /**
  * Called from breathing_run every dt ms to update all calculations
