@@ -51,7 +51,9 @@ The microcontroller communicates with a Raspberry Pi over `uart`. The PCB is des
 
 ![](img/uart_pinout.png)
 
-A binary protocol is used where each command is a unique 4 byte sequence followed by an optional payload.
+A binary protocol is used where each command is a unique 32 bit integer (sent LSB first) followed by an optional payload.
+
+The baudrate is `500000`.
 
 Binary responses from the microcontroller for the specific command are also prefixed with the same 4 bytes. ASCII responses, for logging or debug puposes are prefixed with `0x23232323` ('####') and end in a newline `\n` character.
 
