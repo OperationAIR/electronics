@@ -16,6 +16,7 @@ enum BreathCycleState {
     BreathCycleStateNone            = 0,
     BreathCycleStatePeakPressure    = 1,
     BreathCycleStatePeep            = 2,
+    BreathCycleLastStepDone         = 3,
 } BreathCycleState;
 
 
@@ -30,8 +31,10 @@ void breathing_power_off(void);
 
 void breathing_tune_DPR_PID(float kp, float ki, float kd);
 void breathing_tune_MFC_PID(float kp, float ki, float kd);
+void breathing_tune_EXP_PID(float kp, float ki, float kd);
 void breathing_print_DPR_PID(void);
 void breathing_print_MFC_PID(void);
+void breathing_print_EXP_PID(void);
 
 
 int breathing_read_setpoint_pa(void);
@@ -43,6 +46,10 @@ enum BreathCycleState breathing_get_cycle_state(void);
  * This function needs to be called from the app timer at fixed frequency
  */
 void breathing_run(const OperationSettings *config, const int dt);
+
+void pre_inspiratory_hold(const OperationSettings *config, const int dt);
+bool inspiratory_hold_run(const OperationSettings *config, const int dt);
+bool post_inspiratory_hold(const OperationSettings *config, const int dt);
 
 void breathing_start_test(void);
 enum TestState breathing_test(void);
