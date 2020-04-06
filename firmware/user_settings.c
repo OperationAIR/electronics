@@ -29,7 +29,7 @@ const unsigned int BREATHING_FINAL_STOP_DURATION_MS = 3000;
 
 // Sensor data is logged during regular breathing program.
 // Interval in milliseconds.
-const unsigned int BREATHING_LOG_INTERVAL_ms = 30;
+const unsigned int BREATHING_LOG_INTERVAL_ms = 50;
 
 
 /* === */

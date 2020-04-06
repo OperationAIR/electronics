@@ -284,7 +284,7 @@ enum AppState app_state_breathing(void)
     }
 
     // Start Inspiratory Hold
-    if(g_app.inspiratory_hold) {
+    if(g_app.inspiratory_hold && (breathing_get_cycle_state() == BreathCycleLastStepDone)) {
         return AppStatePreInspiratoryHold;
     }
 
@@ -295,18 +295,17 @@ enum AppState app_state_breathing(void)
 
 }
 
-enum AppState app_state_after_breathing(void)
-{
+enum AppState app_state_after_breathing(void) {
     if (g_app.time == 0) {
         log_wtime("Stop Breathing Program");
         breathing_stop();
     }
 
-    if((g_app.time % 100) == 0) {
+    if ((g_app.time % 100) == 0) {
         control_LED_status_toggle();
     }
 
-    if (g_app.time >= (BREATHING_FINAL_STOP_DURATION_MS/2)) {
+    if (g_app.time >= (BREATHING_FINAL_STOP_DURATION_MS / 2)) {
         breathing_power_off();
 
         log_wtime("Breathing is finished");
@@ -321,14 +320,13 @@ enum AppState app_state_after_breathing(void)
 }
 
 enum AppState app_state_pre_inspiratory_hold(void) {
-    pre_inspiratory_hold(&g_app.settings);
+    pre_inspiratory_hold(&g_app.settings, DT_MS);
     return AppStateInspiratoryHold;
 }
 
 enum AppState app_state_inspiratory_hold(void)
 {
-    bool finised = inspiratory_hold_run(&g_app.settings);
-
+    bool finised = inspiratory_hold_run(&g_app.settings, DT_MS);
     if (finised) {
         g_app.inspiratory_hold = false;
         return  AppStatePostInspiratoryHold;
@@ -342,7 +340,7 @@ enum AppState app_state_inspiratory_hold(void)
 }
 
 enum AppState app_state_post_inspiratory_hold(void) {
-    bool finised = post_inspiratory_hold(&g_app.settings);
+    bool finised = post_inspiratory_hold(&g_app.settings, DT_MS);
 
     if (finised) {
         return AppStateBreathing;
@@ -490,7 +488,7 @@ void app_program_start(void)
         g_app.settings.start = true;
         g_app.settings.peep = 1000;
         g_app.settings.pressure = 3000;
-        g_app.settings.frequency = 12;
+        g_app.settings.frequency = 15;
         g_app.settings.ratio = 2;
         g_app.settings.oxygen = 21;
     }
