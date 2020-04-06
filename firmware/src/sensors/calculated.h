@@ -36,6 +36,7 @@ int32_t calculated_volume_realtime_out_CC(void);
 int32_t calculated_oxygen_percent(void);
 int32_t calculated_volume_in_CC(void);
 int32_t calculated_volume_out_CC(void);
+int32_t calculated_flow_out_avg_SCCPM(void);
 
 
 #endif
