@@ -74,7 +74,7 @@ Binary responses from the microcontroller for the specific command are also pref
 | SwitchExtraOff      | Turn off 24V switch (extra)             | `0x66775555` | None         | Log info (ascii) |
 | MFCAirSet           | Set 12 bit analog value for MFC (Air)   | `0x77771111` | [uint16 (mV)](#MFC-set-point) | Log info (ascii) |
 | MFCAirGet           | Get analog MFC (Air) feedback value     | `0x77881111` | None         | [MFC Feedback (mV)](MFC-analog-in)  |
-| MFCO2Set            | Set analog value for MFC (O2)           | `0x77772222` | [uint16 (mV)](#MFC-set-point) | Log info (ascii) |
+| MFCO2Set            | Set 12 bit analog value for MFC (O2)    | `0x77772222` | [uint16 (mV)](#MFC-set-point) | Log info (ascii) |
 | MFCO2Get            | Get analog MFC (O2) feedback value      | `0x77882222` | None         | [MFC Feedback (mV)](MFC-analog-in)  |
 | RequestBatteryLevel | Request current battery level (24V DC)  | `0x88881111` | None         | Battery voltage (mV) |
 | PowerStatus         | Request power status                    | `0x88882222` | None         | Status bitfield  |
