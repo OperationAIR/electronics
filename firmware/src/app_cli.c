@@ -197,15 +197,15 @@ static void switch2(char *args) {
 static void sensors(char *args) {
 
     char str[32];
-    f2strn(sensors_read_flow_SLPM(), str, sizeof(str), 3);
-    log_cli("Flow: '%s' SLPM", str);
+    f2strn(sensors_read_flow_out_SCCPM()/1000.0, str, sizeof(str), 3);
+    log_cli("Flow out: '%s' SLPM", str);
     f2strn(sensors_read_flow_MFC_O2_SCCPM()/1000.0, str, sizeof(str), 3);
     log_cli("MFC flow O2: '%s' SLPM", str);
     f2strn(sensors_read_flow_MFC_air_SCCPM()/1000.0, str, sizeof(str), 3);
     log_cli("MFC flow air: '%s' SLPM", str);
     log_cli("Pressure MFC: %d Pa", sensors_read_pressure_MFC_pa());
-    log_cli("Pressure 1: %d Pa", sensors_read_pressure_1_pa());
-    log_cli("Pressure 2: %d Pa", sensors_read_pressure_2_pa());
+    log_cli("Pressure in: %d Pa", sensors_read_pressure_in_pa());
+    log_cli("Pressure out: %d Pa", sensors_read_pressure_out_pa());
 }
 
 static void halt(char *args)

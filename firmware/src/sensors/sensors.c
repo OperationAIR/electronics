@@ -16,18 +16,19 @@
 
 struct {
     int32_t pressure_MFC;
-    int32_t pressure_1;
-    int32_t pressure_2;
+    int32_t pressure_in;
+    int32_t pressure_out;
+    int32_t pressure_patient;
 
     int32_t flow_MFC_air;
     int32_t flow_MFC_O2;
 
-    float flow; //SLPM
+    int32_t flow_out; //SCCPM
 } Sensors;
 
 static bool g_error = false;
-static int32_t g_offset_pressure_1 = 0;
-static int32_t g_offset_pressure_2 = 0;
+static int32_t g_offset_pressure_in = 0;
+static int32_t g_offset_pressure_out = 0;
 
 // See schematics
 #define ADC_FACTOR_PRESSURE             (168.0/100.0)
@@ -84,11 +85,11 @@ bool sensors_calibrate_offset(void)
 {
     // reset offsets to zero. This is done because we dont
     // want the sensors_read_XXX() calls below to include any previous offset.
-    g_offset_pressure_1 = 0;
-    g_offset_pressure_2 = 0;
+    g_offset_pressure_in = 0;
+    g_offset_pressure_out = 0;
 
-    g_offset_pressure_1 = sensors_read_pressure_1_pa();
-    g_offset_pressure_2 = sensors_read_pressure_2_pa();
+    g_offset_pressure_in = sensors_read_pressure_in_pa();
+    g_offset_pressure_out = sensors_read_pressure_out_pa();
 
     return g_error;
 }
@@ -97,15 +98,16 @@ void sensors_reset(void)
 {
     g_error = false;
     Sensors.pressure_MFC = -1;
-    Sensors.pressure_1 = -1;
-    Sensors.pressure_2 = -1;
+    Sensors.pressure_in = -1;
+    Sensors.pressure_out = -1;
+    Sensors.pressure_patient = -1;
 
-    Sensors.flow = -1;
+    Sensors.flow_out = -1;
     Sensors.flow_MFC_O2 = -1;
     Sensors.flow_MFC_air = -1;
 
-    g_offset_pressure_1 = 0;
-    g_offset_pressure_2 = 0;
+    g_offset_pressure_in = 0;
+    g_offset_pressure_out = 0;
 
     sensors_update(1);
 }
@@ -129,12 +131,13 @@ void sensors_update(unsigned int dt)
             ADC_RANGE/SLEW_LIMIT_PRESSURE_MFC);
 
     if (count++ % 5 == 0) {
-        Sensors.flow = read_flow_sensor();
-        Sensors.flow = Sensors.flow*3.14f*(0.0155f/2)*(0.0155f/2)*1000*60;
-    }
+        // calculate flow in SLPM
+        float flow_SLPM = read_flow_sensor();
+        flow_SLPM = flow_SLPM*3.14f*(0.0155f/2)*(0.0155f/2)*1000*60;
 
-//    Sensors.flow = read_flow_sensor();
-//    Sensors.flow = flowsensor_test();
+        // SLPM to SCCPM
+        Sensors.flow_out = 1000*flow_SLPM;
+    }
 
 
 #if(PRESSURE_SENSORS_DIGITAL)
@@ -142,7 +145,7 @@ void sensors_update(unsigned int dt)
     // sample sensor1
     if(mprls_is_ready(&mprls1)) {
         // read value and trigger next sample
-        Sensors.pressure_1 = mprls_read_data(&mprls1);
+        Sensors.pressure_in = mprls_read_data(&mprls1);
         mprls_trigger_read(&mprls1);
 
     } else if(mprls_is_timeout(&mprls1)) {
@@ -157,7 +160,7 @@ void sensors_update(unsigned int dt)
     // sample sensor2
     if(mprls_is_ready(&mprls2)) {
         // read value and trigger next sample
-        Sensors.pressure_2 = mprls_read_data(&mprls2);
+        Sensors.pressure_out = mprls_read_data(&mprls2);
         mprls_trigger_read(&mprls2);
 
     } else if(mprls_is_timeout(&mprls2)) {
@@ -170,9 +173,9 @@ void sensors_update(unsigned int dt)
     }
 
 #else
-    filter_adc(&Sensors.pressure_1, ADC_ID_PRESSURE_1,
+    filter_adc(&Sensors.pressure_in, ADC_ID_PRESSURE_IN,
             ADC_RANGE/SLEW_LIMIT_PRESSURE);
-    filter_adc(&Sensors.pressure_2, ADC_ID_PRESSURE_2,
+    filter_adc(&Sensors.pressure_out, ADC_ID_PRESSURE_OUT
             ADC_RANGE/SLEW_LIMIT_PRESSURE);
 #endif
 
@@ -180,6 +183,8 @@ void sensors_update(unsigned int dt)
             ADC_RANGE/SLEW_LIMIT_MFC_FEEDBACK);
     filter_adc(&Sensors.flow_MFC_air, ADC_ID_MFC_AIR,
             ADC_RANGE/SLEW_LIMIT_MFC_FEEDBACK);
+    filter_adc(&Sensors.pressure_patient, ADC_ID_PRESSURE_PATIENT,
+            ADC_RANGE/SLEW_LIMIT_PRESSURE);
 }
 
 static float p_MFC_mbar;
@@ -203,14 +208,14 @@ int32_t sensors_read_pressure_target_pa(void)
     return breathing_read_setpoint_pa();
 }
 
-int32_t sensors_read_pressure_1_pa(void)
+int32_t sensors_read_pressure_in_pa(void)
 {
     int32_t result = 0;
 #if(PRESSURE_SENSORS_DIGITAL)
-    result = Sensors.pressure_1;
+    result = Sensors.pressure_in;
 #else
     // NXP MPVZ5010
-    const int v_pressure = ADC_scale(Sensors.pressure_1, ADC_FACTOR_PRESSURE);
+    const int v_pressure = ADC_scale(Sensors.pressure_in, ADC_FACTOR_PRESSURE);
 
     // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
     const int offset_mv = 167;
@@ -225,17 +230,17 @@ int32_t sensors_read_pressure_1_pa(void)
     */
 #endif
 
-    return result - g_offset_pressure_1;
+    return result - g_offset_pressure_in;
 }
 
-int32_t sensors_read_pressure_2_pa(void)
+int32_t sensors_read_pressure_out_pa(void)
 {
     int32_t result = 0;
 #if(PRESSURE_SENSORS_DIGITAL)
-    result = Sensors.pressure_2;
+    result = Sensors.pressure_out;
 #else
 
-    const int v_pressure = ADC_scale(Sensors.pressure_2, ADC_FACTOR_PRESSURE);
+    const int v_pressure = ADC_scale(Sensors.pressure_out, ADC_FACTOR_PRESSURE);
 
     // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
     const int offset_mv = 167;
@@ -250,11 +255,29 @@ int32_t sensors_read_pressure_2_pa(void)
     */
 #endif
 
-    return result - g_offset_pressure_2;
+    return result - g_offset_pressure_out;
 }
 
-float sensors_read_flow_SLPM(void) {
-    return Sensors.flow;
+int32_t sensors_read_pressure_patient_pa(void)
+{
+    const int v_pressure = ADC_scale(Sensors.pressure_out, ADC_FACTOR_PRESSURE);
+
+    // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
+    const int offset_mv = 167;
+    const int scale_factor = 2157;
+    int32_t result = ((v_pressure-offset_mv)*scale_factor)/1000;
+
+    return result;
+}
+
+int32_t sensors_read_flow_out_SCCPM(void)
+{
+    return Sensors.flow_out;
+}
+int32_t sensors_read_flow_in_SCCPM(void)
+{
+    // Flow into patient is approximated as total flow from MFCs
+    return (sensors_read_flow_MFC_O2_SCCPM() + sensors_read_flow_MFC_air_SCCPM());
 }
 
 int32_t sensors_read_flow_MFC_O2_SCCPM(void)
@@ -287,6 +310,14 @@ int32_t sensors_read_volume_realtime_MFC_air_CC(void)
 {
     return calculated_volume_realtime_MFC_air_CC();
 }
+int32_t sensors_read_volume_realtime_in_CC(void)
+{
+    return calculated_volume_realtime_in_CC();
+}
+int32_t sensors_read_volume_realtime_out_CC(void)
+{
+    return calculated_volume_realtime_out_CC();
+}
 
 int32_t sensors_read_oxygen_percent(void)
 {
@@ -308,14 +339,20 @@ int32_t sensors_read_volume_cycle_out_CC(void)
 
 void sensors_read_all(SensorsAllData *data)
 {
-    data->pressure_1_pa = sensors_read_pressure_1_pa();
-    data->pressure_2_pa = sensors_read_pressure_2_pa();
+    data->flow_inhale = sensors_read_flow_in_SCCPM();
+    data->flow_exhale = sensors_read_flow_out_SCCPM();
+
+    data->pressure_inhale = sensors_read_pressure_in_pa();
+    data->pressure_exhale = sensors_read_pressure_out_pa();
+    data->pressure_patient = sensors_read_pressure_patient_pa();
+    data->pressure_mfc = sensors_read_pressure_MFC_pa();
 
     data->oxygen = sensors_read_oxygen_percent();
+    data->tidal_volume = sensors_read_volume_cycle_out_CC();
 
-    data->flow = (int32_t)sensors_read_flow_SLPM();
+    data->minute_volume = 0;    // TODO 
 
     data->cycle_state = breathing_get_cycle_state();
-//    flowsensor_test();
+    data->power_status = 0;     // TODO
 }
 

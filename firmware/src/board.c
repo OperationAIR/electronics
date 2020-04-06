@@ -136,10 +136,10 @@ STATIC_ASSERT( (GPIO_ID_MAX == (sizeof(pin_config)/sizeof(GPIOConfig))));
 
 static const enum ADCConfig ADC_config[] = {
 
-    [ADC_ID_PREG_PRESSURE]      = ADC_CFG_CH0,
+    [ADC_ID_PRESSURE_PATIENT]   = ADC_CFG_CH0,
     [ADC_ID_PRESSURE_MFC]       = ADC_CFG_CH1,
-    [ADC_ID_PRESSURE_1]         = ADC_CFG_CH3,
-    [ADC_ID_PRESSURE_2]         = ADC_CFG_CH2,
+    [ADC_ID_PRESSURE_IN]        = ADC_CFG_CH3,
+    [ADC_ID_PRESSURE_OUT]       = ADC_CFG_CH2,
 };
 
 // adc config struct should match ADC_ID enum

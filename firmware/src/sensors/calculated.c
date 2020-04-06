@@ -45,10 +45,14 @@ int32_t calculated_volume_realtime_MFC_air_CC(void)
     return g_ctx.calc.volume_air / 60000;
 }
 
-int32_t calculated_volume_realtime_MFC_CC(void)
+int32_t calculated_volume_realtime_in_CC(void)
 {
     return ((g_ctx.calc.volume_O2 + g_ctx.calc.volume_air) / 60000);
+}
 
+int32_t calculated_volume_realtime_out_CC(void)
+{
+    return (g_ctx.calc.volume_out / 60000);
 }
 
 void calculated_update(enum BreathCycleState cycle_state, int dt)
@@ -70,11 +74,11 @@ void calculated_update(enum BreathCycleState cycle_state, int dt)
 
         // Total inspiratory flow over one cycle
         // (from MFC, assuming no leaks or overpressure events)
-        g_ctx.volume_in_CC = volume_total_in_CC;
+        g_ctx.volume_in_CC = calculated_volume_realtime_in_CC();
 
         // Total expiratory flow over one cycle
         // (integrated flow sensor values)
-        g_ctx.volume_out_CC = g_ctx.calc.volume_out / 60;
+        g_ctx.volume_out_CC = calculated_volume_realtime_out_CC();
 
 
         // Reset sensor state for next breathing cycle
@@ -90,8 +94,8 @@ void calculated_update(enum BreathCycleState cycle_state, int dt)
     g_ctx.calc.volume_air+= (dt*sensors_read_flow_MFC_air_SCCPM());
 
     // Integrate exhale flow over one cycle
-    // volume is in L * 60000  = CC * 60
-    g_ctx.calc.volume_out+= (dt*sensors_read_flow_SLPM());
+    // volume is in CC * 60000
+    g_ctx.calc.volume_out+= (dt*sensors_read_flow_out_SCCPM());
 
 }
 

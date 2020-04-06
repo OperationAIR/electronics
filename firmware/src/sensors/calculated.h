@@ -23,6 +23,9 @@ int32_t calculated_volume_realtime_MFC_O2_CC(void);
 int32_t calculated_volume_realtime_MFC_air_CC(void);
 int32_t calculated_volume_realtime_MFC_CC(void);
 
+int32_t calculated_volume_realtime_in_CC(void);
+int32_t calculated_volume_realtime_out_CC(void);
+
 /**
  * Calculate oxygen percentage [0-100] based on flow from
  * MassFlowControllers. Note: the value is filtered to simulate

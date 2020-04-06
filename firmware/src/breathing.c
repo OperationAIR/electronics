@@ -27,8 +27,8 @@ static int g_signal_to_switch = 0;
 static volatile int g_DPR_setpoint_pa = 0;
 static arm_pid_instance_f32 DPR_PID;    // pressure regulator
 static arm_pid_instance_f32 MFC_PID;    // mass flow controllers
-static float g_sensor_state_1 = 0;
-static float g_sensor_state_2 = 0;
+static float g_pressure_state_in = 0;
+static float g_pressure_state_out = 0;
 static float g_to_DPR = 0;
 static volatile enum BreathCycleState g_breath_cycle_state = BreathCycleStateNone;
 
@@ -171,8 +171,8 @@ bool breathing_start_program(void)
     control_MFC_set(0, 0.0);
 
     // init state to sane value
-    g_sensor_state_1 = sensors_read_pressure_1_pa();
-    g_sensor_state_2 = sensors_read_pressure_2_pa();
+    g_pressure_state_in = sensors_read_pressure_in_pa();
+    g_pressure_state_out = sensors_read_pressure_out_pa();
 
     return control_DPR_on();
     // TODO start
@@ -294,12 +294,12 @@ void breathing_run(const OperationSettings *config, const int dt)
     const int delta_p = (target_high - setpoint_low);
     const int setpoint_high = min(setpoint_low + (breathing.cycle_time*(delta_p/ramp_time)), target_high);
 
-    g_sensor_state_1 = (0.7*g_sensor_state_1) + (0.3*sensors_read_pressure_1_pa());
-    g_sensor_state_2 = (0.7*g_sensor_state_2) + (0.3*sensors_read_pressure_2_pa());
+    g_pressure_state_in = (0.7*g_pressure_state_in) + (0.3*sensors_read_pressure_in_pa());
+    g_pressure_state_out = (0.7*g_pressure_state_out) + (0.3*sensors_read_pressure_out_pa());
 
     // TODO FIXME: just sensor 2
-    //int DPR_pressure = (g_sensor_state_1 + g_sensor_state_2)/2;
-    int DPR_pressure = (g_sensor_state_1);// + g_sensor_state_2)/2;
+    //int DPR_pressure = (g_pressure_state_in + g_pressure_state_out)/2;
+    int DPR_pressure = (g_pressure_state_in);// + g_pressure_state_out)/2;
 
     // start building pressure
     if(breathing.cycle_time <= cfg.time_high_ms) {
@@ -391,8 +391,8 @@ void breathing_run(const OperationSettings *config, const int dt)
         /*
         log_debug("%d,%d,%d,%d",
                 (int)g_DPR_setpoint_pa,
-                (int)g_sensor_state_1,
-                (int)g_sensor_state_2,
+                (int)g_pressure_state_in,
+                (int)g_pressure_state_out,
                 (int)g_signal_to_switch,
                 //(int)DPR_pressure,
                 (int)to_DPR);
@@ -413,8 +413,8 @@ void breathing_run(const OperationSettings *config, const int dt)
                 sensors_read_volume_realtime_MFC_air_CC());
                 //(int)(1000*sensors_read_flow_SLPM()));
 //                (int)g_DPR_setpoint_pa,
-//                (int)g_sensor_state_1,
-//                (int)g_sensor_state_2);
+//                (int)g_pressure_state_in,
+//                (int)g_pressure_state_out);
 //                (int)g_signal_to_switch,
 //                (int)DPR_pressure,
 //                (int)to_DPR);
