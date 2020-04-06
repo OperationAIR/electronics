@@ -110,6 +110,9 @@ void pi_comm_init(void)
 
 /**
  * Read ringbuffer elements without advancing read pointer
+ *
+ * NOTE: only call if you know for sure the amount of requested data
+ * is in the ringbuffer! Otherwise this will block..
  */
 uint32_t ringbuffer_read_ahead(Ringbuffer *ringbuffer,
         void *elements, uint32_t element_count)
@@ -214,7 +217,7 @@ void pi_comm_tasks()
 			pi_comm_send((uint8_t*)&prefix, 4);
 			pi_comm_send((uint8_t*)&data, sizeof(SensorsAllData));
 			pi_comm_send((uint8_t*)&crc16, 2);
-			pi_comm_reset();
+			g_current_command = PiCommandNone;
 	} else if (g_current_command == PiCommandNewSettings) {
         size_t count = ringbuffer_used_count(&rb_Rx);
 		if (count >= sizeof(OperationSettings)) {
