@@ -35,6 +35,8 @@ enum PiCommand {
     PiCommandNewSettings 			= 0x41424344,
 	PiCommandRequestSettings 		= 0x45464748,
     PiCommandRequestSensorValues 	= 0x0D15EA5E,
+	PiCommandInspiratoryHold		= 0x99998888,
+	PiCommandInspiratoryHoldStop	= 0x99999999,
 	PiCommandLedOn 					= 0x55551111,
 	PiCommandLedOff 				= 0x55661111,
 	PiCommandErrorOn 				= 0x55552222,
@@ -155,6 +157,16 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 				case PiCommandRequestSensorValues:
 					ringbuffer_flush(rb, 4);
 					return PiCommandRequestSensorValues;
+				case PiCommandInspiratoryHold:
+					ringbuffer_flush(rb, 4);
+					app_start_inspiratory_hold();
+					pi_comm_send_string("Try start inspiratory hold\n");
+					return PiCommandNone;
+				case PiCommandInspiratoryHoldStop:
+					ringbuffer_flush(rb, 4);
+					app_stop_inspiratory_hold();
+					pi_comm_send_string("Cancel inspiratory hold\n");
+					return PiCommandNone;
 				case PiCommandLedOn:
 					ringbuffer_flush(rb, 4);
 					control_LED_status_on();
