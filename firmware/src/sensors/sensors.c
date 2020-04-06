@@ -171,8 +171,11 @@ void sensors_update(unsigned int dt)
             ADC_RANGE/SLEW_LIMIT_MFC_FEEDBACK);
     filter_adc(&Sensors.flow_MFC_air, ADC_ID_MFC_AIR,
             ADC_RANGE/SLEW_LIMIT_MFC_FEEDBACK);
-    filter_adc(&Sensors.pressure_patient, ADC_ID_PRESSURE_PATIENT,
-            ADC_RANGE/SLEW_LIMIT_PRESSURE);
+
+    if(board_has_ADC(ADC_ID_PRESSURE_PATIENT)) {
+        filter_adc(&Sensors.pressure_patient, ADC_ID_PRESSURE_PATIENT,
+                ADC_RANGE/SLEW_LIMIT_PRESSURE);
+    }
 }
 
 static float p_MFC_mbar;
@@ -214,7 +217,7 @@ int32_t sensors_read_pressure_out_pa(void)
 
 int32_t sensors_read_pressure_patient_pa(void)
 {
-    const int v_pressure = ADC_scale(Sensors.pressure_out, ADC_FACTOR_PRESSURE);
+    const int v_pressure = ADC_scale(Sensors.pressure_patient, ADC_FACTOR_PRESSURE);
 
     // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
     const int offset_mv = 167;

@@ -6,7 +6,6 @@
 #include <c_utils/assert.h>
 
 #include "control_signals.h"
-#include "DPR.h"
 #include "actuators/PWM.h"
 #include "actuators/i2c_dac.h"
 #include "board_config/board_GPIO_ID.h"
@@ -15,10 +14,6 @@ struct {
     const GPIO *LED_status;
     const GPIO *LED_error;
 
-    const GPIO *switch1;
-    const GPIO *switch2;
-
-    DPR DPR;
     PWM pwm;
     PWM output_pwm;
 } Control;
@@ -32,11 +27,6 @@ void control_signals_init()
 {
     Control.LED_status = board_get_GPIO(GPIO_ID_LED_STATUS);
     Control.LED_error = board_get_GPIO(GPIO_ID_LED_ERROR);
-
-    Control.switch1 = board_get_GPIO(GPIO_ID_SWITCH_1);
-    Control.switch2 = board_get_GPIO(GPIO_ID_SWITCH_2);
-
-    DPR_init(&Control.DPR, LPC_SSP1, board_get_GPIO(GPIO_ID_PREG_CS));
 
     const int desired_pwm_resolution = 10000;
     const uint32_t pwm_frequency = 960;
@@ -67,7 +57,6 @@ bool control_DPR_off(void)
     PWM_stop(&Control.pwm);
     PWM_stop(&Control.output_pwm);
     return true;
-    //return DPR_disable(&Control.DPR);
 }
 
 bool control_MFC_set(float flow_SLPM, float O2_fraction)
@@ -111,6 +100,7 @@ static void _setAirDAC(int mv_air)
     i2cdac_set(ADDDRESS_AIR, DAC_12bit);
 }
 
+// TODO deprecated!
 bool control_DPR_set_pa(int pressure_pa)
 {
     int pwm = constrain(pressure_pa, 0, 10000);
@@ -147,16 +137,10 @@ void control_switch1_on(int pwm_value_below_10000)
 {
     int pwm = constrain(pwm_value_below_10000, 0, 10000);
     PWM_set(&Control.output_pwm, PWM_CH1, pwm);
-    //GPIO_HAL_set(Control.switch1, HIGH);
 }
 void control_switch1_off(void)
 {
     PWM_set(&Control.output_pwm, PWM_CH1, 0);
-    //GPIO_HAL_set(Control.switch1, LOW);
-}
-bool control_switch1_get_state(void)
-{
-    return GPIO_HAL_get(Control.switch1);
 }
 
 void control_switch2_on(void)
@@ -168,9 +152,5 @@ void control_switch2_off(void)
 {
     PWM_set(&Control.pwm, PWM_CH1, 0);
     //GPIO_HAL_set(Control.switch2, LOW);
-}
-bool control_switch2_get_state(void)
-{
-    return GPIO_HAL_get(Control.switch2);
 }
 
