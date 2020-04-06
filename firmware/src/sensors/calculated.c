@@ -54,7 +54,6 @@ int32_t calculated_flow_out_avg_SCCPM(void)
     return g_ctx.flow_out_avg_CCPM;
 }
 
-
 int32_t calculated_volume_realtime_MFC_O2_CC(void)
 {
     return g_ctx.cycle_calc.volume_O2 / 60000;

@@ -387,8 +387,12 @@ void breathing_run(const OperationSettings *config, const int dt)
     _MFC_control_loop();
 
     if(BREATHING_LOG_INTERVAL_ms && time_ms && ((time_ms % BREATHING_LOG_INTERVAL_ms) == 0)) {
-        // DPR plot
+        float flow = sensors_read_flow_out_SCCPM();
 
+//        log_debug("%d",
+//                  (int) flow);
+
+        // DPR plot
 //        log_debug("%d,%d,%d",
 //                (int)g_pressure_setpoint_pa,
 //                (int)g_sensor_state_1,
@@ -457,10 +461,6 @@ bool inspiratory_hold_run(const OperationSettings *config, const int dt) {
 
     breathing.inspiration_hold_time+=dt;
 
-    log_cli("%d, %d",
-            (int) breathing.inspiration_hold_time,
-            (int) time_after_inspiration);
-
     return false;
 }
 
@@ -473,40 +473,6 @@ bool post_inspiratory_hold(const OperationSettings *config, const int dt)
 
     control_switch1_on(10000);
     g_pressure_setpoint_pa = cfg.peep;
-
-        // DPR plot
-        //
-        /*
-        log_debug("%d,%d,%d,%d",
-                (int)g_DPR_setpoint_pa,
-                (int)g_pressure_state_in,
-                (int)g_pressure_state_out,
-                (int)g_signal_to_switch,
-                //(int)DPR_pressure,
-                (int)to_DPR);
-        */
-//        log_debug("%d, %d, %d",
-//                  (int) sensors_read_flow_SLPM());
-//                    g_MFC_setpoint_pa,
-//                    MFC_pressure_pa);
-//                  (int) cfg.oxygen_fraction*100);
-
-        // DPR plot
-        //
-
-        log_debug("%d,%d",
-                //sensors_read_flow_MFC_O2_SCCPM(),
-                //sensors_read_flow_MFC_air_SCCPM(),
-                sensors_read_volume_realtime_MFC_O2_CC(),
-                sensors_read_volume_realtime_MFC_air_CC());
-                //(int)(1000*sensors_read_flow_SLPM()));
-//                (int)g_DPR_setpoint_pa,
-//                (int)g_pressure_state_in,
-//                (int)g_pressure_state_out);
-//                (int)g_signal_to_switch,
-//                (int)DPR_pressure,
-//                (int)to_DPR);
-                  //(int) sensors_read_flow_SLPM());
 
     _expiration(dt);
 

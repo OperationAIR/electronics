@@ -26,11 +26,9 @@ const unsigned int CALIBRATION_DURATION_MS = 5000;
 // When breathing is stopped, valve is opened for this duration before closing
 const unsigned int BREATHING_FINAL_STOP_DURATION_MS = 3000;
 
-
 // Sensor data is logged during regular breathing program.
 // Interval in milliseconds.
-const unsigned int BREATHING_LOG_INTERVAL_ms = 50;
-
+const unsigned int BREATHING_LOG_INTERVAL_ms = 10;
 
 // Averaging calculations (see calculated.c) are averaged over this time
 const unsigned int CALCULATED_AVERAGING_TIME_MS = 10000;

@@ -135,7 +135,7 @@ void sensors_update(unsigned int dt)
     if (count++ % 5 == 0) {
         // calculate flow in SLPM
         float flow_SLPM = read_flow_sensor();
-        flow_SLPM = flow_SLPM*3.14f*(0.0155f/2)*(0.0155f/2)*1000*60;
+        flow_SLPM = flow_SLPM*3.14f*(0.015f/2)*(0.015f/2)*1000*60;
 
         // SLPM to SCCPM
         Sensors.flow_out = 1000*flow_SLPM;
