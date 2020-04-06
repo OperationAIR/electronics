@@ -227,6 +227,8 @@ enum AppState app_state_pre_breathing(void)
     // Stop from GUI: abort calibration
     if(!g_app.settings.start) {
         breathing_power_off();
+        control_LED_status_off();
+
         return AppStateIdle;
     }
 
