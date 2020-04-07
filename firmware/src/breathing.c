@@ -85,14 +85,6 @@ void breathing_print_MFC_PID(void)
             (int)MFC_PID_Kd);
 }
 
-void breathing_print_EXP_PID(void)
-{
-    log_debug("EXP PID: %d, %d, %d",
-              (int)EXP_PID_Kp,
-              (int)EXP_PID_Ki,
-              (int)EXP_PID_Kd);
-}
-
 static void _init_DPR_PID(void)
 {
     // Begin PID
@@ -162,19 +154,6 @@ void breathing_tune_MFC_PID(float kp, float ki, float kd)
             (int)MFC_PID_Kd);
 }
 
-void breathing_tune_EXP_PID(float kp, float ki, float kd)
-{
-    EXP_PID_Kp = kp;
-    EXP_PID_Ki = ki;
-    EXP_PID_Kd = kd;
-    _init_EXP_PID();
-
-    log_debug("PID: %d, %d, %d",
-              (int)EXP_PID_Kp,
-              (int)EXP_PID_Ki,
-              (int)EXP_PID_Kd);
-}
-
 static struct {
     volatile uint32_t cycle_time;
     volatile uint32_t breathing_time;
@@ -220,9 +199,10 @@ bool breathing_start_program(void)
     g_pressure_state_in = sensors_read_pressure_in_pa();
     g_pressure_state_out = sensors_read_pressure_out_pa();
 
+
 //    return control_DPR_on();
-    // TODO start
     return true;
+    // TODO start
 }
 
 
@@ -230,12 +210,14 @@ bool breathing_start_program(void)
 void breathing_stop(void)
 {
     g_breath_cycle_state = BreathCycleStateNone;
+
     control_valve_insp_off();
 
     // open Valve: let all air out.
     // TODO: is this the required behaviour? or should the pressure be
     // kept at peep for as long as possible
     control_valve_exp_off();
+
 
     control_MFC_set(0, 0.0);
 }
@@ -361,7 +343,7 @@ void _expiration(int dt) {
 
     float to_EXP = constrain((g_to_EXP), 0, 10000);
 
-//    control_valve_exp_on( (int) (10000-to_EXP));
+//    control_switch1_on( (int) (10000-to_EXP));
     control_valve_exp_on( (int) (to_EXP));
 
 //    if(BREATHING_LOG_INTERVAL_ms && breathing.breathing_time && ((breathing.breathing_time % BREATHING_LOG_INTERVAL_ms) == 0)) {
@@ -466,7 +448,7 @@ bool inspiratory_hold_run(const OperationSettings *config, const int dt) {
         // Close valves for 2 seconds, average the pressure between 2 and 2.5 seconds
         g_pressure_setpoint_pa = cfg.peep;
 
-        control_DPR_set_pa(0);
+        control_valve_insp_off();
 
         if (time_after_inspiration >= 1000) {
             _read_and_filter_pressure_sensor();
@@ -496,7 +478,7 @@ bool post_inspiratory_hold(const OperationSettings *config, const int dt)
 
 //    log_debug("%d", (int) breathing.cycle_time);
 
-    control_valve_exp_on(10000);
+    control_valve_insp_on(10000);
     g_pressure_setpoint_pa = cfg.peep;
 
     _expiration(dt);

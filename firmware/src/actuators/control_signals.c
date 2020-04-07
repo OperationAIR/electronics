@@ -41,6 +41,25 @@ void control_signals_init()
     if (I2C_PULL_UP_AVAILABLE) {
         i2cdac_init(I2C_DEFAULT_SPEED);
     }
+
+    control_PWM_on();
+}
+
+bool control_PWM_on(void)
+{
+    PWM_set(&Control.pwm_insp, PWM_CH1, 0);
+    PWM_set(&Control.pwm_exp, PWM_CH1, 0);
+    bool ok  = PWM_start(&Control.pwm_insp);
+    ok&= PWM_start(&Control.pwm_exp);
+
+    return ok;
+}
+
+bool control_PWM_off(void)
+{
+    PWM_stop(&Control.pwm_insp);
+    PWM_stop(&Control.pwm_exp);
+    return true;
 }
 
 bool control_MFC_set(float flow_SLPM, float O2_fraction)
@@ -69,6 +88,8 @@ bool control_MFC_set(float flow_SLPM, float O2_fraction)
     // TODO can we check something? Do we know if I2C DAC is OK?
     return true;
 }
+
+
 
 void control_raw_MFC_O2_mv(int mv_O2)
 {
@@ -106,36 +127,18 @@ void control_LED_error_off(void)
 {
     GPIO_HAL_set(Control.LED_error, LOW);
 }
-
 void control_LED_error_toggle(void)
 {
     GPIO_HAL_toggle(Control.LED_error);
 }
 
-//bool control_DPR_on(void)
-//{
-//    PWM_set(&Control.pwm_insp, PWM_CH1, 0);
-//    PWM_set(&Control.pwm_exp, PWM_CH1, 0);
-//    bool ok  = PWM_start(&Control.pwm_insp);
-//    ok&= PWM_start(&Control.pwm_exp);
-//
-//    return ok;
-//}
-
-//bool control_DPR_off(void)
-//{
-//    PWM_stop(&Control.pwm_insp);
-//    PWM_stop(&Control.pwm_exp);
-//    return true;
-//}
-
-bool control_valve_insp_on(int pwm_value)
+void control_valve_insp_on(int pwm_value)
 {
     int pwm_insp = constrain(pwm_value, 0, 10000);
-    return PWM_set(&Control.pwm_insp, PWM_CH1, pwm_insp);
+    PWM_set(&Control.pwm_insp, PWM_CH1, pwm_insp);
 }
 
-void control_valve_insp_off(void)
+void control_valve_insp_off()
 {
     PWM_set(&Control.pwm_insp, PWM_CH1, 0);
 }
@@ -145,21 +148,20 @@ void control_valve_exp_on(int pwm_value)
     int pwm_exp = constrain(pwm_value, 0, 10000);
     PWM_set(&Control.pwm_exp, PWM_CH1, pwm_exp);
 }
-
 void control_valve_exp_off(void)
 {
     PWM_set(&Control.pwm_exp, PWM_CH1, 0);
 }
 
-// TODO pwm extra port
-//void control_switch2_on(void)
+// TODO add extra switch (pwm)
+//void control_extra_on(void)
 //{
-//    PWM_set(&Control.pwm, PWM_CH1, 10000);
+//    PWM_set(&Control.pwm_insp, PWM_CH1, 10000);
 //    //GPIO_HAL_set(Control.switch2, HIGH);
 //}
-//void control_switch2_off(void)
+//void control_extra_off(void)
 //{
-//    PWM_set(&Control.pwm, PWM_CH1, 0);
+//    PWM_set(&Control.pwm_insp, PWM_CH1, 0);
 //    //GPIO_HAL_set(Control.switch2, LOW);
 //}
 

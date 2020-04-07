@@ -61,16 +61,6 @@ static void in_hold(char *args) {
 	}
 }
 
-static void dpr(char *args) {
-	if (strncmp(args, "on", 2) == 0) {
-		control_DPR_on();
-		log_cli("Enable DPR");
-	} else if (strncmp(args, "off", 3) == 0) {
-		control_DPR_off();
-		log_cli("Disable DPR");
-    }
-}
-
 static void mfc(char *args) {
 
     float params[3];
@@ -125,46 +115,11 @@ static void mfc_PID(char *args) {
     log_cli("MFC: PID updated");
 }
 
-static void exp_PID(char *args) {
-
-	if(!strlen(args)) {
-		breathing_print_EXP_PID();
-		return;
-	}
-	log_cli("Setting EXP PID...");
-
-	float pid[3];
-	size_t n_params = 0;
-
-	if(!parse_float_csv(&n_params, pid, array_length(pid), args) || (n_params != 3)) {
-		log_cli("invalid PID values '%s': expected <P>,<I>,<D>", args);
-		return;
-	}
-	breathing_tune_EXP_PID(pid[0], pid[1], pid[2]);
-	log_cli("EXP: PID updated");
-}
-
 static void flow_test(char *args) {
     log_cli("Testing flow...");
 
     flowsensor_test();
 
-}
-
-static void dpr_set(char *args) {
-    log_cli("Setting DPR..");
-
-    if(!control_DPR_on()) {
-        log_cli("DPR ERR");
-    }
-
-    long int setpoint = 0;
-    if(!parse_int(args, &setpoint)) {
-        log_cli("DPR setpoint '%s' not valid", args);
-        return;
-    }
-    const bool ok = control_DPR_set_pa(setpoint);
-    log_cli("DPR setpoint %d %s", setpoint, (ok ? "OK" : "ERR"));
 }
 
 static void led_status(char *args) {
@@ -186,23 +141,23 @@ static void led_error(char *args) {
 	}
 }
 
-static void switch1(char *args) {
-	if (strncmp(args, "on", 2) == 0) {
-		control_switch1_on(10000);
-		log_cli("Enable switch 1");
-	} else if (strncmp(args, "off", 3) == 0) {
-		control_switch1_off();
-		log_cli("Disable switch 1");
+static void valve_insp(char *args) {
+	if (strncmp(args, "open", 2) == 0) {
+		control_valve_insp_on(10000);
+		log_cli("Inspiration valve opened");
+	} else if (strncmp(args, "close", 3) == 0) {
+		control_valve_insp_off();
+		log_cli("Inspiration valve closed");
 	}
 }
 
-static void switch2(char *args) {
-	if (strncmp(args, "on", 2) == 0) {
-		control_switch2_on();
-		log_cli("Enable switch 2");
-	} else if (strncmp(args, "off", 3) == 0) {
-		control_switch2_off();
-		log_cli("Disable switch 2");
+static void valve_exp(char *args) {
+	if (strncmp(args, "open", 2) == 0) {
+		control_valve_exp_on(10000);
+		log_cli("Expiration valve opened");
+	} else if (strncmp(args, "close", 3) == 0) {
+		control_valve_exp_off();
+		log_cli("Expiration valve closed");
 	}
 }
 
@@ -257,8 +212,8 @@ static void version(char *args)
 static void status() {
 	app("");
     sensors("");
-	switch1("");
-	switch2("");
+	valve_insp("");
+	valve_exp("");
 	led_status("");
 }
 
@@ -309,11 +264,6 @@ CliCommand cli_commands[] = {
 		.function = flow_test
 	},
 	{
-		.cmd = "DPR_set",
-		.help = "Set DPR to given setpoint: <int>",
-		.function = dpr_set
-	},
-	{
 		.cmd = "DPR_PID",
 		.help = "Set DPR PID values <P>,<I>,<D>",
 		.function = dpr_PID
@@ -324,29 +274,19 @@ CliCommand cli_commands[] = {
 		.function = mfc_PID
 	},
 	{
-		.cmd = "EXP_PID",
-		.help = "Set EXP PID values <P>,<I>,<D>",
-		.function = exp_PID
-	},
-	{
-		.cmd = "DPR",
-		.help = "Enable/disable DPR: 'on' or 'off'",
-		.function = dpr
-	},
-	{
 		.cmd = "MFC",
 		.help = "Set flowrate in SLPM",
 		.function = mfc
 	},
 	{
-		.cmd = "switch1",
-		.help = "Control switch 1: 'on' or 'off'",
-		.function = switch1
+		.cmd = "valve_insp",
+		.help = "Inpiration valve: 'open' or 'close'",
+		.function = valve_insp
 	},
 	{
-		.cmd = "switch2",
-		.help = "Control valve 2: 'on' or 'off'",
-		.function = switch2
+		.cmd = "valve_exp",
+		.help = "Expiration valve: 'open' or 'close'",
+		.function = valve_exp
 	},
 	{
 		.cmd = "halt",

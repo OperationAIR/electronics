@@ -201,34 +201,34 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
                 // 24V switches
 				case PiCommandSwitchExhaleOn:
 					ringbuffer_flush(rb, 4);
-					control_switch1_on(10000);
+					control_valve_exp_on(10000);
 					pi_comm_send_string("Switch Exhale On\n");
 					return PiCommandNone;
 				case PiCommandSwitchExhaleOff:
 					ringbuffer_flush(rb, 4);
-					control_switch1_off();
+					control_valve_exp_off();
 					pi_comm_send_string("Switch Exhale Off\n");
 					return PiCommandNone;
 
 				case PiCommandSwitchInhaleOn:
 					ringbuffer_flush(rb, 4);
-					control_switch2_on();
+					control_valve_insp_on(10000);
 					pi_comm_send_string("Switch Inhale On\n");
 					return PiCommandNone;
 				case PiCommandSwitchInhaleOff:
 					ringbuffer_flush(rb, 4);
-					control_switch2_off();
+					control_valve_insp_off();
 					pi_comm_send_string("Switch Inhale Off\n");
 					return PiCommandNone;
 
 				case PiCommandSwitchExtraOn:
 					ringbuffer_flush(rb, 4);
-					// TODO control_switch3_on();
+					// TODO control_extra_on();
 					pi_comm_send_string("Switch Extra On: Not Implemented Yet!\n");
 					return PiCommandNone;
 				case PiCommandSwitchExtraOff:
 					ringbuffer_flush(rb, 4);
-					// TODO control_switch3_off();
+					// TODO control_extra_off();
 					pi_comm_send_string("Switch Extra Off: Not Implemented Yet!\n");
 					return PiCommandNone;
 

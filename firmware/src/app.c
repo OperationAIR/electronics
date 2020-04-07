@@ -363,11 +363,11 @@ enum AppState app_state_error(void)
     return next_state;
 }
 
+
 enum AppState app_state_self_test(void)
 {
-    enum AppState next_state = AppStateSelfTestResult;
-    control_LED_error_on();
 
+    enum AppState next_state = AppStateSelfTestResult;
     return next_state;
 }
 

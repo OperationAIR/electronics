@@ -14,7 +14,6 @@
 
 #include "global_settings.h"
 
-
 struct {
     int32_t pressure_MFC;
     int32_t pressure_in;
@@ -73,7 +72,7 @@ void sensors_init(void) {
     ADC_init();
 
     if (I2C_PULL_UP_AVAILABLE) {
-        if (!flowsensor_enable()) {
+        if(!flowsensor_enable()) {
             g_error = true;
         }
     }
@@ -134,10 +133,10 @@ void sensors_update(unsigned int dt)
         if (count++ % 5 == 0) {
             // calculate flow in SLPM
             float flow_SLPM = read_flow_sensor();
-            flow_SLPM = flow_SLPM * 3.14f * (0.015f / 2) * (0.015f / 2) * 1000 * 60;
+            flow_SLPM = flow_SLPM*3.14f*(0.015f/2)*(0.015f/2)*1000*60;
 
             // SLPM to SCCPM
-            Sensors.flow_out = 1000 * flow_SLPM;
+            Sensors.flow_out = 1000*flow_SLPM;
         }
     }
 

@@ -33,7 +33,7 @@ const unsigned int BREATHING_LOG_INTERVAL_ms = 10;
 // Averaging calculations (see calculated.c) are averaged over this time
 const unsigned int CALCULATED_AVERAGING_TIME_MS = 10000;
 
-// used for programming without I2C pull-up
-// TODO remove in final version
+// Are there pull-ups resistors on the board?
+// TODO needed in final design?
 const bool I2C_PULL_UP_AVAILABLE = false;
 /* === */
