@@ -20,9 +20,6 @@ struct {
 
 
 
-static void _setO2DAC(int mv_O2);
-static void _setAirDAC(int mv_O2);
-
 void control_signals_init()
 {
     Control.LED_status = board_get_GPIO(GPIO_ID_LED_STATUS);
@@ -52,6 +49,7 @@ bool control_DPR_on(void)
     return ok;
 }
 
+
 bool control_DPR_off(void)
 {
     PWM_stop(&Control.pwm);
@@ -77,22 +75,23 @@ bool control_MFC_set(float flow_SLPM, float O2_fraction)
     float mV_Air = flow_Air/max_flow*5000;
 
     // Set DAC
-    _setO2DAC(mV_O2);
-    _setAirDAC(mV_Air);
+    control_raw_MFC_O2_mv(mV_O2);
+    control_raw_MFC_air_mv(mV_Air);
 
     // TODO can we check something? Do we know if I2C DAC is OK?
     return true;
 }
 
 
-static void _setO2DAC(int mv_O2)
+
+void control_raw_MFC_O2_mv(int mv_O2)
 {
     const int vcc_mv = 5000;
     int DAC_12bit = mv_O2*4095/(vcc_mv);
 
     i2cdac_set(ADDDRESS_O2, DAC_12bit);
 }
-static void _setAirDAC(int mv_air)
+void control_raw_MFC_air_mv(int mv_air)
 {
     const int vcc_mv = 5000;
     int DAC_12bit = mv_air*4095/(vcc_mv);

@@ -239,15 +239,25 @@ int32_t sensors_read_flow_in_SCCPM(void)
 
 int32_t sensors_read_flow_MFC_O2_SCCPM(void)
 {
-    const int v_MFC_O2 = ADC_scale(Sensors.flow_MFC_O2, ADC_FACTOR_FLOW_MFC);
+    const int v_MFC_O2 = sensors_read_raw_MFC_O2_mv();
     // O-5000 mV / 100.0 = 0-50 000 SCCPM
 
     return v_MFC_O2 * 10;
 }
 
+int32_t sensors_read_raw_MFC_O2_mv(void)
+{
+    return ADC_scale(Sensors.flow_MFC_O2, ADC_FACTOR_FLOW_MFC);
+}
+int32_t sensors_read_raw_MFC_air_mv(void)
+{
+    return ADC_scale(Sensors.flow_MFC_air, ADC_FACTOR_FLOW_MFC);
+}
+
+
 int32_t sensors_read_flow_MFC_air_SCCPM(void)
 {
-    const int v_MFC_air = ADC_scale(Sensors.flow_MFC_air, ADC_FACTOR_FLOW_MFC);
+    const int v_MFC_air = sensors_read_raw_MFC_air_mv();
     // O-5000 mV / 100.0 = 0-50 000 SCCPM
 
     return v_MFC_air * 10;

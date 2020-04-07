@@ -37,6 +37,8 @@ enum PiCommand {
     PiCommandRequestSensorValues 	= 0x0D15EA5E,
 	PiCommandInspiratoryHold		= 0x99998888,
 	PiCommandInspiratoryHoldStop	= 0x99999999,
+
+    // Test commands
 	PiCommandLedOn 					= 0x55551111,
 	PiCommandLedOff 				= 0x55661111,
 	PiCommandErrorOn 				= 0x55552222,
@@ -51,6 +53,8 @@ enum PiCommand {
 	PiCommandMFCAirGet				= 0x77881111,
 	PiCommandMFCO2Set				= 0x77772222,
 	PiCommandMFCO2Get				= 0x77882222,
+
+    // TODO test commands? or add to sensor data?
 	PiCommandBatteryLevel			= 0x88881111,
 	PiCommandPowerStatus			= 0x88882222,
 	PiCommandUserSwitchGet			= 0x88883333,
@@ -167,6 +171,9 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 					app_stop_inspiratory_hold();
 					pi_comm_send_string("Cancel inspiratory hold\n");
 					return PiCommandNone;
+
+                // -- Test commands -- //
+                // LEDs
 				case PiCommandLedOn:
 					ringbuffer_flush(rb, 4);
 					control_LED_status_on();
@@ -177,6 +184,18 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 					control_LED_status_off();
 					pi_comm_send_string("Status LED off\n");
 					return PiCommandNone;
+				case PiCommandErrorOn:
+					ringbuffer_flush(rb, 4);
+					control_LED_error_on();
+					pi_comm_send_string("Error LED on\n");
+					return PiCommandNone;
+				case PiCommandErrorOff:
+					ringbuffer_flush(rb, 4);
+					control_LED_error_off();
+					pi_comm_send_string("Error LED off\n");
+					return PiCommandNone;
+
+                // 24V switches
 				case PiCommandSwitchExhaleOn:
 					ringbuffer_flush(rb, 4);
 					control_switch1_on(10000);
@@ -187,6 +206,7 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 					control_switch1_off();
 					pi_comm_send_string("Switch 1 Off\n");
 					return PiCommandNone;
+
 				case PiCommandSwitchInhaleOn:
 					ringbuffer_flush(rb, 4);
 					control_switch2_on();
@@ -197,6 +217,37 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 					control_switch2_off();
 					pi_comm_send_string("Switch 2 Off\n");
 					return PiCommandNone;
+
+				case PiCommandSwitchExtraOn:
+					ringbuffer_flush(rb, 4);
+					// TODO control_switch3_on();
+					pi_comm_send_string("Switch 3 On: Not Implemented Yet!\n");
+					return PiCommandNone;
+				case PiCommandSwitchExtraOff:
+					ringbuffer_flush(rb, 4);
+					// TODO control_switch3_off();
+					pi_comm_send_string("Switch 3 Off: Not Implemented Yet!\n");
+					return PiCommandNone;
+
+                // MFC
+                case PiCommandMFCAirSet:
+					ringbuffer_flush(rb, 4);
+					return PiCommandMFCAirSet;
+                case PiCommandMFCAirGet:
+					ringbuffer_flush(rb, 4);
+                    uint16_t MFC_air_mv = sensors_read_raw_MFC_air_mv();
+                    pi_comm_send((uint8_t*)&MFC_air_mv, sizeof(MFC_air_mv));
+					return PiCommandNone;
+
+                case PiCommandMFCO2Set:
+					ringbuffer_flush(rb, 4);
+					return PiCommandMFCO2Set;
+                case PiCommandMFCO2Get:
+					ringbuffer_flush(rb, 4);
+                    uint16_t MFC_O2_mv = sensors_read_raw_MFC_O2_mv();
+                    pi_comm_send((uint8_t*)&MFC_O2_mv, sizeof(MFC_O2_mv));
+					return PiCommandNone;
+
 				default:
 					// no match, advance rb 1 byte, try again until magic sequence is found
 					ringbuffer_advance(rb);
@@ -276,8 +327,39 @@ void pi_comm_tasks()
 		} else if (delay_timeout_done(&pi_comm_timeout)) {
 			pi_comm_reset();
 		}
-    }
 
+	} else if (g_current_command == PiCommandMFCAirSet) {
+        uint16_t air_mv = 0;
+        size_t count = ringbuffer_used_count(&rb_Rx);
+		if (count >= sizeof(air_mv)) {
+			ringbuffer_read(&rb_Rx, &air_mv, sizeof(air_mv));
+            control_raw_MFC_air_mv(air_mv);
+
+            char str[80];
+            snprintf(str, sizeof(str), "MFC Air set to %d mV\n", (int)air_mv);
+            pi_comm_send_string(str);
+
+			g_current_command = PiCommandNone;
+		} else if (delay_timeout_done(&pi_comm_timeout)) {
+			pi_comm_reset();
+		}
+
+	} else if (g_current_command == PiCommandMFCO2Set) {
+        uint16_t O2_mv = 0;
+        size_t count = ringbuffer_used_count(&rb_Rx);
+		if (count >= sizeof(O2_mv)) {
+			ringbuffer_read(&rb_Rx, &O2_mv, sizeof(O2_mv));
+            control_raw_MFC_O2_mv(O2_mv);
+
+            char str[80];
+            snprintf(str, sizeof(str), "MFC O2 set to %d mV\n", (int)O2_mv);
+            pi_comm_send_string(str);
+
+			g_current_command = PiCommandNone;
+		} else if (delay_timeout_done(&pi_comm_timeout)) {
+			pi_comm_reset();
+		}
+    }
 }
 
 

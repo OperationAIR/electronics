@@ -58,6 +58,9 @@ int32_t sensors_read_pressure_target_pa(void);
 
 int32_t sensors_read_oxygen_percent(void);
 
+int32_t sensors_read_raw_MFC_O2_mv(void);
+int32_t sensors_read_raw_MFC_air_mv(void);
+
 
 // Realtime volumes: value since start of cycle, at THIS moment
 // (usefull for plots)
