@@ -85,6 +85,14 @@ void breathing_print_MFC_PID(void)
             (int)MFC_PID_Kd);
 }
 
+void breathing_print_EXP_PID(void)
+{
+    log_debug("EXP PID: %d, %d, %d",
+              (int)EXP_PID_Kp,
+              (int)EXP_PID_Ki,
+              (int)EXP_PID_Kd);
+}
+
 static void _init_DPR_PID(void)
 {
     // Begin PID
@@ -154,6 +162,19 @@ void breathing_tune_MFC_PID(float kp, float ki, float kd)
             (int)MFC_PID_Kd);
 }
 
+void breathing_tune_EXP_PID(float kp, float ki, float kd)
+{
+    EXP_PID_Kp = kp;
+    EXP_PID_Ki = ki;
+    EXP_PID_Kd = kd;
+    _init_EXP_PID();
+
+    log_debug("PID: %d, %d, %d",
+              (int)EXP_PID_Kp,
+              (int)EXP_PID_Ki,
+              (int)EXP_PID_Kd);
+}
+
 static struct {
     volatile uint32_t cycle_time;
     volatile uint32_t breathing_time;
@@ -176,7 +197,7 @@ bool breathing_init(void)
 void breathing_start_calibration(void)
 {
     // open Valve: startup auto-calibrate requires 0psi pressure in the system
-    control_switch1_on(10000);
+    control_valve_exp_on(10000);
 }
 void breathing_finish_calibration(void)
 {
@@ -199,8 +220,9 @@ bool breathing_start_program(void)
     g_pressure_state_in = sensors_read_pressure_in_pa();
     g_pressure_state_out = sensors_read_pressure_out_pa();
 
-    return control_DPR_on();
+//    return control_DPR_on();
     // TODO start
+    return true;
 }
 
 
@@ -208,21 +230,21 @@ bool breathing_start_program(void)
 void breathing_stop(void)
 {
     g_breath_cycle_state = BreathCycleStateNone;
-    control_DPR_off();
+    control_valve_insp_off();
 
     // open Valve: let all air out.
     // TODO: is this the required behaviour? or should the pressure be
     // kept at peep for as long as possible
-    control_switch1_on(10000);
+    control_valve_exp_off();
 
     control_MFC_set(0, 0.0);
 }
 
 void breathing_power_off(void)
 {
-    control_DPR_off();
+    control_valve_insp_off();
     control_MFC_set(0, 0.0);
-    control_switch1_off();
+    control_valve_exp_off();
 }
 
 enum TestState breathing_test_get_result(void)
@@ -290,7 +312,7 @@ void _DPR_control_loop(void) {
 
     float to_DPR = constrain((g_to_DPR), 0, 10000);
     //float to_DPR = g_pressure_setpoint_pa;
-    control_DPR_set_pa(to_DPR);
+    control_valve_insp_on(to_DPR);
 }
 
 void _MFC_control_loop(void) {
@@ -308,7 +330,7 @@ void _MFC_control_loop(void) {
 
 void _inspiration(int dt) {
     g_breath_cycle_state = BreathCycleStatePeakPressure;
-    control_switch1_off();
+    control_valve_exp_off();
 
     g_pressure_setpoint_pa = cfg.pressure;
     //control_DPR_set_pa(g_pressure_setpoint_pa);
@@ -319,7 +341,7 @@ void _inspiration(int dt) {
     if((breathing.cycle_time + dt) > cfg.time_high_ms) {
 
         // start of lower pressure
-        control_switch1_on(10000);
+        control_valve_exp_on(10000);
         g_pressure_setpoint_pa = cfg.peep;
         _init_EXP_PID();
     }
@@ -339,8 +361,8 @@ void _expiration(int dt) {
 
     float to_EXP = constrain((g_to_EXP), 0, 10000);
 
-//    control_switch1_on( (int) (10000-to_EXP));
-    control_switch1_on( (int) (to_EXP));
+//    control_valve_exp_on( (int) (10000-to_EXP));
+    control_valve_exp_on( (int) (to_EXP));
 
 //    if(BREATHING_LOG_INTERVAL_ms && breathing.breathing_time && ((breathing.breathing_time % BREATHING_LOG_INTERVAL_ms) == 0)) {
 //        log_debug("%d, %d, %d",
@@ -433,7 +455,7 @@ bool inspiratory_hold_run(const OperationSettings *config, const int dt) {
         // Inspiratory phase
 
         g_breath_cycle_state = BreathCycleStatePeakPressure;
-        control_switch1_off();
+        control_valve_exp_off();
         g_pressure_setpoint_pa = cfg.pressure;
 
         _DPR_control_loop();
@@ -474,7 +496,7 @@ bool post_inspiratory_hold(const OperationSettings *config, const int dt)
 
 //    log_debug("%d", (int) breathing.cycle_time);
 
-    control_switch1_on(10000);
+    control_valve_exp_on(10000);
     g_pressure_setpoint_pa = cfg.peep;
 
     _expiration(dt);

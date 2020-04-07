@@ -125,6 +125,25 @@ static void mfc_PID(char *args) {
     log_cli("MFC: PID updated");
 }
 
+static void exp_PID(char *args) {
+
+	if(!strlen(args)) {
+		breathing_print_EXP_PID();
+		return;
+	}
+	log_cli("Setting EXP PID...");
+
+	float pid[3];
+	size_t n_params = 0;
+
+	if(!parse_float_csv(&n_params, pid, array_length(pid), args) || (n_params != 3)) {
+		log_cli("invalid PID values '%s': expected <P>,<I>,<D>", args);
+		return;
+	}
+	breathing_tune_EXP_PID(pid[0], pid[1], pid[2]);
+	log_cli("EXP: PID updated");
+}
+
 static void flow_test(char *args) {
     log_cli("Testing flow...");
 
@@ -303,6 +322,11 @@ CliCommand cli_commands[] = {
 		.cmd = "MFC_PID",
 		.help = "Set MFC PID values <P>,<I>,<D>",
 		.function = mfc_PID
+	},
+	{
+		.cmd = "EXP_PID",
+		.help = "Set EXP PID values <P>,<I>,<D>",
+		.function = exp_PID
 	},
 	{
 		.cmd = "DPR",

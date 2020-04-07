@@ -12,6 +12,8 @@
 #include "MPRLS_pressure.h"
 #include "board_config/board_GPIO_ID.h"
 
+#include "global_settings.h"
+
 
 struct {
     int32_t pressure_MFC;
@@ -70,8 +72,10 @@ void sensors_init(void) {
 
     ADC_init();
 
-    if(!flowsensor_enable()) {
-        g_error = true;
+    if (I2C_PULL_UP_AVAILABLE) {
+        if (!flowsensor_enable()) {
+            g_error = true;
+        }
     }
 
     sensors_reset();
@@ -126,15 +130,16 @@ void sensors_update(unsigned int dt)
     filter_adc(&Sensors.pressure_MFC, ADC_ID_PRESSURE_MFC,
             ADC_RANGE/SLEW_LIMIT_PRESSURE_MFC);
 
-    if (count++ % 5 == 0) {
-        // calculate flow in SLPM
-        float flow_SLPM = read_flow_sensor();
-        flow_SLPM = flow_SLPM*3.14f*(0.015f/2)*(0.015f/2)*1000*60;
+    if (I2C_PULL_UP_AVAILABLE) {
+        if (count++ % 5 == 0) {
+            // calculate flow in SLPM
+            float flow_SLPM = read_flow_sensor();
+            flow_SLPM = flow_SLPM * 3.14f * (0.015f / 2) * (0.015f / 2) * 1000 * 60;
 
-        // SLPM to SCCPM
-        Sensors.flow_out = 1000*flow_SLPM;
+            // SLPM to SCCPM
+            Sensors.flow_out = 1000 * flow_SLPM;
+        }
     }
-
 
     // sample sensor1
     if(mprls_is_ready(&mprls1)) {

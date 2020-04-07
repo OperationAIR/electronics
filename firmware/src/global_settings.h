@@ -9,6 +9,7 @@ const unsigned int CALIBRATION_DURATION_MS;
 const unsigned int BREATHING_LOG_INTERVAL_ms;
 const unsigned int BREATHING_FINAL_STOP_DURATION_MS;
 const unsigned int CALCULATED_AVERAGING_TIME_MS;
+const bool I2C_PULL_UP_AVAILABLE;
 
 
 #endif
