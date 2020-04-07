@@ -57,6 +57,7 @@ add_definitions("${FLAGS_M0} ${C_FLAGS} ${C_FLAGS_WARN}")
 add_definitions(-DCORE_M0 -DCHIP_LPC11UXX -DMCU_PLATFORM_${MCU_PLATFORM} -DARM_MATH_CM0 -DARM_MATH_CM0_FAMILY)
 add_definitions(-DCRP_SETTING_${CRP_SETTING})
 add_definitions(-DEN_WATCHDOG=${EN_WATCHDOG})
+add_definitions(-DPROFILE_ENABLED=1)
 
 # lpc_usb_lib settings
 add_definitions(-D__LPC11U1X)

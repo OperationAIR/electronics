@@ -1,6 +1,7 @@
 #include "i2c.h"
 
 #include <chip.h>
+#include <mcu_timing/profile.h>
 
 #define I2C_SPEED_100KHZ         100000
 #define I2C_SPEED_400KHZ         400000
@@ -30,6 +31,8 @@ static void i2c_set_mode(int polling)
  */
 void I2C_IRQHandler(void)
 {
+    PROFILE
+
     Chip_I2C_MasterStateHandler(DEFAULT_I2C);
 }
 

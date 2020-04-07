@@ -24,6 +24,8 @@
 #include "breathing.h"
 #include "settings.h"
 
+#include <mcu_timing/profile.h>
+
 #define DT_MS (2)
 
 enum AppState {
@@ -388,6 +390,7 @@ static bool systick_init(const uint32_t target_frequency)
 
 void SysTick_Handler(void)
 {
+    PROFILE
 
     if (!g_app.run) {
         return;

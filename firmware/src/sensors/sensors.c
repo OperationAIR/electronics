@@ -129,6 +129,7 @@ static void filter_adc(int32_t* state, enum ADC_ID ID, int32_t slew_limit)
 static uint32_t count = 0;
 void sensors_update(unsigned int dt)
 {
+    PROFILE
     filter_adc(&Sensors.pressure_MFC, ADC_ID_PRESSURE_MFC,
             ADC_RANGE/SLEW_LIMIT_PRESSURE_MFC);
 

@@ -25,6 +25,10 @@
 
 #include <chip.h>
 
+// profiling
+#include <mcu_timing/profile.h>
+#include <lpc_tools/irq.h>
+
 #ifndef FIRMWARE_VERSION
     #error "Please define FIRMWARE_VERSION in the Makefile"
 #endif
@@ -32,6 +36,32 @@
 
 // TODO FIXME: this is for flowsensor test only...
 #include "actuators/i2c_dac.h"
+
+
+
+static void profile(char *args)
+{
+    bool irq_state = irq_disable();
+
+    Profile **list;
+    int n = profile_get_data(&list);
+
+
+    log_cli("====    [ Profile ]  [avg]     [max]     [n calls]:");
+
+    for(int i=0;i<n;i++) {
+        Profile *p = list[i];
+        log_cli("%16s %9u %9u %9u",
+                p->label,
+                (unsigned int)profile_get_average(p),
+                (unsigned int)profile_get_max(p),
+                (unsigned int)profile_get_total_call_count(p));
+        profile_reset(p);
+    }
+    irq_restore(irq_state);
+}
+
+
 
 #define MAX_USB_PACKET_LENGHT 64
 char cmd_buf[MAX_USB_PACKET_LENGHT + 1]; // +1 byte for 0 terminator
@@ -328,6 +358,11 @@ CliCommand cli_commands[] = {
 		.function = app
 	},
 	{
+		.cmd = "profile",
+		.help = "get performance profiling info",
+		.function = profile
+	},
+	{
 		.cmd = "sn",
 		.help = "get 128bit chip serial number",
 		.function = serial_number
@@ -344,6 +379,7 @@ void app_cli_init() {
 }
 
 void add_cli_tasks() {
+
 	uint32_t l = vcom_bread((uint8_t*)cmd_buf, MAX_USB_PACKET_LENGHT);
 	if (l) {
 		cmd_buf[l] = 0;
