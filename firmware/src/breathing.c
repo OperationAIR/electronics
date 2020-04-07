@@ -84,6 +84,13 @@ void breathing_print_MFC_PID(void)
             (int)MFC_PID_Ki,
             (int)MFC_PID_Kd);
 }
+void breathing_print_EXP_PID(void)
+{
+    log_debug("EXP PID: %d, %d, %d",
+              (int)EXP_PID_Kp,
+              (int)EXP_PID_Ki,
+              (int)EXP_PID_Kd);
+}
 
 static void _init_DPR_PID(void)
 {
@@ -152,6 +159,19 @@ void breathing_tune_MFC_PID(float kp, float ki, float kd)
             (int)MFC_PID_Kp,
             (int)MFC_PID_Ki,
             (int)MFC_PID_Kd);
+}
+
+void breathing_tune_EXP_PID(float kp, float ki, float kd)
+{
+    EXP_PID_Kp = kp;
+    EXP_PID_Ki = ki;
+    EXP_PID_Kd = kd;
+    _init_EXP_PID();
+
+    log_debug("PID: %d, %d, %d",
+              (int)EXP_PID_Kp,
+              (int)EXP_PID_Ki,
+              (int)EXP_PID_Kd);
 }
 
 static struct {
@@ -392,7 +412,6 @@ void breathing_run(const OperationSettings *config, const int dt)
     _MFC_control_loop();
 
     if(BREATHING_LOG_INTERVAL_ms && time_ms && ((time_ms % BREATHING_LOG_INTERVAL_ms) == 0)) {
-        float flow = sensors_read_flow_out_SCCPM();
 
 //        log_debug("%d, %d",
 //                  (int) g_MFC_setpoint_pa,
