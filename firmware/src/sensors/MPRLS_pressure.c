@@ -123,10 +123,11 @@ int32_t mprls_read_data(MPRLS *ctx)
 
     GPIO_HAL_set(ctx->cs_pin, HIGH);
 
-    uint8_t status = rx[0];
-    if (status & MPRLS_STATUS_FAILED || status & MPRLS_STATUS_MATHSAT) {
-        return 0xFFFFFFFF;
-    }
+    // TODO if status=failed, set pressure bit to error
+//    uint8_t status = rx[0];
+//    if (status & MPRLS_STATUS_FAILED || status & MPRLS_STATUS_MATHSAT) {
+//        return scale(0xFFFFFF);
+//    }
 
     uint32_t pres = rx[1] << 16 | rx[2] << 8 | rx[3];
 

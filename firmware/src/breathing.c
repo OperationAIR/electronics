@@ -35,6 +35,7 @@ static float g_pressure_state_out = 0;
 static float g_sensor_state_1 = 0;
 static float g_sensor_state_2 = 0;
 static float g_pressure_system_pa = 0;
+static float g_MFC_pressure_pa = 0;
 
 static float g_to_DPR = 0;
 static float g_to_EXP = 0;
@@ -297,8 +298,8 @@ void _MFC_control_loop(void) {
     // MFC control loop
     //
 
-    int MFC_pressure_pa = sensors_read_pressure_MFC_pa();
-    float MFC_error_mbar = (g_MFC_setpoint_pa - MFC_pressure_pa)/100.0;
+    g_MFC_pressure_pa = sensors_read_pressure_MFC_pa();
+    float MFC_error_mbar = (g_MFC_setpoint_pa - g_MFC_pressure_pa)/100.0;
     float MFC_PID_out = arm_pid_f32(&MFC_PID, MFC_error_mbar);
     MFC_PID_out = constrain(MFC_PID_out, MFC_FLOW_MIN_SLPM, MFC_FLOW_MAX_SLPM);
 
@@ -389,14 +390,16 @@ void breathing_run(const OperationSettings *config, const int dt)
     if(BREATHING_LOG_INTERVAL_ms && time_ms && ((time_ms % BREATHING_LOG_INTERVAL_ms) == 0)) {
         float flow = sensors_read_flow_out_SCCPM();
 
-//        log_debug("%d",
-//                  (int) flow);
+//        log_debug("%d, %d",
+//                  (int) g_MFC_setpoint_pa,
+//                  (int) g_MFC_pressure_pa);
 
-        // DPR plot
-//        log_debug("%d,%d,%d",
-//                (int)g_pressure_setpoint_pa,
-//                (int)g_sensor_state_1,
-//                (int)g_sensor_state_2);
+
+//         DPR plot
+        log_debug("%d,%d,%d",
+                (int)g_pressure_setpoint_pa,
+                (int)g_sensor_state_1,
+                (int)g_sensor_state_2);
 //                (int)10000-g_signal_to_switch,
 //                (int)DPR_pressure,
 //                (int)to_DPR);
@@ -425,7 +428,7 @@ bool inspiratory_hold_run(const OperationSettings *config, const int dt) {
     // Read sensor values
     _read_and_filter_pressure_sensor();
 
-    if(breathing.inspiration_hold_time <= cfg.time_high_ms) {
+    if(breathing.cycle_time <= cfg.time_high_ms) {
         // Close all valves
         // Inspiratory phase
 
@@ -443,15 +446,15 @@ bool inspiratory_hold_run(const OperationSettings *config, const int dt) {
 
         control_DPR_set_pa(0);
 
-        if (time_after_inspiration >= 2000) {
+        if (time_after_inspiration >= 1000) {
             _read_and_filter_pressure_sensor();
         }
 
-        if (time_after_inspiration >= 2500) {
+        if (time_after_inspiration >= 1500) {
             _read_and_filter_pressure_sensor();
             log_cli("Inspiratory hold done");
-            log_cli("Sensor 1 value: '%d'", (int) g_sensor_state_1);
-            log_cli("Sensor 2 value: '%d'", (int) g_sensor_state_2);
+            log_cli("Sensor 1 value: '%d' cmH2O * 100", (int) (g_sensor_state_1/0.98) );
+            log_cli("Sensor 2 value: '%d' cmH2O * 100", (int) (g_sensor_state_2/0.98) );
             return true;
         }
         time_after_inspiration+=dt;
