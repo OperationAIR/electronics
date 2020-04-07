@@ -62,7 +62,7 @@ Binary responses from the microcontroller for the specific command are also pref
 | Command             | Description                             | Prefix     | Payload      | Response         |
 | -------------       |---------------------------------------- | ---------: | ------------ | --------         |
 | NewSettings         | Send and apply new operation settings   | `0x41424344` | [Settings](#Settings)   | Applied Settings |
-| RequestSettings     | Request current settings                | `0x45464748` | None         | [Settings](#Settings) |
+| RequestSettings     | Request current settings                | `0x45464748` | None         | [Settings](#Settings-Response) |
 | RequestSensorValues | Request current samples for all sensors | `0x0D15EA5E` | None         | [Sensor Values](#Sensor-Values-Response)    |
 | InspiratoryHoldStart    | Trigger inspiratory hold if breathing is started | `0x99998888` | None | Log info (ascii) |
 | InspiratoryHoldStop    | Stop inspiratory hold | `0x99999999` | None | Log info (ascii) |
@@ -121,7 +121,7 @@ XorOut: 0xFFFF
 ### Sensor Values Response
 
 From microcontroller to host.
-Sensor values are prefixed with 4 bytes: `0x0D15EA5E` and followed by a crc16 usb checksum. The sensor data is a struct of 4 32bit signed integers.
+Sensor values are prefixed with the 32-bit little-endian value `0x0D15EA5E` and followed by a crc16 usb checksum. The sensor data is a struct of 32bit signed integers:
 
 The total data packet is then `4 + (11 x 4) + 2 = 50 bytes`
 
@@ -142,6 +142,11 @@ typedef struct SensorsAllData {
     int32_t power_status;       // Status of PSU
 } SensorsAllData;
 ```
+
+### Settings Response
+
+From microcontroller to host.
+Settings are prefixed with the 32-bit little-endian value: `0x41424344`, followed by the [Settings](#Settings).
 
 ### MFC set point
 

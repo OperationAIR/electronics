@@ -158,6 +158,9 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 				case PiCommandNewSettings:
 					ringbuffer_flush(rb, 4);
 					return PiCommandNewSettings;
+				case PiCommandRequestSettings:
+					ringbuffer_flush(rb, 4);
+					return PiCommandRequestSettings;
 				case PiCommandRequestSensorValues:
 					ringbuffer_flush(rb, 4);
 					return PiCommandRequestSensorValues;
@@ -327,6 +330,15 @@ void pi_comm_tasks()
 		} else if (delay_timeout_done(&pi_comm_timeout)) {
 			pi_comm_reset();
 		}
+
+	} else if (g_current_command == PiCommandRequestSettings) {
+
+        // send settings to RPI, prefixed with the 32-bit command value
+        uint32_t prefix = PiCommandNewSettings;
+        pi_comm_send((uint8_t*)&prefix, 4);
+        pi_comm_send((uint8_t*)app_get_settings(), sizeof(OperationSettings));
+
+        g_current_command = PiCommandNone;
 
 	} else if (g_current_command == PiCommandMFCAirSet) {
         uint16_t air_mv = 0;
