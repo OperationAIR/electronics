@@ -67,7 +67,7 @@ float EXP_PID_Kd = 15;
 // TODO 50
 #define MFC_FLOW_MAX_SLPM   50.0
 
-const int g_MFC_setpoint_pa = 85000;
+const int g_MFC_setpoint_pa = 65000;
 
 
 int breathing_read_setpoint_pa(void)
@@ -426,10 +426,10 @@ void breathing_run(const OperationSettings *config, const int dt)
 
 
 //         DPR plot
-        log_debug("%d,%d,%d",
-                (int)g_pressure_setpoint_pa,
-                (int)g_sensor_state_1,
-                (int)g_sensor_state_2);
+        //log_debug("%d,%d,%d",
+                //(int)g_pressure_setpoint_pa,
+                //(int)g_sensor_state_1,
+                //(int)g_sensor_state_2);
 //                (int)10000-g_signal_to_switch,
 //                (int)DPR_pressure,
 //                (int)to_DPR);

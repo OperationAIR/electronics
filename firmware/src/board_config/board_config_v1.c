@@ -15,10 +15,7 @@ static const NVICConfig NVIC_config[] = {
     {WDT_IRQn,              0},     // watchdog warning: high priority
     {TIMER_32_0_IRQn,       0},     // delay timer: high priority
 
-    // TODO are these pin-ints used?
-    {PIN_INT0_IRQn,         1},
-    {PIN_INT1_IRQn,         1},
-
+    {UART0_IRQn,            1},
     {SysTick_IRQn,          2},
 
     {USB0_IRQn,             3},
