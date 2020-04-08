@@ -21,6 +21,10 @@ typedef struct SensorsAllData {
     int32_t minute_volume;      // Average flow (exhale) [mL / minute] (average over last 10 sec interval)
     int32_t cycle_state;        // PeeP / Peak / None
     int32_t power_status;       // Status of PSU (TODO: Not Implemented Yet)
+
+    int32_t inspiratory_hold_result1;   // Value for end of inspiratory hold sensor 1
+    int32_t inspiratory_hold_result2;   // Value for end of inspiratory hold sensor 2
+
 } SensorsAllData;
 
 void sensors_init(void);
@@ -75,6 +79,8 @@ int32_t sensors_read_volume_realtime_out_CC(void);
 int32_t sensors_read_volume_cycle_in_CC(void);
 int32_t sensors_read_volume_cycle_out_CC(void);
 
+int32_t sensors_get_inspiratory_hold_result1(void);
+int32_t sensors_get_inspiratory_hold_result2(void);
 
 // Read all data relevant for communication to RPI
 void sensors_read_all(SensorsAllData *data);

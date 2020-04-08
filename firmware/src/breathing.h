@@ -39,7 +39,8 @@ void breathing_print_EXP_PID(void);
 
 int breathing_read_setpoint_pa(void);
 enum BreathCycleState breathing_get_cycle_state(void);
-
+float breathing_get_inspiratory_hold_result_1(void);
+float breathing_get_inspiratory_hold_result_2(void);
 
 /**
  * Runs the breathing control loop.

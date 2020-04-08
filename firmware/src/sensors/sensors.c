@@ -24,6 +24,9 @@ struct {
     int32_t flow_MFC_O2;
 
     int32_t flow_out; //SCCPM
+
+    int32_t inspiratory_hold_result1;
+    int32_t inspiratory_hold_result2;
 } Sensors;
 
 static bool g_error = false;
@@ -180,6 +183,9 @@ void sensors_update(unsigned int dt)
         filter_adc(&Sensors.pressure_patient, ADC_ID_PRESSURE_PATIENT,
                 ADC_RANGE/SLEW_LIMIT_PRESSURE);
     }
+
+    Sensors.inspiratory_hold_result1 = (int32_t)breathing_get_inspiratory_hold_result_1();
+    Sensors.inspiratory_hold_result2 = (int32_t)breathing_get_inspiratory_hold_result_2();
 }
 
 static float p_MFC_mbar;
@@ -309,7 +315,15 @@ int32_t sensors_read_volume_cycle_out_CC(void)
     return calculated_volume_out_CC();
 }
 
+int32_t sensors_get_inspiratory_hold_result1()
+{
+    return Sensors.inspiratory_hold_result1;
+}
 
+int32_t sensors_get_inspiratory_hold_result2()
+{
+    return Sensors.inspiratory_hold_result2;
+}
 
 
 
@@ -331,5 +345,8 @@ void sensors_read_all(SensorsAllData *data)
 
     data->cycle_state = breathing_get_cycle_state();
     data->power_status = 0;     // TODO
+
+    data->inspiratory_hold_result1 = sensors_get_inspiratory_hold_result1();
+    data->inspiratory_hold_result2 = sensors_get_inspiratory_hold_result2();
 }
 

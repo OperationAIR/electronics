@@ -40,6 +40,8 @@ static float g_MFC_pressure_pa = 0;
 static float g_to_DPR = 0;
 static float g_to_EXP = 0;
 
+static float g_inspiratory_hold_result_1 = 0;
+static float g_inspiratory_hold_result_2 = 0;
 
 static int time_after_inspiration = 0;
 
@@ -469,15 +471,15 @@ bool inspiratory_hold_run(const OperationSettings *config, const int dt) {
 
         control_valve_insp_off();
 
-        if (time_after_inspiration >= 1000) {
-            _read_and_filter_pressure_sensor();
-        }
-
         if (time_after_inspiration >= 1500) {
             _read_and_filter_pressure_sensor();
             log_cli("Inspiratory hold done");
             log_cli("Sensor 1 value: '%d' cmH2O * 100", (int) (g_sensor_state_1/0.98) );
             log_cli("Sensor 2 value: '%d' cmH2O * 100", (int) (g_sensor_state_2/0.98) );
+
+            // save results
+            g_inspiratory_hold_result_1 = g_sensor_state_1;
+            g_inspiratory_hold_result_2 = g_sensor_state_2;
             return true;
         }
         time_after_inspiration+=dt;
@@ -518,6 +520,16 @@ bool post_inspiratory_hold(const OperationSettings *config, const int dt)
 enum BreathCycleState breathing_get_cycle_state(void)
 {
     return g_breath_cycle_state;
+}
+
+float breathing_get_inspiratory_hold_result_1()
+{
+    return g_inspiratory_hold_result_1;
+}
+
+float breathing_get_inspiratory_hold_result_2()
+{
+    return g_inspiratory_hold_result_2;
 }
 
 
