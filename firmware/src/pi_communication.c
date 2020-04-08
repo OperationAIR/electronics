@@ -227,13 +227,13 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 
 				case PiCommandSwitchExtraOn:
 					ringbuffer_flush(rb, 4);
-					// TODO control_extra_on();
-					pi_comm_send_string("Switch Extra On: Not Implemented Yet!\n");
+					control_extra_on(10000);
+					pi_comm_send_string("Switch Extra On\n");
 					return PiCommandNone;
 				case PiCommandSwitchExtraOff:
 					ringbuffer_flush(rb, 4);
-					// TODO control_extra_off();
-					pi_comm_send_string("Switch Extra Off: Not Implemented Yet!\n");
+					control_extra_off();
+					pi_comm_send_string("Switch Extra Off\n");
 					return PiCommandNone;
 
                 // MFC

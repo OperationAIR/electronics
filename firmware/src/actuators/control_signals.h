@@ -25,9 +25,8 @@ void control_valve_insp_on(int pwm_value);
 void control_valve_exp_on(int pwm_value);
 void control_valve_exp_off(void);
 
-// TODO add extra switch (pwm)
-//void control_extra_on(void);
-//void control_extra_off(void);
+void control_extra_on(int pwm_value);
+void control_extra_off(void);
 
 // Directly control MFC DAC (internal/test only)
 void control_raw_MFC_O2_mv(int mv);

@@ -18,6 +18,7 @@ struct {
 
     PWM pwm_insp;
     PWM pwm_exp;
+    PWM pwm_extra;
 } Control;
 
 
@@ -37,6 +38,11 @@ void control_signals_init()
     // timer 1, ch 1
     assert(PWM_init(&Control.pwm_exp, LPC_TIMER16_1,
                 PWM_CH1, pwm_frequency, desired_pwm_resolution));
+
+    // timer 0, ch 0
+    assert(PWM_init(&Control.pwm_extra, LPC_TIMER16_0,
+                PWM_CH0, pwm_frequency, desired_pwm_resolution));
+
 
     if (I2C_PULL_UP_AVAILABLE) {
         i2cdac_init(I2C_DEFAULT_SPEED);
@@ -153,15 +159,14 @@ void control_valve_exp_off(void)
     PWM_set(&Control.pwm_exp, PWM_CH1, 0);
 }
 
-// TODO add extra switch (pwm)
-//void control_extra_on(void)
-//{
-//    PWM_set(&Control.pwm_insp, PWM_CH1, 10000);
-//    //GPIO_HAL_set(Control.switch2, HIGH);
-//}
-//void control_extra_off(void)
-//{
-//    PWM_set(&Control.pwm_insp, PWM_CH1, 0);
-//    //GPIO_HAL_set(Control.switch2, LOW);
-//}
+void control_extra_on(int pwm_value)
+{
+    int pwm_exp = constrain(pwm_value, 0, 10000);
+    PWM_set(&Control.pwm_extra, PWM_CH0, pwm_exp);
+}
+
+void control_extra_off(void)
+{
+   PWM_set(&Control.pwm_extra, PWM_CH0, 0);
+}
 
