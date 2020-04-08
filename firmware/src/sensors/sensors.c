@@ -126,24 +126,9 @@ static void filter_adc(int32_t* state, enum ADC_ID ID, int32_t slew_limit)
     *state+= delta;
 }
 
-static uint32_t count = 0;
-void sensors_update(unsigned int dt)
+
+static void _update_sensor_in(void)
 {
-    PROFILE
-    filter_adc(&Sensors.pressure_MFC, ADC_ID_PRESSURE_MFC,
-            ADC_RANGE/SLEW_LIMIT_PRESSURE_MFC);
-
-    if (I2C_PULL_UP_AVAILABLE) {
-        if (count++ % 5 == 0) {
-            // calculate flow in SLPM
-            float flow_SLPM = read_flow_sensor();
-            flow_SLPM = flow_SLPM*3.14f*(0.015f/2)*(0.015f/2)*1000*60;
-
-            // SLPM to SCCPM
-            Sensors.flow_out = 1000*flow_SLPM;
-        }
-    }
-
     // sample sensor1
     if(mprls_is_ready(&mprls1)) {
         // read value and trigger next sample
@@ -158,7 +143,10 @@ void sensors_update(unsigned int dt)
         g_error = true;
         mprls_trigger_read(&mprls1);
     }
+}
 
+static void _update_sensor_out(void)
+{
     // sample sensor2
     if(mprls_is_ready(&mprls2)) {
         // read value and trigger next sample
@@ -173,6 +161,28 @@ void sensors_update(unsigned int dt)
         g_error = true;
         mprls_trigger_read(&mprls2);
     }
+}
+
+
+static uint32_t count = 0;
+void sensors_update(unsigned int dt)
+{
+    filter_adc(&Sensors.pressure_MFC, ADC_ID_PRESSURE_MFC,
+            ADC_RANGE/SLEW_LIMIT_PRESSURE_MFC);
+
+    if (I2C_PULL_UP_AVAILABLE) {
+        if (count++ % 5 == 0) {
+            // calculate flow in SLPM
+            float flow_SLPM = read_flow_sensor();
+            flow_SLPM = flow_SLPM*3.14f*(0.015f/2)*(0.015f/2)*1000*60;
+
+            // SLPM to SCCPM
+            Sensors.flow_out = 1000*flow_SLPM;
+        }
+    }
+
+    _update_sensor_in();
+    _update_sensor_out();
 
 
     filter_adc(&Sensors.flow_MFC_O2, ADC_ID_MFC_O2,
