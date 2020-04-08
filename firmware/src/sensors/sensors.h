@@ -16,8 +16,9 @@ typedef struct SensorsAllData {
     int32_t pressure_mfc;       // Pressure at MFC pressure vessel [Pa]
 
     int32_t oxygen;             // Oxygen percentage [0-100]
-    int32_t tidal_volume;       // Tidal volume [mL] (Based on exhale flow)
-    int32_t minute_volume;      // Average flow [mL / minute] (average over last 10 sec interval)
+    int32_t tidal_volume_inhale;       // Tidal volume [mL] (Based on inhale flow)
+    int32_t tidal_volume_exhale;       // Tidal volume [mL] (Based on exhale flow)
+    int32_t minute_volume;      // Average flow (exhale) [mL / minute] (average over last 10 sec interval)
     int32_t cycle_state;        // PeeP / Peak / None
     int32_t power_status;       // Status of PSU (TODO: Not Implemented Yet)
 } SensorsAllData;

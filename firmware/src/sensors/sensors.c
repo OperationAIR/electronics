@@ -324,7 +324,8 @@ void sensors_read_all(SensorsAllData *data)
     data->pressure_mfc = sensors_read_pressure_MFC_pa();
 
     data->oxygen = sensors_read_oxygen_percent();
-    data->tidal_volume = sensors_read_volume_cycle_out_CC();
+    data->tidal_volume_exhale = sensors_read_volume_cycle_out_CC();
+    data->tidal_volume_inhale = sensors_read_volume_cycle_in_CC();
 
     data->minute_volume = sensors_read_flow_out_avg_SCCPM();
 
