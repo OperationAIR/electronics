@@ -26,7 +26,7 @@
 
 #include <mcu_timing/profile.h>
 
-#define DT_MS (2)
+#define DT_MS (5)
 
 enum AppState {
     AppStateNone = -1,
