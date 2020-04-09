@@ -457,8 +457,7 @@ bool inspiratory_hold_run(const OperationSettings *config, bool hold_pressed, co
             // save results
             g_inspiratory_hold_result = (g_pressure_state_insp + g_pressure_state_exp)/2;
 
-            log_cli("Sensor 1 value: '%d' cmH2O * 100", (int) (g_pressure_state_insp/0.98) );
-            log_cli("Sensor 2 value: '%d' cmH2O * 100", (int) (g_pressure_state_exp/0.98) );
+            log_cli("Sensor mean value: '%d' cmH2O * 100", (int) (g_inspiratory_hold_result/0.98) );
 
             return true;
         }
@@ -510,8 +509,7 @@ bool expiratory_hold_run(const OperationSettings *config, bool hold_pressed, con
         // save results
         g_expiratory_hold_result = (g_pressure_state_insp + g_pressure_state_exp)/2;
 
-        log_cli("Sensor 1 value: '%d' cmH2O * 100", (int) (g_pressure_state_insp/0.98) );
-        log_cli("Sensor 2 value: '%d' cmH2O * 100", (int) (g_pressure_state_exp/0.98) );
+        log_cli("Sensors mean value: '%d' cmH2O * 100", (int) (g_expiratory_hold_result/0.98) );
 
         return true;
     }
