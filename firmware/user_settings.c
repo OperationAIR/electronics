@@ -35,5 +35,5 @@ const unsigned int CALCULATED_AVERAGING_TIME_MS = 10000;
 
 // Are there pull-ups resistors on the board?
 // TODO needed in final design?
-const bool I2C_PULL_UP_AVAILABLE = false;
+const bool I2C_PULL_UP_AVAILABLE = true;
 /* === */
