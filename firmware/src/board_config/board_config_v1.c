@@ -97,13 +97,13 @@ static const GPIOConfig pin_config[] = {
     // Pressure sensors
     [GPIO_ID_PSENSE_RESET]          = {{1, 20}, GPIO_CFG_DIR_OUTPUT_HIGH},
     [GPIO_ID_PSENSE_1_CS]           = {{1, 19}, GPIO_CFG_DIR_OUTPUT_HIGH},
-    [GPIO_ID_PSENSE_2_CS]           = {{0, 16}, GPIO_CFG_DIR_OUTPUT_HIGH},
-    [GPIO_ID_PSENSE_1_DRDY]         = {{1, 25}, GPIO_CFG_DIR_INPUT},
-    [GPIO_ID_PSENSE_2_DRDY]         = {{1, 23}, GPIO_CFG_DIR_INPUT},
+    [GPIO_ID_PSENSE_2_CS]           = {{1, 22}, GPIO_CFG_DIR_OUTPUT_HIGH},
+    [GPIO_ID_PSENSE_1_DRDY]         = {{1, 16}, GPIO_CFG_DIR_INPUT},
+    [GPIO_ID_PSENSE_2_DRDY]         = {{1, 15}, GPIO_CFG_DIR_INPUT},
 
     // Status LEDs
-    [GPIO_ID_LED_STATUS]            = {{0, 17}, GPIO_CFG_DIR_OUTPUT_LOW},
-    [GPIO_ID_LED_ERROR]             = {{0, 23}, GPIO_CFG_DIR_OUTPUT_LOW},
+    [GPIO_ID_LED_STATUS]            = {{1, 23}, GPIO_CFG_DIR_OUTPUT_LOW},
+    [GPIO_ID_LED_ERROR]             = {{0, 21}, GPIO_CFG_DIR_OUTPUT_LOW},
 
     // Power status & on/off
     [GPIO_ID_STATUS_FAIL]           = {{0,  7}, GPIO_CFG_DIR_INPUT},
@@ -112,10 +112,10 @@ static const GPIOConfig pin_config[] = {
     [GPIO_ID_RPI_ON_OFF]            = {{0, 17}, GPIO_CFG_DIR_OUTPUT_HIGH},
 
     // Extra I/O (on header)
-    [GPIO_ID_EXTRA_1]               = {{1, 13}, GPIO_CFG_DIR_OUTPUT_LOW},
-    [GPIO_ID_EXTRA_2]               = {{1, 16}, GPIO_CFG_DIR_OUTPUT_LOW},
-    [GPIO_ID_EXTRA_3]               = {{0, 19}, GPIO_CFG_DIR_OUTPUT_LOW},
-    [GPIO_ID_EXTRA_4]               = {{0, 18}, GPIO_CFG_DIR_OUTPUT_LOW},
+    [GPIO_ID_EXTRA_1]               = {{0, 16}, GPIO_CFG_DIR_OUTPUT_LOW},
+    [GPIO_ID_EXTRA_2]               = {{1, 21}, GPIO_CFG_DIR_OUTPUT_LOW},
+    [GPIO_ID_EXTRA_3]               = {{1, 31}, GPIO_CFG_DIR_OUTPUT_LOW},
+    [GPIO_ID_EXTRA_4]               = {{1, 28}, GPIO_CFG_DIR_OUTPUT_LOW},
 
 };
 
