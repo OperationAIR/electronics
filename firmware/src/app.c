@@ -52,8 +52,6 @@ static struct {
     volatile uint32_t time; // time in milliseconds since entering current state
     volatile enum AppState last_state;
     volatile enum AppState next_state;
-    volatile bool start_requested;
-    volatile bool stop_requested;
     volatile bool test_requested;
     volatile bool run;
     uint32_t not_allowed_reasons;
@@ -246,12 +244,6 @@ enum AppState app_state_idle(void)
         return AppStatePreSelfTest;
     }
 
-    // Start from CLI
-    if(g_app.start_requested) {
-        g_app.start_requested = false;
-        return AppStatePreBreathing;
-    }
-
     // Start from GUI
     if(g_app.settings.start) {
         return AppStatePreBreathing;
@@ -300,12 +292,6 @@ enum AppState app_state_pre_breathing(void)
 
 enum AppState app_state_breathing(void)
 {
-    // Stop from CLI
-    if(g_app.stop_requested) {
-        g_app.stop_requested = false;
-        return AppStateAfterBreathing;
-    }
-
     // Stop from GUI
     if(!g_app.settings.start) {
         return AppStateAfterBreathing;
@@ -559,29 +545,23 @@ void app_init(int hw_version)
     assert(systick_init(update_frequency));
 }
 
-void app_program_start(void)
+// start from CLI
+void app_program_force_start(void)
 {
-    if (!g_app.start_requested) {
-        log_debug("Start Request");
-        g_app.stop_requested = false;
-        g_app.start_requested = true;
-        g_app.settings.start = true;
-        g_app.settings.peep = 1000;
-        g_app.settings.pressure = 3000;
-        g_app.settings.frequency = 15;
-        g_app.settings.ratio = 20;
-        g_app.settings.oxygen = 21;
-    }
+    log_debug("Starting...");
+    g_app.settings.start = true;
+    g_app.settings.peep = 1000;
+    g_app.settings.pressure = 3000;
+    g_app.settings.frequency = 15;
+    g_app.settings.ratio = 2;
+    g_app.settings.oxygen = 21;
 }
 
-void app_program_stop(void)
+// stom from CLI
+void app_program_force_stop(void)
 {
-    if (!g_app.stop_requested) {
-        log_debug("Stop Request");
-        g_app.start_requested = false;
-        g_app.stop_requested = true;
-        g_app.settings.start = false;
-    }
+    log_debug("Stopping...");
+    g_app.settings.start = false;
 }
 
 void app_start_self_test(void)

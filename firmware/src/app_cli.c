@@ -78,11 +78,11 @@ static void test(char *args) {
 }
 
 static void start(char *args) {
-	app_program_start();
+	app_program_force_start();
 }
 
 static void stop(char *args) {
-	app_program_stop();
+	app_program_force_stop();
 }
 
 static void in_hold(char *args) {

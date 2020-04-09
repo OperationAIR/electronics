@@ -15,8 +15,9 @@ bool app_is_idle(void);
 
 void app_self_test(void);
 
-void app_program_start(void);
-void app_program_stop(void);
+// Force start/stop (e.g. from debug CLI)
+void app_program_force_start(void);
+void app_program_force_stop(void);
 
 void app_start_inspiratory_hold(void);
 void app_stop_inspiratory_hold(void);
