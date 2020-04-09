@@ -75,7 +75,7 @@ static void _flowsensor_boot(void) {
     const uint8_t boot_reg = 0x45;
     // If this fails, the sensor was probably already in 'sensor mode'.
 
-    Chip_I2C_MasterCmdRead(DEFAULT_I2C, boot_addr, boot_reg, rx, sizeof(rx));
+    i2c_read(boot_addr, boot_reg, rx, sizeof(rx));
 }
 
 static void _flowsensor_set_sampling_time(void) {
@@ -94,17 +94,18 @@ static void _flowsensor_set_sampling_time(void) {
 
     xfer.txBuff = &tx[0];
 
+    i2c_write(xfer.slaveAddr, xfer.txBuff, 3);
     /* Send data */
-    Chip_I2C_MasterSend(DEFAULT_I2C, xfer.slaveAddr, xfer.txBuff, 3);
 }
 
 static bool _flowsensor_selftest(void) {
     uint8_t rx[1] = {0};
     const uint8_t sensor_addr = 0x55;
     const uint8_t boot_reg = 0x19;
-    size_t bytes_received = Chip_I2C_MasterCmdRead(DEFAULT_I2C, sensor_addr, boot_reg, rx, sizeof(rx));
+    i2c_read(sensor_addr, boot_reg, rx, sizeof(rx));
 
-    return ((bytes_received == 1) && (rx[0] == sensor_addr));
+    bool error = i2c_check_and_clear_error();
+    return ((!error) && (rx[0] == sensor_addr));
 }
 
 static float _read_sensor(uint8_t data_reg) {
@@ -115,9 +116,9 @@ static float _read_sensor(uint8_t data_reg) {
         uint8_t bytes[4];
     } conversion;
 
-    size_t result = Chip_I2C_MasterCmdRead(DEFAULT_I2C, sensor_addr, data_reg,
-            conversion.bytes, sizeof(conversion.bytes));
-    if(result != sizeof(conversion.bytes)) {
+
+    i2c_read(sensor_addr, data_reg, conversion.bytes, sizeof(conversion.bytes));
+    if(i2c_has_error()) {
         return 0.0;
     }
     return conversion.value;

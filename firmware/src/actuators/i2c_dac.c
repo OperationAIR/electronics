@@ -36,8 +36,7 @@ void i2cdac_set(uint8_t address, uint16_t value)
 
 	xfer.txBuff = &tx[0];
 
-	/* Send data */
-	Chip_I2C_MasterSend(DEFAULT_I2C, xfer.slaveAddr, xfer.txBuff, 3);
-
+	// Send data
+    i2c_write(xfer.slaveAddr, xfer.txBuff, 3);
 }
 
