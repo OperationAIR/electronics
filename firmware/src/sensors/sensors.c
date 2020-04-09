@@ -23,6 +23,8 @@ struct {
     int32_t flow_MFC_air;
     int32_t flow_MFC_O2;
 
+    int32_t battery_level;
+
     int32_t flow_out; //SCCPM
 
     int32_t inspiratory_hold_result1;
@@ -36,6 +38,7 @@ static int32_t g_offset_pressure_out = 0;
 // See schematics
 #define ADC_FACTOR_PRESSURE             (168.0/100.0)
 #define ADC_FACTOR_FLOW_MFC             (168.0/100.0)
+#define ADC_FACTOR_BATTERY              (11.5/1.5)
 
 // TODO FIXME: voltage divider for flow/MFC input is be wrong!
 // Datasheet table shows 1-5V instead of assumed 0-12!!
@@ -47,9 +50,10 @@ static int32_t g_offset_pressure_out = 0;
 // 1 = lowest value (effectively no filtering)
 // 1024 (ADC_RANGE) = highest value (strong filter)
 #define SLEW_LIMIT_PRESSURE_MFC             (10)
-#define SLEW_LIMIT_PRESSURE         (5)
-#define SLEW_LIMIT_PREG_PRESSURE    (400)
-#define SLEW_LIMIT_MFC_FEEDBACK     (50)
+#define SLEW_LIMIT_PRESSURE                 (5)
+#define SLEW_LIMIT_PREG_PRESSURE            (400)
+#define SLEW_LIMIT_MFC_FEEDBACK             (50)
+#define SLEW_LIMIT_BATTERY_LEVEL            (500)
 
 
 static MPRLS mprls1;
@@ -57,6 +61,7 @@ static MPRLS mprls2;
 
 void sensors_init(void) {
 
+    UPS_status_init();
     calculated_init();
 
     mprls_init(&mprls1, LPC_SSP0,
@@ -107,6 +112,7 @@ void sensors_reset(void)
     Sensors.flow_out = -1;
     Sensors.flow_MFC_O2 = -1;
     Sensors.flow_MFC_air = -1;
+    Sensors.battery_level = 0;
 
     g_offset_pressure_in = 0;
     g_offset_pressure_out = 0;
@@ -189,6 +195,12 @@ void sensors_update(unsigned int dt)
             ADC_RANGE/SLEW_LIMIT_MFC_FEEDBACK);
     filter_adc(&Sensors.flow_MFC_air, ADC_ID_MFC_AIR,
             ADC_RANGE/SLEW_LIMIT_MFC_FEEDBACK);
+
+    if(board_has_ADC(ADC_ID_BATTERY_LEVEL)) {
+        filter_adc(&Sensors.battery_level, ADC_ID_BATTERY_LEVEL,
+                ADC_RANGE/SLEW_LIMIT_BATTERY_LEVEL);
+    }
+
 
     if(board_has_ADC(ADC_ID_PRESSURE_PATIENT)) {
         filter_adc(&Sensors.pressure_patient, ADC_ID_PRESSURE_PATIENT,
@@ -336,6 +348,16 @@ int32_t sensors_get_inspiratory_hold_result2()
     return Sensors.inspiratory_hold_result2;
 }
 
+enum UPSStatus sensors_read_UPS_status(void)
+{
+    return UPS_status_get();
+}
+
+uint32_t sensors_read_UPS_voltage_mv(void)
+{
+    return ADC_scale(Sensors.battery_level, ADC_FACTOR_BATTERY);
+}
+
 
 
 void sensors_read_all(SensorsAllData *data)
@@ -355,7 +377,8 @@ void sensors_read_all(SensorsAllData *data)
     data->minute_volume = sensors_read_flow_out_avg_SCCPM();
 
     data->cycle_state = breathing_get_cycle_state();
-    data->power_status = 0;     // TODO
+    data->power_status = (sensors_read_UPS_status()
+            | sensors_read_UPS_voltage_mv());
 
     data->inspiratory_hold_result1 = sensors_get_inspiratory_hold_result1();
     data->inspiratory_hold_result2 = sensors_get_inspiratory_hold_result2();

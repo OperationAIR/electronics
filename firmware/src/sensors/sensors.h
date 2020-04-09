@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "board_config/board_ADC_ID.h"
+#include "UPS_status.h"
 
 
 
@@ -20,12 +21,13 @@ typedef struct SensorsAllData {
     int32_t tidal_volume_exhale;       // Tidal volume [mL] (Based on exhale flow)
     int32_t minute_volume;      // Average flow (exhale) [mL / minute] (average over last 10 sec interval)
     int32_t cycle_state;        // PeeP / Peak / None
-    int32_t power_status;       // Status of PSU (TODO: Not Implemented Yet)
+    uint32_t power_status;      // Status of UPS: volatage [mV OR-ed with UPSStatus bits]
 
     int32_t inspiratory_hold_result1;   // Value for end of inspiratory hold sensor 1
     int32_t inspiratory_hold_result2;   // Value for end of inspiratory hold sensor 2
 
 } SensorsAllData;
+
 
 void sensors_init(void);
 
@@ -82,7 +84,15 @@ int32_t sensors_read_volume_cycle_out_CC(void);
 int32_t sensors_get_inspiratory_hold_result1(void);
 int32_t sensors_get_inspiratory_hold_result2(void);
 
+
 // Read all data relevant for communication to RPI
 void sensors_read_all(SensorsAllData *data);
+
+
+// Power supply status & voltage
+// NOTE: prototype V0 hardware does not have UPS status info
+enum UPSStatus sensors_read_UPS_status(void);
+uint32_t sensors_read_UPS_voltage_mv(void);
+
 
 #endif
