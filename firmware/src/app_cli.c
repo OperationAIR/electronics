@@ -95,6 +95,16 @@ static void in_hold(char *args) {
 	}
 }
 
+static void out_hold(char *args) {
+    if (strncmp(args, "on", 2) == 0) {
+        app_start_expiratory_hold();
+    } else if (strncmp(args, "off", 3) == 0) {
+        app_stop_expiratory_hold();
+    } else {
+        // TODO return current expiratory state
+    }
+}
+
 static void mfc(char *args) {
 
     float params[3];
@@ -295,6 +305,11 @@ CliCommand cli_commands[] = {
 	    .cmd = "in",
 	    .help = "'on' or 'off' Inspiratory Hold function [during breathing]",
         .function = in_hold
+    },
+    {
+        .cmd = "out",
+        .help = "'on' or 'off' Expiratory Hold function [during breathing]",
+        .function = out_hold
     },
 	{
 		.cmd = "stop",

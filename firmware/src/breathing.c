@@ -41,7 +41,8 @@ static float g_to_EXP = 0;
 static float g_inspiratory_hold_result_1 = 0;
 static float g_inspiratory_hold_result_2 = 0;
 
-static int time_after_inspiration = 0;
+static float g_expiratory_hold_result_1 = 0;
+static float g_expiratory_hold_result_2 = 0;
 
 static volatile enum BreathCycleState g_breath_cycle_state = BreathCycleStateNone;
 
@@ -177,7 +178,7 @@ void breathing_tune_EXP_PID(float kp, float ki, float kd)
 static struct {
     volatile uint32_t cycle_time;
     volatile uint32_t breathing_time;
-    volatile uint32_t inspiration_hold_time;
+    volatile uint32_t hold_time;
     volatile uint32_t timestamp_start_close;
     volatile bool breathing_cycle_finished;
 } breathing;
@@ -424,15 +425,13 @@ void breathing_run(const OperationSettings *config, const int dt)
 /**
 Functions needed to perform the inspiratory-hold-manouvre
 */
-void pre_inspiratory_hold(const OperationSettings *config, const int dt) {
+void pre_hold(const OperationSettings *config, const int dt) {
     // Reload values, reset timers
-    breathing.inspiration_hold_time = 0;
+    breathing.hold_time = 0;
     _update_cfg(config);
-    time_after_inspiration = 0;
 }
 
-bool inspiratory_hold_run(const OperationSettings *config, const int dt) {
-
+bool inspiratory_hold_run(const OperationSettings *config, bool hold_pressed, const int dt) {
     breathing.breathing_time+=dt;
 
     // Read sensor values
@@ -452,12 +451,10 @@ bool inspiratory_hold_run(const OperationSettings *config, const int dt) {
 
     } else {
         // Close valves for 2 seconds, average the pressure between 2 and 2.5 seconds
-        g_pressure_setpoint_pa = cfg.peep;
-
         control_valve_insp_off();
 
-        if (time_after_inspiration >= 1500) {
-            _read_and_filter_pressure_sensor();
+        // Go on till time is more than 7.5 sec or hold button is released
+        if (!hold_pressed || (breathing.hold_time-cfg.time_high_ms) >= 7500) {
             log_cli("Inspiratory hold done");
 
             // save results
@@ -467,15 +464,13 @@ bool inspiratory_hold_run(const OperationSettings *config, const int dt) {
             log_cli("Sensor 1 value: '%d' cmH2O * 100", (int) (g_pressure_state_insp/0.98) );
             log_cli("Sensor 2 value: '%d' cmH2O * 100", (int) (g_pressure_state_exp/0.98) );
 
-
             return true;
         }
-        time_after_inspiration+=dt;
     }
 
     _MFC_control_loop();
 
-    breathing.inspiration_hold_time+=dt;
+    breathing.hold_time+=dt;
 
     return false;
 }
@@ -484,8 +479,6 @@ bool post_inspiratory_hold(const OperationSettings *config, const int dt)
 {
     // expiration phase (exact the same as normal breathing
     _read_and_filter_pressure_sensor();
-
-//    log_debug("%d", (int) breathing.cycle_time);
 
     control_valve_insp_on(10000);
     g_pressure_setpoint_pa = cfg.peep;
@@ -505,6 +498,36 @@ bool post_inspiratory_hold(const OperationSettings *config, const int dt)
     return false;
 }
 
+/**
+Functions needed to perform the expiratory-hold-manouvre
+*/
+bool expiratory_hold_run(const OperationSettings *config, bool hold_pressed, const int dt) {
+    breathing.breathing_time+=dt;
+    control_valve_exp_off();
+
+    // Read sensor values
+    _read_and_filter_pressure_sensor();
+
+    if (!hold_pressed || breathing.hold_time >= 7500 ) {
+        log_cli("Inspiratory hold done");
+
+        // save results
+        g_expiratory_hold_result_1 = g_pressure_state_insp;
+        g_expiratory_hold_result_2 = g_pressure_state_exp;
+
+        log_cli("Sensor 1 value: '%d' cmH2O * 100", (int) (g_pressure_state_insp/0.98) );
+        log_cli("Sensor 2 value: '%d' cmH2O * 100", (int) (g_pressure_state_exp/0.98) );
+
+        return true;
+    }
+
+    breathing.hold_time+=dt;
+
+    _MFC_control_loop();
+    return false;
+}
+
+
 enum BreathCycleState breathing_get_cycle_state(void)
 {
     return g_breath_cycle_state;
@@ -519,6 +542,17 @@ float breathing_get_inspiratory_hold_result_2()
 {
     return g_inspiratory_hold_result_2;
 }
+
+float breathing_get_expiratory_hold_result_1()
+{
+    return g_expiratory_hold_result_1;
+}
+
+float breathing_get_expiratory_hold_result_2()
+{
+    return g_expiratory_hold_result_2;
+}
+
 
 
 static bool program_validation(void)
