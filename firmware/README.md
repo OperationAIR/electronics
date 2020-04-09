@@ -66,6 +66,8 @@ Binary responses from the microcontroller for the specific command are also pref
 | RequestSensorValues | Request current samples for all sensors | `0x0D15EA5E` | None         | [Sensor Values](#Sensor-Values-Response)    |
 | InspiratoryHoldStart    | Trigger inspiratory hold if breathing is started | `0x99998888` | None | Log info (ascii) |
 | InspiratoryHoldStop    | Stop inspiratory hold | `0x99999999` | None | Log info (ascii) |
+| ExpiratoryHoldStart    | Trigger expiratory hold if breathing is started | `0x77776666` | None | Log info (ascii) |
+| ExpiratoryHoldStop    | Stop expiratory hold | `0x77777777` | None | Log info (ascii) |
 | StatusLedOn         | Turn on status LED (Green)              | `0x55551111` | None         | Log info (ascii) |
 | StatusLedOff        | Turn off status LED (Green)             | `0x55661111` | None         | Log info (ascii) |
 | ErrorLedOn          | Turn on error LED (Red)                 | `0x55552222` | None         | Log info (ascii) |

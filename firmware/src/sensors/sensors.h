@@ -23,8 +23,8 @@ typedef struct SensorsAllData {
     int32_t cycle_state;        // PeeP / Peak / None
     uint32_t power_status;      // Status of UPS: volatage [mV OR-ed with UPSStatus bits]
 
-    int32_t inspiratory_hold_result1;   // Value for end of inspiratory hold sensor 1
-    int32_t inspiratory_hold_result2;   // Value for end of inspiratory hold sensor 2
+    int32_t inspiratory_hold_result;   // Value for end of inspiratory hold sensor 1
+    int32_t expiratory_hold_result;   // Value for end of expiratory hold sensor 1
 
 } SensorsAllData;
 

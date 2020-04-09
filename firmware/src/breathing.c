@@ -38,11 +38,8 @@ static float g_MFC_pressure_pa = 0;
 static float g_to_DPR = 0;
 static float g_to_EXP = 0;
 
-static float g_inspiratory_hold_result_1 = 0;
-static float g_inspiratory_hold_result_2 = 0;
-
-static float g_expiratory_hold_result_1 = 0;
-static float g_expiratory_hold_result_2 = 0;
+static float g_inspiratory_hold_result = 0;
+static float g_expiratory_hold_result = 0;
 
 static volatile enum BreathCycleState g_breath_cycle_state = BreathCycleStateNone;
 
@@ -458,8 +455,7 @@ bool inspiratory_hold_run(const OperationSettings *config, bool hold_pressed, co
             log_cli("Inspiratory hold done");
 
             // save results
-            g_inspiratory_hold_result_1 = g_pressure_state_insp;
-            g_inspiratory_hold_result_2 = g_pressure_state_exp;
+            g_inspiratory_hold_result = (g_pressure_state_insp + g_pressure_state_exp)/2;
 
             log_cli("Sensor 1 value: '%d' cmH2O * 100", (int) (g_pressure_state_insp/0.98) );
             log_cli("Sensor 2 value: '%d' cmH2O * 100", (int) (g_pressure_state_exp/0.98) );
@@ -512,8 +508,7 @@ bool expiratory_hold_run(const OperationSettings *config, bool hold_pressed, con
         log_cli("Inspiratory hold done");
 
         // save results
-        g_expiratory_hold_result_1 = g_pressure_state_insp;
-        g_expiratory_hold_result_2 = g_pressure_state_exp;
+        g_expiratory_hold_result = (g_pressure_state_insp + g_pressure_state_exp)/2;
 
         log_cli("Sensor 1 value: '%d' cmH2O * 100", (int) (g_pressure_state_insp/0.98) );
         log_cli("Sensor 2 value: '%d' cmH2O * 100", (int) (g_pressure_state_exp/0.98) );
@@ -533,26 +528,15 @@ enum BreathCycleState breathing_get_cycle_state(void)
     return g_breath_cycle_state;
 }
 
-float breathing_get_inspiratory_hold_result_1()
+float breathing_get_inspiratory_hold_result()
 {
-    return g_inspiratory_hold_result_1;
+    return g_inspiratory_hold_result;
 }
 
-float breathing_get_inspiratory_hold_result_2()
+float breathing_get_expiratory_hold_result()
 {
-    return g_inspiratory_hold_result_2;
+    return g_expiratory_hold_result;
 }
-
-float breathing_get_expiratory_hold_result_1()
-{
-    return g_expiratory_hold_result_1;
-}
-
-float breathing_get_expiratory_hold_result_2()
-{
-    return g_expiratory_hold_result_2;
-}
-
 
 
 static bool program_validation(void)

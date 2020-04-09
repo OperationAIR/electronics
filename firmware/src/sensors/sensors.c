@@ -27,8 +27,9 @@ struct {
 
     int32_t flow_out; //SCCPM
 
-    int32_t inspiratory_hold_result1;
-    int32_t inspiratory_hold_result2;
+    int32_t inspiratory_hold_result;
+
+    int32_t expiratory_hold_result;
 } Sensors;
 
 static bool g_error = false;
@@ -207,8 +208,8 @@ void sensors_update(unsigned int dt)
                 ADC_RANGE/SLEW_LIMIT_PRESSURE);
     }
 
-    Sensors.inspiratory_hold_result1 = (int32_t)breathing_get_inspiratory_hold_result_1();
-    Sensors.inspiratory_hold_result2 = (int32_t)breathing_get_inspiratory_hold_result_2();
+    Sensors.inspiratory_hold_result = (int32_t)breathing_get_inspiratory_hold_result();
+    Sensors.expiratory_hold_result = (int32_t)breathing_get_expiratory_hold_result();
 }
 
 static float p_MFC_mbar;
@@ -338,14 +339,14 @@ int32_t sensors_read_volume_cycle_out_CC(void)
     return calculated_volume_out_CC();
 }
 
-int32_t sensors_get_inspiratory_hold_result1()
+int32_t sensors_get_inspiratory_hold_result()
 {
-    return Sensors.inspiratory_hold_result1;
+    return Sensors.inspiratory_hold_result;
 }
 
-int32_t sensors_get_inspiratory_hold_result2()
+int32_t sensors_get_expiratory_hold_result()
 {
-    return Sensors.inspiratory_hold_result2;
+    return Sensors.expiratory_hold_result;
 }
 
 enum UPSStatus sensors_read_UPS_status(void)
@@ -380,7 +381,7 @@ void sensors_read_all(SensorsAllData *data)
     data->power_status = (sensors_read_UPS_status()
             | sensors_read_UPS_voltage_mv());
 
-    data->inspiratory_hold_result1 = sensors_get_inspiratory_hold_result1();
-    data->inspiratory_hold_result2 = sensors_get_inspiratory_hold_result2();
+    data->inspiratory_hold_result = sensors_get_inspiratory_hold_result();
+    data->expiratory_hold_result = sensors_get_expiratory_hold_result();
 }
 

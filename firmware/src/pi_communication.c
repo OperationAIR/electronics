@@ -38,6 +38,8 @@ enum PiCommand {
     PiCommandRequestSensorValues 	= 0x0D15EA5E,
 	PiCommandInspiratoryHold		= 0x99998888,
 	PiCommandInspiratoryHoldStop	= 0x99999999,
+	PiCommandExpiratoryHold			= 0x77776666,
+	PiCommandExpiratoryHoldStop		= 0x77777777,
 
     // Test commands
 	PiCommandLedOn 					= 0x55551111,
@@ -174,6 +176,16 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 					ringbuffer_flush(rb, 4);
 					app_stop_inspiratory_hold();
 					pi_comm_send_string("Cancel inspiratory hold\n");
+					return PiCommandNone;
+				case PiCommandExpiratoryHold:
+					ringbuffer_flush(rb, 4);
+					app_start_expiratory_hold();
+					pi_comm_send_string("Try start expiration hold\n");
+					return PiCommandNone;
+				case PiCommandExpiratoryHoldStop:
+					ringbuffer_flush(rb, 4);
+					app_stop_expiratory_hold();
+					pi_comm_send_string("Cancel expiration hold\n");
 					return PiCommandNone;
 
                 // -- Test commands -- //
