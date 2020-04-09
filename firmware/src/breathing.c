@@ -16,8 +16,6 @@
 
 #include "cmsis_dsp_lib/arm_math.h"
 
-#include <mcu_timing/profile.h>
-
 
 static bool program_validation(void);
 
@@ -382,8 +380,6 @@ void _expiration(int dt) {
 
 void breathing_run(const OperationSettings *config, const int dt)
 {
-    PROFILE
-
     breathing.breathing_time+=dt;
 
     const uint32_t time_ms = breathing.breathing_time;

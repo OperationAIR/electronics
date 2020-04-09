@@ -40,10 +40,8 @@ void assert(bool should_be_true)
 // TODO RM: flowsensor test
 #include "actuators/i2c_dac.h"
 
-Profile main_profile;
 int main(void)
 {
-    profile_init(&main_profile, "main loop", 0);
     board_setup();
     board_setup_NVIC();
     board_setup_pins();
@@ -82,7 +80,6 @@ int main(void)
 
     while (true)
     {
-        profile_start(&main_profile);
         pi_comm_tasks();
         add_cli_tasks();
         log_tasks();
@@ -91,8 +88,6 @@ int main(void)
         watchdog_feed();
 
         delay_us(1);
-
-        profile_end(&main_profile);
     }
     return 0;
 }
