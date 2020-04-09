@@ -73,6 +73,10 @@ static void current_time(char *args) {
 	log_cli(time);
 }
 
+static void test(char *args) {
+	app_start_self_test();
+}
+
 static void start(char *args) {
 	app_program_start();
 }
@@ -102,7 +106,7 @@ static void mfc(char *args) {
     }
 
     float flow_SLPM = params[0];
-    control_MFC_set(flow_SLPM, 0.21);
+    control_MFC_on(flow_SLPM, 0.21);
     log_cli("MFC flowrate set to ca '%d'", (int)flow_SLPM);
 
 }
@@ -220,8 +224,8 @@ static void sensors(char *args) {
     f2strn(sensors_read_flow_MFC_air_SCCPM()/1000.0, str, sizeof(str), 3);
     log_cli("MFC flow air: '%s' SLPM", str);
     log_cli("Pressure MFC: %d Pa", sensors_read_pressure_MFC_pa());
-    log_cli("Pressure in: %d Pa", sensors_read_pressure_in_pa());
-    log_cli("Pressure out: %d Pa", sensors_read_pressure_out_pa());
+    log_cli("Pressure in: %d Pa", sensors_read_pressure_insp_pa());
+    log_cli("Pressure out: %d Pa", sensors_read_pressure_exp_pa());
 }
 
 static void halt(char *args)
@@ -276,6 +280,11 @@ CliCommand cli_commands[] = {
 		.cmd = "time",
 		.help = "Show the current (relative) time",
 		.function = current_time
+	},
+	{
+		.cmd = "test",
+		.help = "start test program",
+		.function = test
 	},
 	{
 		.cmd = "start",

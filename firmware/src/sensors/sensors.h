@@ -55,8 +55,8 @@ int32_t sensors_read_flow_out_avg_SCCPM(void);
 int32_t sensors_read_flow_MFC_O2_SCCPM(void);
 int32_t sensors_read_flow_MFC_air_SCCPM(void);
 
-int32_t sensors_read_pressure_in_pa(void);
-int32_t sensors_read_pressure_out_pa(void);
+int32_t sensors_read_pressure_insp_pa(void);
+int32_t sensors_read_pressure_exp_pa(void);
 int32_t sensors_read_pressure_patient_pa(void);
 int32_t sensors_read_pressure_MFC_pa(void);
 int32_t sensors_read_pressure_target_pa(void);

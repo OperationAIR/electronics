@@ -21,12 +21,7 @@ void app_program_stop(void);
 void app_start_inspiratory_hold(void);
 void app_stop_inspiratory_hold(void);
 
-void app_clear_maintenance_mode(void);
-bool app_is_maintenance_mode(void);
-
-void app_clear_overheated_mode(void);
-bool app_is_overheated_mode(void);
-
+void app_start_self_test();
 
 void app_reset_use_count(void);
 
