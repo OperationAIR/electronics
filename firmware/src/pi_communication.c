@@ -329,7 +329,13 @@ void pi_comm_tasks()
 					pi_comm_send((uint8_t*)app_get_settings(), sizeof(OperationSettings));
                 } else {
 					control_LED_error_on();
-					pi_comm_send_string("Error: settings verification failed!\n");
+
+                    const char *desc_str = settings_get_last_description();
+                    char verify_result[128];
+                    snprintf(verify_result, sizeof(verify_result),
+                            "Error: verification failed: %s!\n",
+                            desc_str);
+					pi_comm_send_string(verify_result);
 				}
 
             } else {

@@ -27,7 +27,7 @@ typedef struct __attribute__((packed)) {
 
 
 bool settings_update(OperationSettings *new_settings);
-
+const char *settings_get_last_description(void);
 void settings_copy(OperationSettings *dst, OperationSettings *src);
 
 #endif

@@ -1,12 +1,14 @@
 #include "settings.h"
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "app.h"
 
 typedef struct {
     int min;
     int max;
+    const char *desc;
 } AllowedRange;
 
 struct ValidSettings {
@@ -23,30 +25,38 @@ struct ValidSettings {
     AllowedRange min_fiO2_alarm;
 };
 
-static struct ValidSettings g_bounds = {
-    .peep               = {.min = 450, .max = 2500},
-    .frequency          = {.min = 10, .max = 35},
-    .pressure           = {.min = 900, .max = 8500},
-    .ratio              = {.min = 10, .max= 100},     // TODO what is min/max?
-    .oxygen             = {.min = 20, .max = 100},
+char g_description[60];
 
-    // Note: these are not used by FW!
-    .max_pressure_alarm = {.min = 10, .max = 50},
-    .min_pressure_alarm = {.min = 5, .max = 30},
-    .max_TV_alarm       = {.min = 100, .max = 800},
-    .min_TV_alarm       = {.min = 100, .max = 300},
-    .max_fiO2_alarm     = {.min = 40, .max = 80},
-    .min_fiO2_alarm     = {.min = 20, .max = 45},
+static struct ValidSettings g_bounds = {
+
+    // TODO what are good values for the bounds?
+    .peep               = {.min = 450,  .max = 2500,    .desc = "peep"},
+    .frequency          = {.min = 10,   .max = 35,      .desc = "frequency"},
+    .pressure           = {.min = 900,  .max = 8500,    .desc = "pressure"},
+    .ratio              = {.min = 10,   .max = 100,     .desc = "ratio"},
+    .oxygen             = {.min = 20,   .max = 100,     .desc = "oxygen"},
 };
 
 static inline bool check_bounds(uint16_t value, AllowedRange *bounds)
 {
-    return (value >= bounds->min) && (value <= bounds->max);
+    const bool ok = (value >= bounds->min) && (value <= bounds->max);
+    
+    if(!ok) {
+        snprintf(g_description, sizeof(g_description),
+                "%s %d is not within (%d, %d)!\n",
+                bounds->desc,
+                (int)value,
+                bounds->min,
+                bounds->max);
+    }
+
+    return ok;
 }
 
 static bool verify_settings(OperationSettings *settings)
 {
     bool ok = true;
+    g_description[0] = 0;
 
 
     ok &= check_bounds(settings->peep, &g_bounds.peep);
@@ -65,12 +75,12 @@ static bool verify_settings(OperationSettings *settings)
     ok &= check_bounds(settings->min_fiO2_alarm, &g_bounds.min_fiO2_alarm);
     */
     //TODO check new settings fields
+
     return ok;
 }
 
 bool settings_update(OperationSettings *new_settings)
 {
-
     if (verify_settings(new_settings)) {
         app_apply_settings(new_settings);
         return true;
@@ -79,6 +89,12 @@ bool settings_update(OperationSettings *new_settings)
     return false;
 
 }
+
+const char *settings_get_last_description(void)
+{
+    return g_description;
+}
+
 
 void settings_copy(OperationSettings *dst, OperationSettings *src)
 {
