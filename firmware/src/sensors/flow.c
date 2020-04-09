@@ -51,9 +51,9 @@ float flowsensor_test(void)
     char flow_str[32];
     f2strn(flow, flow_str, sizeof(flow_str), 3);
 //
-//    log_debug("Flowsensor: temp='%s' C, flow='%s'",
-//            temp_str,
-//            flow_str);
+   log_debug("Flowsensor: temp='%s' C, flow='%s'",
+           temp_str,
+           flow_str);
     return flow;
 }
 

@@ -22,6 +22,7 @@
 #include "generated/firmware_version.h"
 #include "parse_utils.h"
 #include "breathing.h"
+#include "sensors/flow.h"
 
 #include <chip.h>
 
@@ -181,7 +182,10 @@ static void exp_PID(char *args) {
 static void flow_test(char *args) {
     log_cli("Testing flow...");
 
-    flowsensor_test();
+    // flowsensor_test();
+	float flow = read_flow_sensor();
+
+	log_cli("Flow: %d", (int)flow);
 
 }
 

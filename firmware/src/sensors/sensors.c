@@ -33,6 +33,10 @@ struct {
 } Sensors;
 
 static bool g_error = false;
+static bool g_error_flow = false;
+static bool g_error_mprls_out = false;
+static bool g_error_mprls_in = false;
+
 static int32_t g_offset_pressure_in = 0;
 static int32_t g_offset_pressure_out = 0;
 
@@ -82,7 +86,7 @@ void sensors_init(void) {
 
     if (I2C_PULL_UP_AVAILABLE) {
         if(!flowsensor_enable()) {
-            g_error = true;
+            g_error_flow = true;
         }
     }
 
@@ -99,12 +103,16 @@ bool sensors_calibrate_offset(void)
     g_offset_pressure_in = sensors_read_pressure_insp_pa();
     g_offset_pressure_out = sensors_read_pressure_exp_pa();
 
-    return g_error;
+    return true; //todo g_error;
 }
 
 void sensors_reset(void)
 {
     g_error = false;
+    g_error_flow == false;
+    g_error_mprls_out = true;
+    g_error_mprls_in = true;
+
     Sensors.pressure_MFC = -1;
     Sensors.pressure_in = -1;
     Sensors.pressure_out = -1;
@@ -147,7 +155,7 @@ static void _update_sensor_in(void)
         // Timeout! try to trigger next sample, but something is wrong here!
         // TODO handle error
 
-        g_error = true;
+        g_error_mprls_in = true;
         mprls_trigger_read(&mprls1);
     }
 }
@@ -165,7 +173,7 @@ static void _update_sensor_out(void)
         // Timeout! try to trigger next sample, but something is wrong here!
         // TODO handle error
 
-        g_error = true;
+        g_error_mprls_out = true;
         mprls_trigger_read(&mprls2);
     }
 }
