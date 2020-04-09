@@ -68,7 +68,11 @@ bool control_PWM_off(void)
     return true;
 }
 
-bool control_MFC_set(float flow_SLPM, float O2_fraction)
+void control_MFC_off(void) {
+    control_MFC_on(0, 0.21);
+}
+
+void control_MFC_on(float flow_SLPM, float O2_fraction)
 {
     const float O2_ref = 0.21;
     if (O2_fraction < O2_ref) {
@@ -92,7 +96,7 @@ bool control_MFC_set(float flow_SLPM, float O2_fraction)
     }
 
     // TODO can we check something? Do we know if I2C DAC is OK?
-    return true;
+//    return true;
 }
 
 

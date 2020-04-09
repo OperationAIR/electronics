@@ -18,7 +18,6 @@
 #include "actuators/control_signals.h"
 #include "sensors/sensors.h"
 
-#include <mcu_timing/profile.h>
 
 #define BAUDRATE 500000
 /* Transmit and receive ring buffer sizes */
@@ -71,8 +70,6 @@ static enum PiCommand g_current_command = PiCommandNone;
  */
 void UART_IRQHandler(void)
 {
-    PROFILE
-
 	/* Want to handle any errors? Do it here. */
     // TODO handle uart errors
 

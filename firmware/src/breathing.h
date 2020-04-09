@@ -3,15 +3,6 @@
 
 #include "settings.h"
 
-enum TestState {
-    TestStateNone,
-    TestStateBuildPressure,
-    TestStateHold,
-    TestStateSuccess,
-    TestStateFailed
-};
-
-
 enum BreathCycleState {
     BreathCycleStateNone            = 0,
     BreathCycleStatePeakPressure    = 1,
@@ -52,8 +43,6 @@ void pre_inspiratory_hold(const OperationSettings *config, const int dt);
 bool inspiratory_hold_run(const OperationSettings *config, const int dt);
 bool post_inspiratory_hold(const OperationSettings *config, const int dt);
 
-void breathing_start_test(void);
-enum TestState breathing_test(void);
-enum TestState breathing_test_get_result(void);
+
 
 #endif

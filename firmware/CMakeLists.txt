@@ -161,7 +161,7 @@ if(NOT TARGET version)
 endif(NOT TARGET version)
 
 
-add_executable(${EXE_NAME} ${SOURCES})
+add_executable(${EXE_NAME} ${SOURCES} src/self_test.c src/self_test.h)
 target_link_libraries(${EXE_NAME} ${CPM_LIBRARIES})
 target_link_libraries(${EXE_NAME} ${SYSTEM_LIBRARIES})
 

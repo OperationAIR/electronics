@@ -90,8 +90,8 @@ bool sensors_calibrate_offset(void)
     g_offset_pressure_in = 0;
     g_offset_pressure_out = 0;
 
-    g_offset_pressure_in = sensors_read_pressure_in_pa();
-    g_offset_pressure_out = sensors_read_pressure_out_pa();
+    g_offset_pressure_in = sensors_read_pressure_insp_pa();
+    g_offset_pressure_out = sensors_read_pressure_exp_pa();
 
     return g_error;
 }
@@ -220,7 +220,7 @@ int32_t sensors_read_pressure_target_pa(void)
     return breathing_read_setpoint_pa();
 }
 
-int32_t sensors_read_pressure_in_pa(void)
+int32_t sensors_read_pressure_insp_pa(void)
 {
     int32_t result = 0;
     result = Sensors.pressure_in;
@@ -228,7 +228,7 @@ int32_t sensors_read_pressure_in_pa(void)
     return result - g_offset_pressure_in;
 }
 
-int32_t sensors_read_pressure_out_pa(void)
+int32_t sensors_read_pressure_exp_pa(void)
 {
     int32_t result = 0;
     result = Sensors.pressure_out;
@@ -343,8 +343,8 @@ void sensors_read_all(SensorsAllData *data)
     data->flow_inhale = sensors_read_flow_in_SCCPM();
     data->flow_exhale = sensors_read_flow_out_SCCPM();
 
-    data->pressure_inhale = sensors_read_pressure_in_pa();
-    data->pressure_exhale = sensors_read_pressure_out_pa();
+    data->pressure_inhale = sensors_read_pressure_insp_pa();
+    data->pressure_exhale = sensors_read_pressure_exp_pa();
     data->pressure_patient = sensors_read_pressure_patient_pa();
     data->pressure_mfc = sensors_read_pressure_MFC_pa();
 

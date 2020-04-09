@@ -22,6 +22,7 @@
 #include "clock.h"
 
 #include "breathing.h"
+#include "self_test.h"
 #include "settings.h"
 
 #include <mcu_timing/profile.h>
@@ -38,6 +39,7 @@ enum AppState {
     AppStateInspiratoryHold,
     AppStatePostInspiratoryHold,
     AppStateError,
+    AppStatePreSelfTest,
     AppStateSelfTest,
     AppStateSelfTestResult,
 };
@@ -141,6 +143,8 @@ static char* get_state_name(enum AppState state)
             return "post-inspiratory-hold-manoeuvre";
         case AppStateError:
             return "not-allowed";
+        case AppStatePreSelfTest:
+            return "pre-self-test";
         case AppStateSelfTest:
             return "self-test";
         case AppStateSelfTestResult:
@@ -161,6 +165,7 @@ enum AppState app_state_pre_inspiratory_hold(void);
 enum AppState app_state_inspiratory_hold(void);
 enum AppState app_state_post_inspiratory_hold(void);
 enum AppState app_state_error(void);
+enum AppState app_state_pre_self_test(void);
 enum AppState app_state_self_test(void);
 enum AppState app_state_self_test_result(void);
 enum AppState app_state_pre_bootloader(void);
@@ -221,6 +226,10 @@ bool app_is_idle(void)
 
 enum AppState app_state_idle(void)
 {
+    if(g_app.test_requested) {
+        return AppStatePreSelfTest;
+    }
+
     // Start from CLI
     if(g_app.start_requested) {
         g_app.start_requested = false;
@@ -366,15 +375,28 @@ enum AppState app_state_error(void)
 }
 
 
+enum AppState app_state_pre_self_test(void)
+{
+    pre_self_test();
+    enum AppState next_state = AppStateSelfTest;
+    return next_state;
+}
+
 enum AppState app_state_self_test(void)
 {
+    if (run_self_test(DT_MS)) {
+        g_app.test_requested = false;
+        enum AppState next_state = AppStateSelfTest;
+        return next_state;
+    }
 
-    enum AppState next_state = AppStateSelfTestResult;
+    enum AppState next_state = AppStateIdle;
     return next_state;
 }
 
 enum AppState app_state_self_test_result(void)
 {
+//    g_app.test_requested = false;
     enum AppState next_state = AppStateIdle;
     return next_state;
 }
@@ -428,6 +450,9 @@ void SysTick_Handler(void)
             break;
         case AppStateError:
             next_state = app_state_error();
+            break;
+        case AppStatePreSelfTest:
+            next_state = app_state_pre_self_test();
             break;
         case AppStateSelfTest:
             next_state = app_state_self_test();
@@ -508,7 +533,7 @@ void app_program_stop(void)
     }
 }
 
-void app_self_test(void)
+void app_start_self_test(void)
 {
     if (!g_app.test_requested) {
         log_wtime("Self Test Request");
@@ -533,4 +558,3 @@ void app_stop_inspiratory_hold() {
         log_cli("Inspiratory hold not turned on");
     }
 }
-

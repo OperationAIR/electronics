@@ -16,8 +16,6 @@
 
 #include "cmsis_dsp_lib/arm_math.h"
 
-#include <mcu_timing/profile.h>
-
 
 static bool program_validation(void);
 
@@ -32,11 +30,8 @@ static arm_pid_instance_f32 DPR_PID;    // pressure regulator
 static arm_pid_instance_f32 MFC_PID;    // mass flow controllers
 static arm_pid_instance_f32 EXP_PID;
 
-static float g_pressure_state_in = 0;
-static float g_pressure_state_out = 0;
-
-static float g_sensor_state_1 = 0;
-static float g_sensor_state_2 = 0;
+static float g_pressure_state_insp = 0;
+static float g_pressure_state_exp = 0;
 static float g_pressure_system_pa = 0;
 static float g_MFC_pressure_pa = 0;
 
@@ -183,7 +178,6 @@ static struct {
     volatile uint32_t cycle_time;
     volatile uint32_t breathing_time;
     volatile uint32_t inspiration_hold_time;
-    enum TestState test_state;
     volatile uint32_t timestamp_start_close;
     volatile bool breathing_cycle_finished;
 } breathing;
@@ -218,11 +212,11 @@ bool breathing_start_program(void)
     _init_MFC_PID();
     _init_EXP_PID();
 
-    control_MFC_set(0, 0.0);
+    control_MFC_on(0, 0.0);
 
     // init state to sane value
-    g_pressure_state_in = sensors_read_pressure_in_pa();
-    g_pressure_state_out = sensors_read_pressure_out_pa();
+    g_pressure_state_insp = sensors_read_pressure_insp_pa();
+    g_pressure_state_exp = sensors_read_pressure_exp_pa();
 
 
 //    return control_DPR_on();
@@ -243,32 +237,14 @@ void breathing_stop(void)
     // kept at peep for as long as possible
     control_valve_exp_off();
 
-
-    control_MFC_set(0, 0.0);
+    control_MFC_on(0, 0.0);
 }
 
 void breathing_power_off(void)
 {
     control_valve_insp_off();
-    control_MFC_set(0, 0.0);
+    control_MFC_on(0, 0.0);
     control_valve_exp_off();
-}
-
-enum TestState breathing_test_get_result(void)
-{
-    return breathing.test_state;
-}
-
-void breathing_start_test(void)
-{
-    // TODO: begin self-test
-}
-
-enum TestState breathing_test(void)
-{
-    // TODO self-test procedure
-
-    return breathing.test_state;
 }
 
 static struct {
@@ -301,12 +277,12 @@ static void _update_cfg(const OperationSettings *config)
 }
 
 void _read_and_filter_pressure_sensor(void) {
-    g_sensor_state_1 = (0.7*g_sensor_state_1) + (0.3*sensors_read_pressure_in_pa());
-    g_sensor_state_2 = (0.7*g_sensor_state_2) + (0.3*sensors_read_pressure_out_pa());
+    g_pressure_state_insp = (0.7*g_pressure_state_insp) + (0.3*sensors_read_pressure_insp_pa());
+    g_pressure_state_exp = (0.7*g_pressure_state_exp) + (0.3*sensors_read_pressure_exp_pa());
 
     // TODO FIXME: just sensor 2
-//    int DPR_pressure = (g_sensor_state_1 + g_sensor_state_2)/2;
-    g_pressure_system_pa = (g_sensor_state_1);// + g_sensor_state_2)/2;
+//    int DPR_pressure = (g_pressure_state_insp + g_pressure_state_exp)/2;
+    g_pressure_system_pa = (g_pressure_state_insp);// + g_pressure_state_exp)/2;
 }
 
 void _DPR_control_loop(void) {
@@ -332,7 +308,7 @@ void _MFC_control_loop(void) {
     float MFC_PID_out = arm_pid_f32(&MFC_PID, MFC_error_mbar);
     MFC_PID_out = constrain(MFC_PID_out, MFC_FLOW_MIN_SLPM, MFC_FLOW_MAX_SLPM);
 
-    control_MFC_set(MFC_PID_out, cfg.oxygen_fraction);
+    control_MFC_on(MFC_PID_out, cfg.oxygen_fraction);
 }
 
 void _inspiration(int dt) {
@@ -380,10 +356,11 @@ void _expiration(int dt) {
 
 }
 
+/**
+Functions needed to perform the breathing
+*/
 void breathing_run(const OperationSettings *config, const int dt)
 {
-    PROFILE
-
     breathing.breathing_time+=dt;
 
     const uint32_t time_ms = breathing.breathing_time;
@@ -426,10 +403,10 @@ void breathing_run(const OperationSettings *config, const int dt)
 
 
 //         DPR plot
-        //log_debug("%d,%d,%d",
-                //(int)g_pressure_setpoint_pa,
-                //(int)g_sensor_state_1,
-                //(int)g_sensor_state_2);
+//        log_debug("%d,%d,%d",
+//                (int)g_pressure_setpoint_pa,
+//                (int)g_pressure_state_insp,
+//                (int)g_pressure_state_exp);
 //                (int)10000-g_signal_to_switch,
 //                (int)DPR_pressure,
 //                (int)to_DPR);
@@ -444,6 +421,9 @@ void breathing_run(const OperationSettings *config, const int dt)
     }
 }
 
+/**
+Functions needed to perform the inspiratory-hold-manouvre
+*/
 void pre_inspiratory_hold(const OperationSettings *config, const int dt) {
     // Reload values, reset timers
     breathing.inspiration_hold_time = 0;
@@ -479,12 +459,15 @@ bool inspiratory_hold_run(const OperationSettings *config, const int dt) {
         if (time_after_inspiration >= 1500) {
             _read_and_filter_pressure_sensor();
             log_cli("Inspiratory hold done");
-            log_cli("Sensor 1 value: '%d' cmH2O * 100", (int) (g_sensor_state_1/0.98) );
-            log_cli("Sensor 2 value: '%d' cmH2O * 100", (int) (g_sensor_state_2/0.98) );
 
             // save results
-            g_inspiratory_hold_result_1 = g_sensor_state_1;
-            g_inspiratory_hold_result_2 = g_sensor_state_2;
+            g_inspiratory_hold_result_1 = g_pressure_state_insp;
+            g_inspiratory_hold_result_2 = g_pressure_state_exp;
+
+            log_cli("Sensor 1 value: '%d' cmH2O * 100", (int) (g_pressure_state_insp/0.98) );
+            log_cli("Sensor 2 value: '%d' cmH2O * 100", (int) (g_pressure_state_exp/0.98) );
+
+
             return true;
         }
         time_after_inspiration+=dt;

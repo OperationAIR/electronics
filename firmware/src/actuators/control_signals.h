@@ -8,7 +8,9 @@ void control_signals_init(void);
 
 bool control_PWM_on(void);
 bool control_PWM_off(void);
-bool control_MFC_set(float flow_SLPM, float O2_fraction);
+
+void control_MFC_off(void);
+void control_MFC_on(float flow_SLPM, float O2_fraction);
 
 
 void control_LED_status_on(void);
