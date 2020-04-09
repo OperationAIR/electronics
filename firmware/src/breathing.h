@@ -30,8 +30,12 @@ void breathing_print_EXP_PID(void);
 
 int breathing_read_setpoint_pa(void);
 enum BreathCycleState breathing_get_cycle_state(void);
+
 float breathing_get_inspiratory_hold_result_1(void);
 float breathing_get_inspiratory_hold_result_2(void);
+
+float breathing_get_expiratory_hold_result_1(void);
+float breathing_get_expiratory_hold_result_2(void);
 
 /**
  * Runs the breathing control loop.
@@ -39,10 +43,11 @@ float breathing_get_inspiratory_hold_result_2(void);
  */
 void breathing_run(const OperationSettings *config, const int dt);
 
-void pre_inspiratory_hold(const OperationSettings *config, const int dt);
-bool inspiratory_hold_run(const OperationSettings *config, const int dt);
+void pre_hold(const OperationSettings *config, const int dt);
+bool inspiratory_hold_run(const OperationSettings *config, bool hold_pressed, const int dt);
 bool post_inspiratory_hold(const OperationSettings *config, const int dt);
 
-
+bool expiratory_hold_run(const OperationSettings *config, bool hold_pressed, const int dt);
+bool post_expiratory_hold(const OperationSettings *config, const int dt);
 
 #endif

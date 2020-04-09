@@ -21,7 +21,7 @@
 */
 
 // Offset calibration at startup takes this amount of time
-const unsigned int CALIBRATION_DURATION_MS = 5000;
+const unsigned int CALIBRATION_DURATION_MS = 1000;
 
 // When breathing is stopped, valve is opened for this duration before closing
 const unsigned int BREATHING_FINAL_STOP_DURATION_MS = 3000;
@@ -35,5 +35,5 @@ const unsigned int CALCULATED_AVERAGING_TIME_MS = 10000;
 
 // Are there pull-ups resistors on the board?
 // TODO needed in final design?
-const bool I2C_PULL_UP_AVAILABLE = true;
+const bool I2C_PULL_UP_AVAILABLE = false;
 /* === */

@@ -21,6 +21,10 @@ void app_program_stop(void);
 void app_start_inspiratory_hold(void);
 void app_stop_inspiratory_hold(void);
 
+void app_start_expiratory_hold(void);
+void app_stop_expiratory_hold(void);
+
+
 void app_start_self_test();
 
 void app_reset_use_count(void);
