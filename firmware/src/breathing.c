@@ -268,7 +268,7 @@ static void _update_cfg(const OperationSettings *config)
 
     // calculate duration of inhale/exhale in ms
     const int freq_per_min = config->frequency;
-    const float ratio = config->ratio;
+    const float ratio = (config->ratio/10.0);
     cfg.time_high_ms = (60000/(freq_per_min*(1+ratio)));
     cfg.time_low_ms = ratio * cfg.time_high_ms;
     cfg.time_total_ms = cfg.time_high_ms + cfg.time_low_ms;

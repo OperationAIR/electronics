@@ -569,7 +569,7 @@ void app_program_start(void)
         g_app.settings.peep = 1000;
         g_app.settings.pressure = 3000;
         g_app.settings.frequency = 15;
-        g_app.settings.ratio = 2;
+        g_app.settings.ratio = 20;
         g_app.settings.oxygen = 21;
     }
 }

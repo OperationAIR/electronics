@@ -8,7 +8,7 @@ typedef struct __attribute__((packed)) {
     uint16_t start;                 // nonzero: breathing is started
     uint16_t peep;                  // exhale pressure in Pa
     uint16_t frequency;             // breathing cycles per minute
-    uint16_t ratio;                 // ratio between inhale exhale (exhale is N times longer)
+    uint16_t ratio;                 // ratio between inhale exhale (exhale is N/10 times longer)
     uint16_t pressure;              // inhale pressure in Pa
     uint16_t oxygen;                // oxygen percentage for mixer (0-100)
 

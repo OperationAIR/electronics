@@ -27,7 +27,7 @@ static struct ValidSettings g_bounds = {
     .peep               = {.min = 450, .max = 2500},
     .frequency          = {.min = 10, .max = 35},
     .pressure           = {.min = 900, .max = 8500},
-    .ratio              = {.min = 1, .max= 10},     // TODO what is the max ratio?
+    .ratio              = {.min = 10, .max= 100},     // TODO what is min/max?
     .oxygen             = {.min = 20, .max = 100},
 
     // Note: these are not used by FW!
