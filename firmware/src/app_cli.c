@@ -223,6 +223,15 @@ static void valve_exp(char *args) {
 		log_cli("Expiration valve closed");
 	}
 }
+static void valve_extra(char *args) {
+	if (strncmp(args, "open", 2) == 0) {
+		control_extra_on(10000);
+		log_cli("Extra valve opened");
+	} else if (strncmp(args, "close", 3) == 0) {
+		control_extra_off();
+		log_cli("Extra valve closed");
+	}
+}
 
 static void sensors(char *args) {
 
@@ -365,6 +374,11 @@ CliCommand cli_commands[] = {
 		.cmd = "valve_exp",
 		.help = "Expiration valve: 'open' or 'close'",
 		.function = valve_exp
+	},
+	{
+		.cmd = "valve_extra",
+		.help = "Extra valve: 'open' or 'close'",
+		.function = valve_extra
 	},
 	{
 		.cmd = "halt",

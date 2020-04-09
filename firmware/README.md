@@ -79,11 +79,9 @@ Binary responses from the microcontroller for the specific command are also pref
 | SwitchExtraOn       | Turn on 24V switch (extra)              | `0x66665555` | None         | Log info (ascii) |
 | SwitchExtraOff      | Turn off 24V switch (extra)             | `0x66775555` | None         | Log info (ascii) |
 | MFCAirSet           | Set 12 bit analog value for MFC (Air)   | `0x77771111` | [uint16 (mV)](#MFC-set-point) | Log info (ascii) |
-| MFCAirGet           | Get analog MFC (Air) feedback value     | `0x77881111` | None         | [MFC Feedback (mV)](MFC-analog-in)  |
+| MFCAirGet           | Get analog MFC (Air) feedback value     | `0x77881111` | None         | [MFC Feedback (mV)](#MFC-analog-in)  |
 | MFCO2Set            | Set 12 bit analog value for MFC (O2)    | `0x77772222` | [uint16 (mV)](#MFC-set-point) | Log info (ascii) |
-| MFCO2Get            | Get analog MFC (O2) feedback value      | `0x77882222` | None         | [MFC Feedback (mV)](MFC-analog-in)  |
-| RequestBatteryLevel | Request current battery level (24V DC)  | `0x88881111` | None         | Battery voltage (mV) |
-| PowerStatus         | Request power status                    | `0x88882222` | None         | Status bitfield  |
+| MFCO2Get            | Get analog MFC (O2) feedback value      | `0x77882222` | None         | [MFC Feedback (mV)](#MFC-analog-in)  |
 | UserSwitchGet       | Get current user switch status (0 or 1) | `0x88883333` | None         | 0 or 1 (ascii)   |
 
 ### Settings
@@ -142,12 +140,24 @@ struct SensorsAllData {
     int32_t tidal_volume_exhale;       // Tidal volume [mL] (Based on exhale flow)
     int32_t minute_volume;      // Average flow (exhale) [mL / minute] (average over last 10 sec interval)
     int32_t cycle_state;        // PeeP / Peak / None
-    int32_t power_status;       // Status of PSU (TODO: Not Implemented Yet)
+    int32_t power_status;       // UPS status [mV OR-ed with UPSStatus bits]
 
     int32_t inspiratory_hold_result;   // Value for end of inspiratory hold mean sensors
     int32_t expiratory_hold_result;   // Value for end of expiratory hold mean sensors
 
 }
+```
+
+The power_status field shows the measured power voltage in mv, OR-combined with one
+of these status flags:
+```
+enum UPSStatus {
+    UPS_STATUS_UNKNOWN              = (0),
+    UPS_STATUS_OK                   = (1 << 31),
+    UPS_STATUS_BATTERY_POWERED      = (1 << 30),
+    UPS_STATUS_FAIL                 = (1 << 29)
+};
+
 ```
 
 ### Settings Response
@@ -163,10 +173,3 @@ Set point for the mass flow controller. The MFC is controlled through a 12bit i2
 
 Analog-in scaled to millivolts as int32
 
-### BatteryLevel
-
-Battery level in millivolts as int32. This is measured on the +24V power signal
-
-### PowerStatus
-
-Status signals from powersupply. TODO..
