@@ -22,7 +22,6 @@ static const NVICConfig NVIC_config[] = {
 };
 
 
-// TODO adapt pinmuxing for V1 HW
 static const PinMuxConfig pinmuxing[] = {
 
         // PSENSE (SPI0)
