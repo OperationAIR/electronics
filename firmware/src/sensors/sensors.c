@@ -109,7 +109,7 @@ bool sensors_calibrate_offset(void)
 void sensors_reset(void)
 {
     g_error = false;
-    g_error_flow == false;
+    g_error_flow = false;
     g_error_mprls_out = true;
     g_error_mprls_in = true;
 
