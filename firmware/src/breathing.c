@@ -20,9 +20,9 @@
 static bool program_validation(void);
 
 // PID loop for DPR
-float DPR_PID_Kp = 1.0;
-float DPR_PID_Ki = 0.01;
-float DPR_PID_Kd = 3.0;
+float DPR_PID_Kp = 1.4; //1
+float DPR_PID_Ki = 0.01; //0.1
+float DPR_PID_Kd = 0.25; //3.0
 
 static int g_signal_to_switch = 0;
 static volatile int g_pressure_setpoint_pa = 0;
@@ -51,7 +51,7 @@ float MFC_PID_Kd = 0.5;
 // PID loop for EXP
 float EXP_PID_Kp = 3;
 float EXP_PID_Ki = 0;
-float EXP_PID_Kd = 15;
+float EXP_PID_Kd = 10;
 
 #define CLOSE_TIME_MS 4000
 
