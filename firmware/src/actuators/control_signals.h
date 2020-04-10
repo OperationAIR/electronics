@@ -34,5 +34,6 @@ void control_extra_off(void);
 void control_raw_MFC_O2_mv(int mv);
 void control_raw_MFC_air_mv(int mv);
 
+void control_turn_on_rpi(void);
 
 #endif

@@ -442,11 +442,12 @@ void SysTick_Handler(void)
 {
     PROFILE
 
+    sensors_update(DT_MS);
+
     if (!g_app.run) {
         return;
     }
 
-    sensors_update(DT_MS);
 
     // TODO the state-machine is not 7001-specific yet. Do we really need
     // all this complexity?

@@ -174,3 +174,8 @@ void control_extra_off(void)
    PWM_set(&Control.pwm_extra, PWM_CH0, 0);
 }
 
+void control_turn_on_rpi(void)
+{
+    GPIO_HAL_set(board_get_GPIO(GPIO_ID_RPI_ON_OFF), LOW);
+    GPIO_HAL_set(board_get_GPIO(GPIO_ID_RPI_ON_OFF), HIGH);
+}

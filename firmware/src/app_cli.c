@@ -273,6 +273,12 @@ static void app(char *args)
 	}
 }
 
+static void rpi_on(char *args)
+{
+	control_turn_on_rpi();
+	log_cli("Sending turn on signal to RPi");
+}
+
 static void serial_number(char *args)
 {
 	char buf[SERIAL_NUM_STR_SIZE];
@@ -394,6 +400,11 @@ CliCommand cli_commands[] = {
 		.cmd = "cont",
 		.help = "continue/resume application state machine",
 		.function = resume
+	},
+	{
+		.cmd = "rpi on",
+		.help = "Turn on Raspberry pi through GPIO pin",
+		.function = rpi_on
 	},
 	{
 		.cmd = "app",
