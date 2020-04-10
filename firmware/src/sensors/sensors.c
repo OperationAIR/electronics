@@ -220,18 +220,16 @@ void sensors_update(unsigned int dt)
     Sensors.expiratory_hold_result = (int32_t)breathing_get_expiratory_hold_result();
 }
 
-static float p_MFC_mbar;
-const float MFC_scale_factor = 1024/5000.0;
-
+static float p_MFC_pa;
 int32_t sensors_read_pressure_MFC_pa(void)
 {
     const int p_mv = ADC_scale(Sensors.pressure_MFC, ADC_FACTOR_PRESSURE_MFC);
-    const int p_raw = (MFC_scale_factor*p_mv);
 
-    // Calibrate raw input voltage --> real pressure [mBarcx]
-    p_MFC_mbar = 0.9 * p_MFC_mbar + 0.1 * (1.3223 * p_raw - 141.4876);
+    // calibrated 10-4-2020 expirementally
+    p_MFC_pa = (0.9 * p_MFC_pa) + (0.1 * (16.56 * p_mv + 21523));
 
-    return (100 * p_MFC_mbar);
+    return p_MFC_pa;
+
 }
 
 // Virtual 'sensor' that returns the current setpoint
