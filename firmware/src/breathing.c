@@ -338,7 +338,7 @@ void _expiration(int dt) {
     float EXP_PID_out = arm_pid_f32(&EXP_PID, error);
 
 //    g_to_EXP = EXP_PID_out + 5500;
-    g_to_EXP = 6000+EXP_PID_out;
+    g_to_EXP = 5500+EXP_PID_out;
 
     float to_EXP = constrain((g_to_EXP), 0, 10000);
 
@@ -499,6 +499,7 @@ Functions needed to perform the expiratory-hold-manouvre
 bool expiratory_hold_run(const OperationSettings *config, bool hold_pressed, const int dt) {
     breathing.breathing_time+=dt;
     control_valve_exp_off();
+    control_valve_insp_off();
 
     // Read sensor values
     _read_and_filter_pressure_sensor();
