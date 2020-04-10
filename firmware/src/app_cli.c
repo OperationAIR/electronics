@@ -249,6 +249,7 @@ static void sensors(char *args) {
     log_cli("Pressure MFC: %d Pa", sensors_read_pressure_MFC_pa());
     log_cli("Pressure in: %d Pa", sensors_read_pressure_insp_pa());
     log_cli("Pressure out: %d Pa", sensors_read_pressure_exp_pa());
+    log_cli("Oxygen: %d %%", sensors_read_oxygen_percent());
 }
 
 static void halt(char *args)
