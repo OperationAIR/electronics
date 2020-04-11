@@ -8,17 +8,17 @@
 #define DEFAULT_I2C          I2C0
 
 /* Initialize the I2C bus */
-void i2cdac_init(int speed)
+bool i2cdac_init(void)
 {
-    i2cdac_set(ADDDRESS_O2, 0);
-    i2cdac_set(ADDDRESS_AIR, 0);
+    bool ok = true;
+    ok&= i2cdac_set(ADDDRESS_O2, 0);
+    ok&= i2cdac_set(ADDDRESS_AIR, 0);
+
+    return ok;
 }
 
-void i2cdac_set(uint8_t address, uint16_t value)
+bool i2cdac_set(uint8_t address, uint16_t value)
 {
-    // TODO issue #17: I2C bus errors should be detected.
-    // Timeout if transaction blocks too long
-
     // only use lower 12 bits
     uint16_t v = value & 0x0FFF;
 
@@ -37,6 +37,8 @@ void i2cdac_set(uint8_t address, uint16_t value)
 	xfer.txBuff = &tx[0];
 
 	// Send data
+    i2c_check_and_clear_error();
     i2c_write(xfer.slaveAddr, xfer.txBuff, 3);
+    return i2c_check_and_clear_error();
 }
 

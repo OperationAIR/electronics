@@ -4,6 +4,8 @@
 #include <mcu_timing/delay.h>
 #include <memory.h>
 
+#include "system_status.h"
+
 #define I2C_SPEED_100KHZ         100000
 #define I2C_SPEED_400KHZ         400000
 #define I2C_DEFAULT_SPEED    I2C_SPEED_100KHZ
@@ -34,7 +36,6 @@ static void _event_handler(I2C_ID_T id, I2C_EVENT_T event)
 	// Wait for the status to change
 	while (*stat == I2C_STATUS_BUSY) {
         if(delay_timeout_done(&timeout)) {
-            // TODO handle error
             g_error = true;
             break;
         }
@@ -51,11 +52,6 @@ static void _do_transfer(int len) {
             return;
         }
     }
-
-    const int remaining = len - g_xfer.rxSz;
-    if(remaining) { 
-        g_error = true;
-    }
 }
 
 
@@ -66,11 +62,10 @@ void i2c_init(void)
 
 	Chip_SYSCTL_PeriphReset(RESET_I2C0);
 
-	/* Initialize I2C */
+	// Initialize I2C
 	Chip_I2C_Init(DEFAULT_I2C);
 	Chip_I2C_SetClockRate(DEFAULT_I2C, I2C_DEFAULT_SPEED);
 
-    // TODO _event_handler?
     Chip_I2C_SetMasterEventHandler(DEFAULT_I2C, _event_handler);
     NVIC_EnableIRQ(I2C0_IRQn);
 }
@@ -85,6 +80,11 @@ void i2c_read(uint8_t slaveAddr, uint8_t cmd, uint8_t *buff, int len)
 	g_xfer.rxSz = len;
 
     _do_transfer(len);
+
+    const int remaining = len - g_xfer.rxSz;
+    if(remaining) { 
+        g_error = true;
+    }
 }
 
 //Chip_I2C_MasterSend(DEFAULT_I2C, slaveAddr, buff, len);
@@ -96,11 +96,16 @@ void i2c_write(uint8_t slaveAddr, const uint8_t *buff, uint8_t len)
 	g_xfer.txSz = len;
 
     _do_transfer(len);
+
+    const int remaining = len - g_xfer.txSz;
+    if(remaining) { 
+        g_error = true;
+    }
 }
 
 bool i2c_check_and_clear_error(void)
 {
-    bool err = g_error;
+    bool err = i2c_has_error();
 
     g_error = false;
 
@@ -109,5 +114,6 @@ bool i2c_check_and_clear_error(void)
 
 bool i2c_has_error(void)
 {
+    system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS);
     return g_error;
 }

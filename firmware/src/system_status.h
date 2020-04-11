@@ -14,7 +14,11 @@ enum SystemStatus {
 
     SYSTEM_STATUS_ERROR_SENSOR_P_INSP   = (1 << 5),     // Inspiration pressure sensor error
     SYSTEM_STATUS_ERROR_SENSOR_P_EXP    = (1 << 6),     // Expiration pressure sensor error
-    SYSTEM_STATUS_ERROR_SENSOR_FLOW     = (1 << 7),
+    SYSTEM_STATUS_ERROR_SENSOR_P_PATIENT= (1 << 7),     // Patient pressure sensor error
+    SYSTEM_STATUS_ERROR_SENSOR_FLOW     = (1 << 8),     // Flow sensor error
+
+    SYSTEM_STATUS_ERROR_ACTUATOR_MFC_AIR= (1 << 16),    // Air MFC (DAC) error
+    SYSTEM_STATUS_ERROR_ACTUATOR_MFC_O2 = (1 << 17),    // O2 MFC (DAC) error
 
 
     SYSTEM_STATUS_ERROR_I2C_BUS         = (1 << 30),    // I2C bus is in invalid state

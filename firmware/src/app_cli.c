@@ -14,6 +14,7 @@
 #include "cdc_vcom.h"
 #include "log.h"
 #include "global_settings.h"
+#include "system_status.h"
 #include "app.h"
 #include "actuators/control_signals.h"
 #include "sensors/sensors.h"
@@ -181,7 +182,12 @@ static void flow_test(char *args) {
     log_cli("Testing flow...");
 
     // flowsensor_test();
-	float flow = read_flow_sensor();
+	float flow = flowsensor_read();
+    if(flowsensor_read_and_clear_error()) {
+        system_status_set(SYSTEM_STATUS_ERROR_SENSOR_FLOW);
+        log_cli("Flow: 0.0 (error reading sensor)");
+        return;
+    }
 
 	log_cli("Flow: %d", (int)flow);
 

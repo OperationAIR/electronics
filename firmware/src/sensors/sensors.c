@@ -188,12 +188,19 @@ void sensors_update(unsigned int dt)
     if (I2C_PULL_UP_AVAILABLE) {
         if (count++ % 5 == 0) {
             // calculate flow in SLPM
-            float flow_SLPM = read_flow_sensor();
+            float flow_SLPM = flowsensor_read();
             flow_SLPM = flow_SLPM*3.14f*(0.015f/2)*(0.015f/2)*1000*60;
 
             // SLPM to SCCPM
             Sensors.flow_out = 1000*flow_SLPM;
+
+            if(flowsensor_read_and_clear_error()) {
+                system_status_set(SYSTEM_STATUS_ERROR_SENSOR_FLOW);
+            }
         }
+    } else {
+        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS
+                | SYSTEM_STATUS_ERROR_SENSOR_FLOW);
     }
 
     _update_sensor_in();
