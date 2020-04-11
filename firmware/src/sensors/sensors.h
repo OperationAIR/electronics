@@ -26,6 +26,8 @@ typedef struct SensorsAllData {
     int32_t inspiratory_hold_result;   // Value for end of inspiratory hold sensor 1
     int32_t expiratory_hold_result;   // Value for end of expiratory hold sensor 1
 
+    uint32_t system_status;     // enum SystemStatus value(s) OR-ed together
+
 } SensorsAllData;
 
 

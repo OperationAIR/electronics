@@ -13,6 +13,7 @@
 #include "board_config/board_GPIO_ID.h"
 
 #include "global_settings.h"
+#include "system_status.h"
 
 struct {
     int32_t pressure_MFC;
@@ -389,5 +390,7 @@ void sensors_read_all(SensorsAllData *data)
 
     data->inspiratory_hold_result = sensors_get_inspiratory_hold_result();
     data->expiratory_hold_result = sensors_get_expiratory_hold_result();
+
+    data->system_status = system_status_get();
 }
 

@@ -20,6 +20,7 @@
 #include "log.h"
 #include "clock.h"
 #include "generated/firmware_version.h"
+#include "system_status.h"
 #include "version.h"
 
 #include "pi_communication.h"
@@ -40,12 +41,18 @@ void assert(bool should_be_true)
 
 int main(void)
 {
+    // Setup BrownOutDetection reset
+    Chip_SYSCTL_SetBODLevels(SYSCTL_BODRSTLVL_2_63V, SYSCTL_BODINTVAL_2_80V);
+    Chip_SYSCTL_EnableBODReset();
+
     board_setup();
     board_setup_NVIC();
     board_setup_pins();
 
     clock_set_frequency(CLK_FREQ);
     SystemCoreClockUpdate();
+
+    system_status_init();
 
     pi_comm_init();
 
