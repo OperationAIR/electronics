@@ -70,8 +70,9 @@ static enum PiCommand g_current_command = PiCommandNone;
  */
 void UART_IRQHandler(void)
 {
-	/* Want to handle any errors? Do it here. */
-    // TODO handle uart errors
+    // NOTE: error handling would be tricky: where to report them?
+    // The app should check that it regularly receives valid
+    // commands from the RPI.
 
 	/* Handle transmit interrupt if enabled */
 	if (LPC_USART->IER & UART_IER_THREINT) {
@@ -401,8 +402,12 @@ void pi_comm_send_string(char *string)
 
 void pi_comm_send(uint8_t *buffer, size_t len)
 {
-	Chip_UART_IntDisable(LPC_USART, UART_IER_THREINT);
+    // Ringbuffer is designed to be thread safe, so no need
+    // to disable IRQ while writing
     ringbuffer_write(&rb_Tx, buffer, len);
+
+    // THREINT may have been disabled if the ringbuffer was empty.
+    // re-enableing it should immediately trigger an interrupt
     Chip_UART_IntEnable(LPC_USART, UART_IER_THREINT);
-	UART_IRQHandler(); //TODO: does this make sense? Compare with uint32_t Chip_UART_SendRB from chip libray
+
 }
