@@ -57,7 +57,6 @@ static struct {
     volatile bool run;
     uint32_t not_allowed_reasons;
     volatile unsigned int use_count;
-    volatile int current_max_pressure;  // TODO not really used
 
     volatile uint32_t idle_blink; // timestamp for blink start
     volatile uint32_t last_idle_blink; // timestamp last blink start
@@ -67,11 +66,6 @@ static struct {
     volatile bool expiratory_hold;
 } g_app;
 
-
-uint32_t get_last_pressure()
-{
-    return g_app.current_max_pressure;
-}
 
 enum ErrorReasons {
     ErrorNone = 0,
@@ -220,8 +214,6 @@ enum AppState app_state_pre_breathing(void)
 
         return AppStateIdle;
     }
-
-    g_app.current_max_pressure = 0;
 
     // At startup, do offset calibration.
     // During this time, the status led on PCB blinks.
@@ -411,10 +403,6 @@ void SysTick_Handler(void)
     if (!g_app.run) {
         return;
     }
-
-
-    // TODO the state-machine is not 7001-specific yet. Do we really need
-    // all this complexity?
 
     const enum AppState last_state = g_app.next_state;
     enum AppState next_state = g_app.next_state;

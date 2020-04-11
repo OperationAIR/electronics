@@ -43,6 +43,4 @@ void app_apply_settings(OperationSettings *new_settings);
 OperationSettings* app_get_settings(void);
 
 
-uint32_t get_last_pressure(void);
-
 #endif

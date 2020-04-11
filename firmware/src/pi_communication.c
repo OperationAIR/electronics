@@ -57,9 +57,7 @@ enum PiCommand {
 	PiCommandMFCO2Set				= 0x77772222,
 	PiCommandMFCO2Get				= 0x77882222,
 
-    // TODO test commands? or add to sensor data?
-	PiCommandBatteryLevel			= 0x88881111,
-	PiCommandPowerStatus			= 0x88882222,
+    // TODO issue #19: implement test command for button
 	PiCommandUserSwitchGet			= 0x88883333,
 };
 static enum PiCommand g_current_command = PiCommandNone;
