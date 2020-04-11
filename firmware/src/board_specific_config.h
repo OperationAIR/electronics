@@ -6,5 +6,8 @@
 
 void board_setup(void);
 
+void board_disable_reset_pin(void);
+void board_enable_reset_pin(void);
+
 #endif
 

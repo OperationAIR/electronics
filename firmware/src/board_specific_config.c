@@ -3,6 +3,9 @@
 #include "board_config/board_config_v0.h"
 #include "board_config/board_config_v1.h"
 
+#include <lpc_tools/boardconfig.h>
+
+
 #include "version.h"
 #include "assert.h"
 
@@ -31,3 +34,14 @@ void board_setup(void)
     }
 }
 
+void board_disable_reset_pin(void)
+{
+    PinMuxConfig rst =  { 0, 0, IOCON_FUNC1};
+    Chip_IOCON_PinMuxSet(LPC_IOCON, rst.pingrp, rst.pinnum, rst.modefunc);
+}
+
+void board_enable_reset_pin(void)
+{
+    PinMuxConfig rst =  { 0, 0, IOCON_FUNC0};
+    Chip_IOCON_PinMuxSet(LPC_IOCON, rst.pingrp, rst.pinnum, rst.modefunc);
+}

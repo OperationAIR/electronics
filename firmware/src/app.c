@@ -8,6 +8,7 @@
 
 #include "board_config/board_GPIO_ID.h"
 #include "board_config/board_ADC_ID.h"
+#include "board_specific_config.h"
 
 #include "actuators/control_signals.h"
 
@@ -270,6 +271,9 @@ enum AppState app_state_pre_breathing(void)
     if (g_app.time == 0) {
         log_wtime("Calibrating offsets...");
         breathing_start_calibration();
+
+        // disable reset pin so RPi cannot interrupt breathing program accidentally.
+        board_disable_reset_pin();
     }
 
     if((g_app.time % 50) == 0) {
@@ -318,6 +322,9 @@ enum AppState app_state_after_breathing(void) {
     if (g_app.time == 0) {
         log_wtime("Stop Breathing Program");
         breathing_stop();
+
+        // enable reset pin again so RPi is the boss again
+        board_enable_reset_pin();
     }
 
     if ((g_app.time % 100) == 0) {
