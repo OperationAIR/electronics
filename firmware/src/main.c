@@ -20,6 +20,7 @@
 #include "log.h"
 #include "clock.h"
 #include "generated/firmware_version.h"
+#include "version.h"
 
 #include "pi_communication.h"
 
@@ -36,9 +37,6 @@ void assert(bool should_be_true)
     while(1);
 }
 
-
-// TODO RM: flowsensor test
-#include "actuators/i2c_dac.h"
 
 int main(void)
 {
@@ -65,7 +63,7 @@ int main(void)
     i2c_init();
     control_signals_init();
 
-    const int hw_version = 0;
+    const int hw_version = version_hardware_get();
 
     app_init(hw_version);
     app_cli_init();
