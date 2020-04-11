@@ -56,7 +56,6 @@ static struct {
     volatile bool test_requested;
     volatile bool run;
     uint32_t not_allowed_reasons;
-    volatile bool maintenance;          //TODO should be non-volatile
     volatile unsigned int use_count;
     volatile int current_max_pressure;  // TODO not really used
 
@@ -83,40 +82,14 @@ enum ErrorReasons {
 
 static void log_not_allowed_reason(void)
 {
-    log_wtime("Device not allowed to start because:");
+    log_wtime("Device not allowed to start because: ??");
 
-    /*
-    if (g_app.not_allowed_reasons & ErrorPressureOverload) {
-        log_wtime("-> Pressure Overload: %d kPa", sensors_read_pressure());
-    }
-    if (g_app.not_allowed_reasons & ErrorPressureUnderload) {
-        log_wtime("-> Pressure Underload: %d kPa", sensors_read_pressure());
-    }
-    */
-    if (g_app.not_allowed_reasons & ErrorMaintenance) {
-        log_wtime("-> Device needs maintenance");
-    }
 }
 
 
 bool app_start_allowed(void)
 {
     uint32_t reasons = ErrorNone;
-    /*
-    const int pressure = sensors_read_pressure();
-
-    if (pressure > PRESSURE_OVERLOAD_LIMIT_kPa) {
-        reasons |= ErrorPressureOverload;
-    }
-
-    if (pressure < PRESSURE_UNDERLOAD_LIMIT_kPa) {
-        reasons |= ErrorPressureUnderload;
-    }
-    */
-
-    if (g_app.maintenance) {
-        reasons |= ErrorMaintenance;
-    }
 
     g_app.not_allowed_reasons = reasons;
     if (reasons != ErrorNone) {
@@ -189,26 +162,10 @@ enum AppState app_state_overheat(void);
 void _go_to_state(enum AppState next_state);
 
 
-void app_clear_maintenance_mode(void)
-{
-    if (g_app.maintenance) {
-        g_app.maintenance = false;
-        stats_set_maintenance_mode(false);
-        log_wtime("Maintenance mode cleared: ready for use");
-    } else {
-        log_wtime("Device not in Maintenance mode, no need to clear..");
-    }
-}
-
 void app_reset_use_count(void)
 {
     stats_clear_use_count();
     g_app.use_count = stats_get_use_count();
-}
-
-bool app_is_maintenance_mode(void)
-{
-    return g_app.maintenance;
 }
 
 bool app_is_running(void)
@@ -536,16 +493,14 @@ void app_resume()
 
 void app_init(int hw_version)
 {
-    if (!breathing_init()) {
-        g_app.maintenance = true;
-    }
+    breathing_init();
+
     g_app.last_state = AppStateNone;
     g_app.next_state = AppStateIdle;
     g_app.run = true;
     g_app.version = hw_version;
 
     g_app.use_count = stats_get_use_count();
-    g_app.maintenance = stats_get_maintenance_mode();
 
     sensors_init();
 

@@ -27,17 +27,32 @@
 
 #define CLK_FREQ (48e6)
 
+
+
 void assert(bool should_be_true)
 {
     if(should_be_true) {
         return;
     }
 
-    // Something bad happened!
-    // TODO alarm, reset? (enable watchdog, mcu will be reset..)
-    while(1);
+    // This should never happen. As a last resort, try to get the MCU
+    // in a sane state and reboot.
+    board_trigger_emergency_reset();
 }
-
+void HardFault_Handler(void)
+{
+    // MCU has crashed.
+    // This should never happen. As a last resort, try to get the MCU
+    // in a sane state and reboot.
+    board_trigger_emergency_reset();
+}
+void IntDefaultHandler(void)
+{
+    // MCU has crashed / unexpected interrupt was triggered.
+    // This should never happen. As a last resort, try to get the MCU
+    // in a sane state and reboot.
+    board_trigger_emergency_reset();
+}
 
 int main(void)
 {
@@ -95,12 +110,5 @@ int main(void)
         delay_us(1);
     }
     return 0;
-}
-
-void HardFault_Handler(void)
-{
-    // Should never happen: system has crashed.
-    // Watchdog will reboot the system eventually...
-    while (1);
 }
 

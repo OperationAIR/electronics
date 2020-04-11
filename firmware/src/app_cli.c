@@ -90,7 +90,7 @@ static void in_hold(char *args) {
 	} else if (strncmp(args, "off", 3) == 0) {
 		app_stop_inspiratory_hold();
 	} else {
-		// TODO return current inspiratory state
+        log_cli("Inspiratory hold: %d Pa", sensors_get_inspiratory_hold_result());
 	}
 }
 
@@ -100,7 +100,7 @@ static void out_hold(char *args) {
     } else if (strncmp(args, "off", 3) == 0) {
         app_stop_expiratory_hold();
     } else {
-        // TODO return current expiratory state
+        log_cli("Exspiratory hold: %d Pa", sensors_get_expiratory_hold_result());
     }
 }
 

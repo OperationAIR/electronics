@@ -13,7 +13,7 @@ typedef struct SensorsAllData {
 
     int32_t pressure_inhale;    // Inhale pressure [Pa]
     int32_t pressure_exhale;    // Exhale pressure [Pa]
-    int32_t pressure_patient;   // Pressure at patient [Pa] (TODO: Not Implemented Yet)
+    int32_t pressure_patient;   // Pressure at patient [Pa] (NOTE: may not be available)
     int32_t pressure_mfc;       // Pressure at MFC pressure vessel [Pa]
 
     int32_t oxygen;             // Oxygen percentage [0-100]
@@ -83,8 +83,8 @@ int32_t sensors_read_volume_realtime_out_CC(void);
 int32_t sensors_read_volume_cycle_in_CC(void);
 int32_t sensors_read_volume_cycle_out_CC(void);
 
-int32_t sensors_get_inspiratory_hold_result1(void);
-int32_t sensors_get_inspiratory_hold_result2(void);
+int32_t sensors_get_inspiratory_hold_result(void);
+int32_t sensors_get_expiratory_hold_result(void);
 
 
 // Read all data relevant for communication to RPI

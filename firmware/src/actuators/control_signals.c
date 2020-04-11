@@ -11,6 +11,7 @@
 #include "board_config/board_GPIO_ID.h"
 
 #include "global_settings.h"
+#include "system_status.h"
 
 struct {
     const GPIO *LED_status;
@@ -93,10 +94,9 @@ void control_MFC_on(float flow_SLPM, float O2_fraction)
     if (I2C_PULL_UP_AVAILABLE) {
         control_raw_MFC_O2_mv(mV_O2);
         control_raw_MFC_air_mv(mV_Air);
+    } else {
+        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS);
     }
-
-    // TODO can we check something? Do we know if I2C DAC is OK?
-//    return true;
 }
 
 

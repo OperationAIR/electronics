@@ -17,8 +17,6 @@
 #include "cmsis_dsp_lib/arm_math.h"
 
 
-static bool program_validation(void);
-
 // PID loop for DPR
 float DPR_PID_Kp = 1.4; //1
 float DPR_PID_Ki = 0.01; //0.1
@@ -56,8 +54,6 @@ float EXP_PID_Kd = 10;
 #define CLOSE_TIME_MS 4000
 
 #define MFC_FLOW_MIN_SLPM   0.0
-
-// TODO 50
 #define MFC_FLOW_MAX_SLPM   50.0
 
 const int g_MFC_setpoint_pa = 65000;
@@ -181,13 +177,9 @@ static struct {
 } breathing;
 
 
-bool breathing_init(void)
+void breathing_init(void)
 {
-    if (!program_validation()) {
-        return false;
-    }
-
-    return true;
+    // Nothing to do here?
 }
 
 void breathing_start_calibration(void)
@@ -217,9 +209,7 @@ bool breathing_start_program(void)
     g_pressure_state_exp = sensors_read_pressure_exp_pa();
 
 
-//    return control_DPR_on();
     return true;
-    // TODO start
 }
 
 
@@ -230,9 +220,9 @@ void breathing_stop(void)
 
     control_valve_insp_off();
 
-    // open Valve: let all air out.
-    // TODO: is this the required behaviour? or should the pressure be
-    // kept at peep for as long as possible
+    // TODO issue #16: is this the required behaviour?
+    // Should the pressure be let go to zero, or
+    // or should the pressure be kept at peep for as long as possible?
     control_valve_exp_off();
 
     control_MFC_on(0, 0.0);
@@ -259,7 +249,6 @@ static struct {
 
 static void _update_cfg(const OperationSettings *config)
 {
-    // Apply config. TODO only at start of cycle
     cfg.peep = config->peep;
     cfg.pressure = config->pressure;
 
@@ -278,8 +267,7 @@ void _read_and_filter_pressure_sensor(void) {
     g_pressure_state_insp = (0.7*g_pressure_state_insp) + (0.3*sensors_read_pressure_insp_pa());
     g_pressure_state_exp = (0.7*g_pressure_state_exp) + (0.3*sensors_read_pressure_exp_pa());
 
-    // TODO FIXME: just sensor 2
-//    int DPR_pressure = (g_pressure_state_insp + g_pressure_state_exp)/2;
+    // NOTE: pressure is based on just the inspiration pressure
     g_pressure_system_pa = (g_pressure_state_insp);// + g_pressure_state_exp)/2;
 }
 
@@ -537,11 +525,3 @@ float breathing_get_expiratory_hold_result()
     return g_expiratory_hold_result;
 }
 
-
-static bool program_validation(void)
-{
-    // TODO implement: validate program settings for maximum robustness
-    // for now, we assume all settings are sane
-
-    return true;
-}

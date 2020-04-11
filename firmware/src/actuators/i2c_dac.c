@@ -16,8 +16,8 @@ void i2cdac_init(int speed)
 
 void i2cdac_set(uint8_t address, uint16_t value)
 {
-    // TODO how long can this block at maximum?
-    // Should a timeout be added??
+    // TODO issue #17: I2C bus errors should be detected.
+    // Timeout if transaction blocks too long
 
     // only use lower 12 bits
     uint16_t v = value & 0x0FFF;

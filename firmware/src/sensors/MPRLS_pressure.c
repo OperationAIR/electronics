@@ -30,6 +30,7 @@ void mprls_init(MPRLS *ctx, LPC_SSP_T *LPC_SSP, const GPIO *cs_pin, const GPIO *
     ctx->cs_pin = cs_pin;
     ctx->drdry_pin = drdy_pin;
     ctx->reset_pin = reset_pin;
+    ctx->error = false;
 
     static SSP_ConfigFormat ssp_format;
     Chip_SSP_Init(LPC_SSP);
@@ -41,6 +42,13 @@ void mprls_init(MPRLS *ctx, LPC_SSP_T *LPC_SSP, const GPIO *cs_pin, const GPIO *
     Chip_SSP_SetBitRate(LPC_SSP, MPRLS_SENSOR_BITRATE);
 
 	Chip_SSP_Enable(LPC_SSP);
+}
+
+bool mprls_read_and_clear_error(MPRLS *ctx)
+{
+    const bool error = ctx->error;
+    ctx->error = false;
+    return error;
 }
 
 uint8_t mprls_trigger_read(MPRLS *ctx)
@@ -123,11 +131,10 @@ int32_t mprls_read_data(MPRLS *ctx)
 
     GPIO_HAL_set(ctx->cs_pin, HIGH);
 
-    // TODO if status=failed, set pressure bit to error
-//    uint8_t status = rx[0];
-//    if (status & MPRLS_STATUS_FAILED || status & MPRLS_STATUS_MATHSAT) {
-//        return scale(0xFFFFFF);
-//    }
+    const uint8_t status = rx[0];
+    if (status & MPRLS_STATUS_FAILED) {
+        ctx->error = true;
+    }
 
     uint32_t pres = rx[1] << 16 | rx[2] << 8 | rx[3];
 
@@ -165,7 +172,8 @@ int32_t mprls_read_blocking(MPRLS *ctx)
     while(!mprls_is_ready(ctx)) {
         // error if never ready
         if (mprls_is_timeout(ctx)) {
-           return 0; //TODO error code
+            ctx->error = true;
+           return 0;
         }
     }
 

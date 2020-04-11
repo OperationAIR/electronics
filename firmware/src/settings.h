@@ -12,8 +12,11 @@ typedef struct __attribute__((packed)) {
     uint16_t pressure;              // inhale pressure in Pa
     uint16_t oxygen;                // oxygen percentage for mixer (0-100)
 
-    // These may be checked in firmware later(?)
-    // For now they are done on the RPI
+    // NOTE: when adding fields, make sure to update verify_settings
+    // to verify their bounds.
+
+    // NOTE: these are not used by firmware.
+    // Alarms are determined by the RPI.
     uint16_t max_pressure_alarm;    
     uint16_t min_pressure_alarm;
     uint16_t max_TV_alarm;

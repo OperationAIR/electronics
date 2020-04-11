@@ -12,8 +12,12 @@ enum SystemStatus {
     SYSTEM_STATUS_BOOT_RESET_BY_PWR_FAIL= (1 << 3),     // BOD reset (3.3V unstable)
     SYSTEM_STATUS_BOOT_RESET_BY_UNKNOWN = (1 << 4),     // SYSRST or unknown
 
+    SYSTEM_STATUS_ERROR_SENSOR_P_INSP   = (1 << 5),     // Inspiration pressure sensor error
+    SYSTEM_STATUS_ERROR_SENSOR_P_EXP    = (1 << 6),     // Expiration pressure sensor error
+    SYSTEM_STATUS_ERROR_SENSOR_FLOW     = (1 << 7),
 
 
+    SYSTEM_STATUS_ERROR_I2C_BUS         = (1 << 30),    // I2C bus is in invalid state
 
     SYSTEM_STATUS_DEBUG_ENABLED         = (1 << 31),    // Debug build should not be released
 

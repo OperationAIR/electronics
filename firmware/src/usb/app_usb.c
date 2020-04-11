@@ -135,7 +135,7 @@ void app_usb_deinit(void)
     Chip_SYSCTL_PowerDown(SYSCTL_POWERDOWN_USBPLL_PD);
 }
 
-bool app_usb_init()
+bool app_usb_init(void)
 {
     g_connected = false;
 
@@ -221,6 +221,6 @@ bool app_usb_init()
 		/* now connect */
 		gUSB_API->hw->Connect(g_hUsb, 1);
 	}
-    g_initialized = true; // TODO ONLY ON OK?
+    g_initialized = (ret == LPC_OK);
     return ret == LPC_OK;
 }

@@ -33,11 +33,6 @@ struct {
     int32_t expiratory_hold_result;
 } Sensors;
 
-static bool g_error = false;
-static bool g_error_flow = false;
-static bool g_error_mprls_out = false;
-static bool g_error_mprls_in = false;
-
 static int32_t g_offset_pressure_in = 0;
 static int32_t g_offset_pressure_out = 0;
 
@@ -46,8 +41,6 @@ static int32_t g_offset_pressure_out = 0;
 #define ADC_FACTOR_FLOW_MFC             (168.0/100.0)
 #define ADC_FACTOR_BATTERY              (11.5/1.5)
 
-// TODO FIXME: voltage divider for flow/MFC input is be wrong!
-// Datasheet table shows 1-5V instead of assumed 0-12!!
 #define ADC_FACTOR_PRESSURE_MFC         (13.3/3.3)
 #define ADC_FACTOR_PREG_PRESSURE        (1.0)
 
@@ -87,8 +80,11 @@ void sensors_init(void) {
 
     if (I2C_PULL_UP_AVAILABLE) {
         if(!flowsensor_enable()) {
-            g_error_flow = true;
+            system_status_set(SYSTEM_STATUS_ERROR_SENSOR_FLOW);
         }
+    } else {
+        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS
+                | SYSTEM_STATUS_ERROR_SENSOR_FLOW);
     }
 
     sensors_reset();
@@ -104,16 +100,11 @@ bool sensors_calibrate_offset(void)
     g_offset_pressure_in = sensors_read_pressure_insp_pa();
     g_offset_pressure_out = sensors_read_pressure_exp_pa();
 
-    return true; //todo g_error;
+    return true;
 }
 
 void sensors_reset(void)
 {
-    g_error = false;
-    g_error_flow = false;
-    g_error_mprls_out = true;
-    g_error_mprls_in = true;
-
     Sensors.pressure_MFC = -1;
     Sensors.pressure_in = -1;
     Sensors.pressure_out = -1;
@@ -149,14 +140,18 @@ static void _update_sensor_in(void)
     if(mprls_is_ready(&mprls1)) {
         // read value and trigger next sample
         Sensors.pressure_in = mprls_read_data(&mprls1);
+        if(mprls_read_and_clear_error(&mprls1)) {
+            system_status_set(SYSTEM_STATUS_ERROR_SENSOR_P_INSP);
+        }
         mprls_trigger_read(&mprls1);
 
     } else if(mprls_is_timeout(&mprls1)) {
 
         // Timeout! try to trigger next sample, but something is wrong here!
-        // TODO handle error
 
-        g_error_mprls_in = true;
+        // Set error flag 
+        system_status_set(SYSTEM_STATUS_ERROR_SENSOR_P_INSP);
+
         mprls_trigger_read(&mprls1);
     }
 }
@@ -167,14 +162,18 @@ static void _update_sensor_out(void)
     if(mprls_is_ready(&mprls2)) {
         // read value and trigger next sample
         Sensors.pressure_out = mprls_read_data(&mprls2);
+        if(mprls_read_and_clear_error(&mprls2)) {
+            system_status_set(SYSTEM_STATUS_ERROR_SENSOR_P_EXP);
+        }
         mprls_trigger_read(&mprls2);
 
     } else if(mprls_is_timeout(&mprls2)) {
 
         // Timeout! try to trigger next sample, but something is wrong here!
-        // TODO handle error
 
-        g_error_mprls_out = true;
+        // Set error flag 
+        system_status_set(SYSTEM_STATUS_ERROR_SENSOR_P_EXP);
+
         mprls_trigger_read(&mprls2);
     }
 }
@@ -258,6 +257,10 @@ int32_t sensors_read_pressure_exp_pa(void)
 
 int32_t sensors_read_pressure_patient_pa(void)
 {
+    if(Sensors.pressure_patient == -1) {
+        return -1;
+    }
+
     const int v_pressure = ADC_scale(Sensors.pressure_patient, ADC_FACTOR_PRESSURE);
 
     // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
@@ -346,12 +349,12 @@ int32_t sensors_read_volume_cycle_out_CC(void)
     return calculated_volume_out_CC();
 }
 
-int32_t sensors_get_inspiratory_hold_result()
+int32_t sensors_get_inspiratory_hold_result(void)
 {
     return Sensors.inspiratory_hold_result;
 }
 
-int32_t sensors_get_expiratory_hold_result()
+int32_t sensors_get_expiratory_hold_result(void)
 {
     return Sensors.expiratory_hold_result;
 }

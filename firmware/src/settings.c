@@ -17,6 +17,8 @@ struct ValidSettings {
     AllowedRange pressure;
     AllowedRange ratio;
     AllowedRange oxygen;
+
+    // NOTE: these are dummy and are not used by firmware.
     AllowedRange max_pressure_alarm;
     AllowedRange min_pressure_alarm;
     AllowedRange max_TV_alarm;
@@ -29,7 +31,7 @@ char g_description[60];
 
 static struct ValidSettings g_bounds = {
 
-    // TODO what are good values for the bounds?
+    // TODO issue #15: what should the bounds be?
     .peep               = {.min = 450,  .max = 2500,    .desc = "peep"},
     .frequency          = {.min = 10,   .max = 35,      .desc = "frequency"},
     .pressure           = {.min = 900,  .max = 8500,    .desc = "pressure"},
@@ -65,16 +67,6 @@ static bool verify_settings(OperationSettings *settings)
     ok &= check_bounds(settings->ratio, &g_bounds.ratio);
     ok &= check_bounds(settings->oxygen, &g_bounds.oxygen);
 
-    // Note: these are not used by FW!
-    /*
-    ok &= check_bounds(settings->max_pressure_alarm, &g_bounds.max_pressure_alarm);
-    ok &= check_bounds(settings->min_pressure_alarm, &g_bounds.min_pressure_alarm);
-    ok &= check_bounds(settings->max_TV_alarm, &g_bounds.max_TV_alarm);
-    ok &= check_bounds(settings->min_TV_alarm, &g_bounds.min_TV_alarm);
-    ok &= check_bounds(settings->max_fiO2_alarm, &g_bounds.max_fiO2_alarm);
-    ok &= check_bounds(settings->min_fiO2_alarm, &g_bounds.min_fiO2_alarm);
-    */
-    //TODO check new settings fields
 
     return ok;
 }

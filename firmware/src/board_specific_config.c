@@ -2,6 +2,7 @@
 
 #include "board_config/board_config_v0.h"
 #include "board_config/board_config_v1.h"
+#include "actuators/control_signals.h"
 
 #include <lpc_tools/boardconfig.h>
 
@@ -44,4 +45,25 @@ void board_enable_reset_pin(void)
 {
     PinMuxConfig rst =  { 0, 0, IOCON_FUNC0};
     Chip_IOCON_PinMuxSet(LPC_IOCON, rst.pingrp, rst.pinnum, rst.modefunc);
+}
+
+void board_trigger_emergency_reset(void)
+{
+    // Close inspiration valve: avoid uncontrolled rising pressure during reset
+    control_valve_insp_off();
+
+    // Close expiration valve: try to keep the PEEP if any
+    control_valve_exp_off();
+
+    // Turn on error led to signal failure
+    control_LED_error_on();
+
+    // Try to turn off MFCs to avoid triggering the overpressure valve
+    control_MFC_off();
+
+    // reset the MCU
+    NVIC_SystemReset();
+
+    // NOTE: if any of the above fails/blocks, the Watchdog timer
+    // will reset the MCU as a last line of defense
 }
