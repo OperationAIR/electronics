@@ -46,7 +46,8 @@ set(C_FLAGS "-O${OPTIMIZE} -g3 -c -fmessage-length=80 -fno-builtin   \
     -ffunction-sections -fdata-sections -std=gnu99 -mthumb      \
     -fdiagnostics-color=auto")
 set(C_FLAGS_WARN "-Wall -Wextra -Wno-unused-parameter           \
-    -Wshadow -Wpointer-arith -Winit-self -Wstrict-overflow=2")
+    -Wshadow -Wpointer-arith -Winit-self -Wstrict-overflow=2    \
+    -Wold-style-definition -Wold-style-declaration")
 
 set(L_FLAGS "-fmessage-length=80 -nostdlib -specs=nano.specs \
     -mthumb -Wl,--gc-sections")

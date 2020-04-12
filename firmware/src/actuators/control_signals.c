@@ -23,7 +23,7 @@ struct {
 
 
 
-void control_signals_init()
+void control_signals_init(void)
 {
     Control.LED_status = board_get_GPIO(GPIO_ID_LED_STATUS);
     Control.LED_error = board_get_GPIO(GPIO_ID_LED_ERROR);
@@ -148,7 +148,7 @@ void control_valve_insp_on(int pwm_value)
     PWM_set(&Control.pwm_insp, PWM_CH1, pwm_insp);
 }
 
-void control_valve_insp_off()
+void control_valve_insp_off(void)
 {
     PWM_set(&Control.pwm_insp, PWM_CH1, 0);
 }

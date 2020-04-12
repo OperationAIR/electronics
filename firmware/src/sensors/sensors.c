@@ -345,12 +345,12 @@ int32_t sensors_read_volume_cycle_out_CC(void)
     return calculated_volume_out_CC();
 }
 
-int32_t sensors_get_inspiratory_hold_result()
+int32_t sensors_get_inspiratory_hold_result(void)
 {
     return Sensors.inspiratory_hold_result;
 }
 
-int32_t sensors_get_expiratory_hold_result()
+int32_t sensors_get_expiratory_hold_result(void)
 {
     return Sensors.expiratory_hold_result;
 }

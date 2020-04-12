@@ -135,7 +135,7 @@ void app_usb_deinit(void)
     Chip_SYSCTL_PowerDown(SYSCTL_POWERDOWN_USBPLL_PD);
 }
 
-bool app_usb_init()
+bool app_usb_init(void)
 {
     g_connected = false;
 

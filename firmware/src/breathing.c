@@ -527,12 +527,12 @@ enum BreathCycleState breathing_get_cycle_state(void)
     return g_breath_cycle_state;
 }
 
-float breathing_get_inspiratory_hold_result()
+float breathing_get_inspiratory_hold_result(void)
 {
     return g_inspiratory_hold_result;
 }
 
-float breathing_get_expiratory_hold_result()
+float breathing_get_expiratory_hold_result(void)
 {
     return g_expiratory_hold_result;
 }
