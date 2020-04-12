@@ -21,6 +21,7 @@ enum SystemStatus {
     SYSTEM_STATUS_ERROR_ACTUATOR_MFC_O2 = (1 << 17),    // O2 MFC (DAC) error
 
 
+    SYSTEM_STATUS_ERROR_EEPROM          = (1 << 29),    // EEPROM error: settings may not be remembered after reset
     SYSTEM_STATUS_ERROR_I2C_BUS         = (1 << 30),    // I2C bus is in invalid state
 
     SYSTEM_STATUS_DEBUG_ENABLED         = (1 << 31),    // Debug build should not be released

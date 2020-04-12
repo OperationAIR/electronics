@@ -18,7 +18,6 @@
 #include "app.h"
 #include "actuators/control_signals.h"
 #include "sensors/sensors.h"
-#include "stats.h"
 #include "clock.h"
 #include "generated/firmware_version.h"
 #include "parse_utils.h"

@@ -19,7 +19,7 @@
 #include "log.h"
 #include "global_settings.h"
 #include <mcu_timing/delay.h>
-#include "stats.h"
+#include "storage/storage.h"
 #include "clock.h"
 
 #include "breathing.h"
@@ -133,7 +133,7 @@ static char* get_state_name(enum AppState state)
 
 // NOTE: when adding new states, make sure to correctly control_XX signals on t=0
 enum AppState app_state_idle(void);
-enum AppState app_state_charging(void);
+
 enum AppState app_state_pre_breathing(void);
 enum AppState app_state_breathing(void);
 enum AppState app_state_after_breathing(void);
@@ -150,17 +150,9 @@ enum AppState app_state_error(void);
 enum AppState app_state_pre_self_test(void);
 enum AppState app_state_self_test(void);
 enum AppState app_state_self_test_result(void);
-enum AppState app_state_pre_bootloader(void);
-enum AppState app_state_overheat(void);
 
 void _go_to_state(enum AppState next_state);
 
-
-void app_reset_use_count(void)
-{
-    stats_clear_use_count();
-    g_app.use_count = stats_get_use_count();
-}
 
 bool app_is_running(void)
 {
@@ -285,7 +277,7 @@ enum AppState app_state_after_breathing(void) {
 
         log_wtime("Breathing is finished");
 
-        stats_increment_use_count();
+        storage_increment_app_use_count();
         control_LED_status_off();
 
         return AppStateIdle;
@@ -488,7 +480,7 @@ void app_init(int hw_version)
     g_app.run = true;
     g_app.version = hw_version;
 
-    g_app.use_count = stats_get_use_count();
+    g_app.use_count = storage_read_app_use_count();
 
     sensors_init();
 

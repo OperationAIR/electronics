@@ -131,6 +131,7 @@ file(GLOB SOURCES
 "src/usb/*.c"
 "src/sensors/*.c"
 "src/actuators/*.c"
+"src/storage/*.c"
 "src/crc/*.c"
 "src/board_config/*.c"
 )

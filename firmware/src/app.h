@@ -28,7 +28,6 @@ void app_stop_expiratory_hold(void);
 
 void app_start_self_test();
 
-void app_reset_use_count(void);
 
 /**
  * Apply new operation settigns in a safe way
