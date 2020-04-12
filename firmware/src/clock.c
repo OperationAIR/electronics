@@ -23,7 +23,7 @@ void WDT_IRQHandler(void)
     // while(1);
 }
 
-void clock_add_watchdog_count()
+void clock_add_watchdog_count(void)
 {
     g_watchdog_interrupt_count++;
 }

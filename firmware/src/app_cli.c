@@ -295,7 +295,7 @@ static void version(char *args)
 }
 
 
-static void status() {
+static void status(char *args) {
 	app("");
     sensors("");
 	valve_insp("");
@@ -431,11 +431,11 @@ CliCommand cli_commands[] = {
 	},
 };
 
-void app_cli_init() {
+void app_cli_init(void) {
     cli_init(cli_commands, sizeof(cli_commands) / sizeof(CliCommand), (write_fn)log_cli);
 }
 
-void add_cli_tasks() {
+void add_cli_tasks(void) {
 
 	uint32_t l = vcom_bread((uint8_t*)cmd_buf, MAX_USB_PACKET_LENGHT);
 	if (l) {

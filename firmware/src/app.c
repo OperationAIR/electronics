@@ -171,7 +171,7 @@ void app_apply_settings(OperationSettings *new_settings)
     irq_restore(critical_section);
 }
 
-OperationSettings* app_get_settings()
+OperationSettings* app_get_settings(void)
 {
     return &g_app.settings;
 }
@@ -460,12 +460,12 @@ void _go_to_state(enum AppState next_state)
         g_app.next_state = next_state;
     }
 }
-void app_halt()
+void app_halt(void)
 {
     g_app.run = false;
 }
 
-void app_resume()
+void app_resume(void)
 {
     g_app.run = true;
 }
@@ -515,7 +515,7 @@ void app_start_self_test(void)
     }
 }
 
-void app_start_inspiratory_hold() {
+void app_start_inspiratory_hold(void) {
     if (g_app.next_state == AppStateBreathing) {
         g_app.inspiratory_hold = true;
 //        log_cli("Inspiratory hold mode on");
@@ -524,7 +524,7 @@ void app_start_inspiratory_hold() {
     }
 }
 
-void app_stop_inspiratory_hold() {
+void app_stop_inspiratory_hold(void) {
     g_app.inspiratory_hold = false;
     if (g_app.next_state == AppStateInspiratoryHold) {
 //        log_cli("Inspiratory hold mode off");
@@ -533,7 +533,7 @@ void app_stop_inspiratory_hold() {
     }
 }
 
-void app_start_expiratory_hold() {
+void app_start_expiratory_hold(void) {
     if (g_app.next_state == AppStateBreathing) {
         g_app.expiratory_hold = true;
 //        log_cli("Inspiratory hold mode on");
@@ -542,7 +542,7 @@ void app_start_expiratory_hold() {
     }
 }
 
-void app_stop_expiratory_hold() {
+void app_stop_expiratory_hold(void) {
     g_app.expiratory_hold = false;
     if (g_app.next_state == AppStateExpiratoryHold) {
 //        log_cli("Inspiratory hold mode off");

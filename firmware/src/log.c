@@ -64,12 +64,12 @@ void log_get_time_as_str(char *str)
            days+1, hours, minutes, seconds, mili_seconds);
 }
 
-void log_debug_disable()
+void log_debug_disable(void)
 {
     debug_enabled = false;
 }
 
-void log_debug_enable()
+void log_debug_enable(void)
 {
     debug_enabled = true;
 }
@@ -294,3 +294,4 @@ char* log_get_serialnumber_str(char *buf, size_t l)
     snprintf(buf, l, "%010lu-%010lu-%010lu-%010lu", u0, u1, u2, u3);
     return buf;
 }
+

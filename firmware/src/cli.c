@@ -12,7 +12,7 @@ static struct {
     write_fn write;
 } CLI;
 
-static void cli_help() {
+static void cli_help(void) {
     CLI.write("%-14s\t%s", "Command", "Description");
     CLI.write("%-14s\t%s", "=======", "===========");
     for (uint32_t i=0; i < CLI.N; i++) {

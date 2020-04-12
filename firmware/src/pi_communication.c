@@ -276,13 +276,13 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
 
 static delay_timeout_t pi_comm_timeout;
 
-static void pi_comm_reset()
+static void pi_comm_reset(void)
 {
 	g_current_command = PiCommandNone;
 	ringbuffer_clear(&rb_Rx);
 }
 
-void pi_comm_tasks()
+void pi_comm_tasks(void)
 {
     if (g_current_command == PiCommandNone) {
         g_current_command = match_start_sequence(&rb_Rx);
