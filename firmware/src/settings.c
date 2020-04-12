@@ -55,7 +55,7 @@ static inline bool check_bounds(uint16_t value, AllowedRange *bounds)
     return ok;
 }
 
-static bool verify_settings(OperationSettings *settings)
+static bool verify_settings(const OperationSettings *settings)
 {
     bool ok = true;
     g_description[0] = 0;
@@ -71,7 +71,23 @@ static bool verify_settings(OperationSettings *settings)
     return ok;
 }
 
-bool settings_update(OperationSettings *new_settings)
+void settings_default(void)
+{
+    const OperationSettings defaults = {
+        .start      = 0,
+        .peep       = (10 * 98.0665),
+        .frequency  = 15,
+        .ratio      = (2 * 10),
+        .pressure   = (25 * 98.0665),
+        .oxygen     = 40
+
+    };
+
+    settings_update(&defaults);
+
+}
+
+bool settings_update(const OperationSettings *new_settings)
 {
     if (verify_settings(new_settings)) {
         app_apply_settings(new_settings);
@@ -88,8 +104,9 @@ const char *settings_get_last_description(void)
 }
 
 
-void settings_copy(OperationSettings *dst, OperationSettings *src)
+void settings_copy(OperationSettings *dst, const OperationSettings *src)
 {
+    // NOTE: why is this not just a memcpy??
     dst->start = src->start;
     dst->frequency = src->frequency;
     dst->peep = src->peep;
@@ -101,7 +118,6 @@ void settings_copy(OperationSettings *dst, OperationSettings *src)
     dst->min_pressure_alarm = src->min_pressure_alarm;
     dst->max_TV_alarm = src->max_TV_alarm;
     dst->min_TV_alarm = src->min_TV_alarm;
-    dst->max_fiO2_alarm = src->max_fiO2_alarm;
     dst->max_fiO2_alarm = src->max_fiO2_alarm;
     dst->min_fiO2_alarm = src->min_fiO2_alarm;
     dst->crc = src->crc;

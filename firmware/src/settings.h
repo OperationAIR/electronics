@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <c_utils/static_assert.h>
+
+
+
 typedef struct __attribute__((packed)) {
     uint16_t start;                 // nonzero: breathing is started
     uint16_t peep;                  // exhale pressure in Pa
@@ -28,9 +32,12 @@ typedef struct __attribute__((packed)) {
 
 } OperationSettings;
 
+STATIC_ASSERT(sizeof(OperationSettings) == (13*2));
 
-bool settings_update(OperationSettings *new_settings);
+
+bool settings_update(const OperationSettings *new_settings);
+void settings_default(void);
 const char *settings_get_last_description(void);
-void settings_copy(OperationSettings *dst, OperationSettings *src);
+void settings_copy(OperationSettings *dst, const OperationSettings *src);
 
 #endif

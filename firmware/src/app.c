@@ -18,6 +18,8 @@
 #include "app.h"
 #include "log.h"
 #include "global_settings.h"
+#include "system_status.h"
+
 #include <mcu_timing/delay.h>
 #include "storage/storage.h"
 #include "clock.h"
@@ -58,12 +60,12 @@ static struct {
     uint32_t not_allowed_reasons;
     volatile unsigned int use_count;
 
-    volatile uint32_t idle_blink; // timestamp for blink start
-    volatile uint32_t last_idle_blink; // timestamp last blink start
     OperationSettings settings;
 
     volatile bool inspiratory_hold;
     volatile bool expiratory_hold;
+
+    volatile bool settings_should_be_saved;
 } g_app;
 
 
@@ -164,11 +166,24 @@ char* app_get_state(void)
     return get_state_name(g_app.next_state);
 }
 
-void app_apply_settings(OperationSettings *new_settings)
+void app_apply_settings(const OperationSettings *new_settings)
 {
     const bool critical_section = irq_disable();
     settings_copy(&g_app.settings, new_settings);
+    g_app.settings_should_be_saved = true;
     irq_restore(critical_section);
+}
+
+bool app_check_and_clear_settings_should_be_saved(void)
+{
+    const bool critical_section = irq_disable();
+
+    const bool result = g_app.settings_should_be_saved;
+    g_app.settings_should_be_saved = false;
+
+    irq_restore(critical_section);
+
+    return result;
 }
 
 OperationSettings* app_get_settings(void)
@@ -482,6 +497,22 @@ void app_init(int hw_version)
 
     g_app.use_count = storage_read_app_use_count();
 
+    // MCU reset unexpectedly: try to recover settings from EEPROM
+    bool settings_restored = false;
+    if(system_status_get() & (SYSTEM_STATUS_BOOT_RESET_BY_ERROR
+            | SYSTEM_STATUS_BOOT_RESET_BY_PWR_FAIL
+            | SYSTEM_STATUS_BOOT_RESET_BY_UNKNOWN)) {
+
+        OperationSettings settings;
+        if(storage_read_settings(&settings)) {
+            settings_restored = settings_update(&settings);
+        }
+    }
+
+    // Apply default settings
+    if(!settings_restored) {
+        settings_default();
+    }
     sensors_init();
 
     const uint32_t update_frequency = 1000/DT_MS;

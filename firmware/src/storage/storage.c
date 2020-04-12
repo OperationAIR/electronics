@@ -8,6 +8,9 @@
 #include "eeprom.h"
 #include "system_status.h"
 
+#include "settings.h"
+#include "crc/crc.h"
+
 
 
 enum {
@@ -83,7 +86,19 @@ void storage_increment_app_use_count(void)
 
 bool storage_read_settings(OperationSettings *result)
 {
-    return _read_file(FILE_OPERATION_SETTINGS, result, sizeof(OperationSettings));
+    if(!_read_file(FILE_OPERATION_SETTINGS, result, sizeof(OperationSettings))) {
+        return false;
+    }
+
+    // Validate CRC to guard agains non-initialized or corrupt EEPROM
+    uint16_t crc_state = 0xFFFF;
+    const uint16_t crc = crc16_usb_stream_check(&crc_state, (uint8_t*)result, sizeof(OperationSettings)-2);
+
+    if(crc != result->crc) {
+        memset(result, 0, sizeof(OperationSettings));
+        return false;
+    }
+    return true;
 }
 bool storage_write_settings(const OperationSettings *settings)
 {

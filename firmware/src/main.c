@@ -55,6 +55,31 @@ void IntDefaultHandler(void)
     board_trigger_emergency_reset();
 }
 
+static void _save_settings(void)
+{
+    static delay_timeout_t interval = {0};
+
+    // Rate-limit to avoid excessive storage wear
+    if(!delay_timeout_done(&interval)) {
+        return;
+    }
+
+    OperationSettings settings_to_save;
+    bool save = false;
+    // Loop to make sure we get an atomic copy
+    while(app_check_and_clear_settings_should_be_saved()) {
+        OperationSettings *current = app_get_settings();
+        memcpy(&settings_to_save, current, sizeof(settings_to_save));
+        save = true;
+    }
+    if(save) {
+        storage_write_settings(&settings_to_save);
+        
+        // Rate-limit: save settings at most once per 5 sec
+        delay_timeout_set(&interval, 5*1000*1000);
+    }
+}
+
 int main(void)
 {
     // Setup BrownOutDetection reset
@@ -70,8 +95,6 @@ int main(void)
 
     system_status_init();
     storage_init();
-
-    pi_comm_init();
 
     delay_init();
     logging_init();
@@ -93,6 +116,7 @@ int main(void)
     app_cli_init();
     watchdog_init();
 
+    pi_comm_init();
     pi_comm_send_string("Hallo Ventilator!\n");
 
     control_LED_status_on();
@@ -105,6 +129,9 @@ int main(void)
         pi_comm_tasks();
         add_cli_tasks();
         log_tasks();
+
+        _save_settings();
+        
 
         // Maybe only feed watchdog if some sanity checks succeed?
         watchdog_feed();
