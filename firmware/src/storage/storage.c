@@ -1,35 +1,124 @@
 #include "storage.h"
 #include <chip.h>
-#include <lpc_tools/irq.h>
+#include <c_utils/assert.h>
+#include <c_utils/array.h>
+#include <c_utils/static_assert.h>
+#include <memory.h>
 
 #include "eeprom.h"
-
-#define EEPROM_INT_SIZE 0x4
-
-#define EEPROM_USE_COUNT_ADDRESS (EEPROM_ADDR_MIN + EEPROM_INT_SIZE)
+#include "system_status.h"
 
 
-static int32_t eeprom_read_uint(uint32_t address)
+
+enum {
+    SIZE_OPERATION_SETTINGS     = 128,
+    SIZE_APP_USE_COUNT          = sizeof(uint32_t),
+
+};
+
+enum {
+    OFFSET_OPERATION_SETTINGS   = EEPROM_ADDR_MIN,
+    OFFSET_APP_USE_COUNT        = OFFSET_OPERATION_SETTINGS + SIZE_OPERATION_SETTINGS,
+
+};
+
+typedef enum {
+    FILE_APP_USE_COUNT,
+    FILE_OPERATION_SETTINGS,
+
+
+    // special value: used to count amount of files
+    FILE__COUNT
+} EEPROMFileID;
+
+typedef struct {
+    size_t address;
+    size_t length;
+} EEPROMFile;
+
+static EEPROMFile files[] = {
+    [FILE_APP_USE_COUNT] = {
+        .address    = OFFSET_APP_USE_COUNT,
+        .length     = SIZE_APP_USE_COUNT
+    },
+    [FILE_OPERATION_SETTINGS] = {
+        .address    = OFFSET_OPERATION_SETTINGS,
+        .length     = SIZE_OPERATION_SETTINGS
+    },
+};
+
+STATIC_ASSERT(FILE__COUNT == (sizeof(files)/sizeof(files[0])));
+
+
+static bool _read_file(EEPROMFileID file, void *buffer, size_t sizeof_buffer);
+static bool _write_file(EEPROMFileID file_id, const void *buffer, size_t sizeof_buffer);
+
+
+void storage_init(void)
 {
-    uint32_t res = 0;
-	if(!eeprom_read(address, &res, EEPROM_INT_SIZE)) {
-        return 0;
+    // validate files are defined correctly and non-overlapping.
+    const size_t n_files = array_length(files);
+    size_t offset = EEPROM_ADDR_MIN;
+    for(size_t i=0;i<n_files;i++) {
+        EEPROMFile file = files[i];
+        assert(file.address >= offset);
+        assert(file.address <= EEPROM_ADDR_MAX);
+        offset = file.address + file.length;
+        assert(offset <= EEPROM_ADDR_MAX);
     }
-
-    return res;
 }
-
 
 int32_t storage_read_app_use_count(void)
 {
-    return eeprom_read_uint(EEPROM_USE_COUNT_ADDRESS);
+    int32_t count = 0;
+    _read_file(FILE_APP_USE_COUNT, &count, sizeof(count));
+    return count;
 }
 
 void storage_increment_app_use_count(void)
 {
     int32_t use_count = storage_read_app_use_count() + 1;
-    bool mask = irq_disable();
-    eeprom_write(EEPROM_USE_COUNT_ADDRESS, &use_count, EEPROM_INT_SIZE);
-    irq_restore(mask);
+    _write_file(FILE_APP_USE_COUNT, &use_count, sizeof(use_count));
 }
+
+bool storage_read_settings(OperationSettings *result)
+{
+    return _read_file(FILE_OPERATION_SETTINGS, result, sizeof(OperationSettings));
+}
+bool storage_write_settings(const OperationSettings *settings)
+{
+    return _write_file(FILE_OPERATION_SETTINGS, settings, sizeof(OperationSettings));
+}
+
+
+
+static bool _read_file(EEPROMFileID file_id, void *buffer, size_t sizeof_buffer)
+{
+    if(file_id < FILE__COUNT) {
+
+        EEPROMFile file = files[file_id];
+        if(sizeof_buffer <= file.length) {
+            return eeprom_read(file.address, buffer, sizeof_buffer);
+        }
+    }
+    memset(buffer, 0, sizeof_buffer);
+
+    system_status_set(SYSTEM_STATUS_ERROR_EEPROM);
+    return false;
+}
+
+static bool _write_file(EEPROMFileID file_id, const void *buffer, size_t sizeof_buffer)
+{
+    if(file_id < FILE__COUNT) {
+
+        EEPROMFile file = files[file_id];
+        if(sizeof_buffer <= file.length) {
+            return eeprom_write(file.address, buffer, sizeof_buffer);
+        }
+    }
+
+    system_status_set(SYSTEM_STATUS_ERROR_EEPROM);
+    return false;
+}
+
 

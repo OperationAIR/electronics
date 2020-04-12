@@ -30,6 +30,7 @@
  */
 
 #include "chip.h"
+#include <lpc_tools/irq.h>
 #include "eeprom.h"
 #include "system_status.h"
 
@@ -61,7 +62,9 @@ static uint32_t Chip_EEPROM_Write(uint32_t dstAdd, uint8_t *ptr, uint32_t bytesw
 	command[2] = (uint32_t) ptr;
 	command[3] = byteswrt;
 	command[4] = SystemCoreClock / 1000;
+    const bool mask = irq_disable();
 	iap_entry(command, result);
+    irq_restore(mask);
 
 	return result[0];
 }
@@ -76,7 +79,9 @@ static uint32_t Chip_EEPROM_Read(uint32_t srcAdd, uint8_t *ptr, uint32_t bytesrd
 	command[2] = (uint32_t) ptr;
 	command[3] = bytesrd;
 	command[4] = SystemCoreClock / 1000;
+    const bool mask = irq_disable();
 	iap_entry(command, result);
+    irq_restore(mask);
 
 	return result[0];
 }

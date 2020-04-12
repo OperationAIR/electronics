@@ -20,6 +20,7 @@
 #include "log.h"
 #include "clock.h"
 #include "generated/firmware_version.h"
+#include "storage/storage.h"
 #include "system_status.h"
 #include "version.h"
 
@@ -68,6 +69,7 @@ int main(void)
     SystemCoreClockUpdate();
 
     system_status_init();
+    storage_init();
 
     pi_comm_init();
 
