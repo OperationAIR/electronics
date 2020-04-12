@@ -16,17 +16,17 @@ typedef struct SensorsAllData {
     int32_t pressure_patient;   // Pressure at patient [Pa] (NOTE: may not be available)
     int32_t pressure_mfc;       // Pressure at MFC pressure vessel [Pa]
 
-    int32_t oxygen;             // Oxygen percentage [0-100]
-    int32_t tidal_volume_inhale;       // Tidal volume [mL] (Based on inhale flow)
-    int32_t tidal_volume_exhale;       // Tidal volume [mL] (Based on exhale flow)
-    int32_t minute_volume;      // Average flow (exhale) [mL / minute] (average over last 10 sec interval)
-    int32_t cycle_state;        // PeeP / Peak / None
-    uint32_t power_status;      // Status of UPS: volatage [mV OR-ed with UPSStatus bits]
+    int32_t oxygen;                 // Oxygen percentage [0-100]
+    int32_t tidal_volume_inhale;    // Tidal volume [mL] (Based on inhale flow)
+    int32_t tidal_volume_exhale;    // Tidal volume [mL] (Based on exhale flow)
+    int32_t minute_volume;          // Average flow (exhale) [mL / minute] (average over last 10 sec interval)
+    int32_t cycle_state;            // PeeP / Peak / None
+    uint32_t power_status;          // Status of UPS: volatage [mV OR-ed with UPSStatus bits]
 
-    int32_t inspiratory_hold_result;   // Value for end of inspiratory hold sensor 1
-    int32_t expiratory_hold_result;   // Value for end of expiratory hold sensor 1
+    int32_t inspiratory_hold_result;// Value for end of inspiratory hold sensor 1
+    int32_t expiratory_hold_result; // Value for end of expiratory hold sensor 1
 
-    uint32_t system_status;     // enum SystemStatus value(s) OR-ed together
+    uint32_t system_status;         // enum SystemStatus value(s) OR-ed together
 
 } SensorsAllData;
 

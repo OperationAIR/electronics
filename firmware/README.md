@@ -123,27 +123,29 @@ XorOut: 0xFFFF
 From microcontroller to host.
 Sensor values are prefixed with the 32-bit little-endian value `0x0D15EA5E` and followed by a crc16 usb checksum. The sensor data is a struct of 32bit signed integers:
 
-The total data packet is then `4 + (14 x 4) + 2 = 62 bytes`
+The total data packet is then `4 + (15 x 4) + 2 = 66 bytes`
 
 ```
 struct SensorsAllData {
-    int32_t flow_inhale;        // Inhale flow [mL / minute] (approximation)
-    int32_t flow_exhale;        // Exhale flow [mL / minute]
+    int32_t flow_inhale;            // Inhale flow [mL / minute] (approximation)
+    int32_t flow_exhale;            // Exhale flow [mL / minute]
 
-    int32_t pressure_inhale;    // Inhale pressure [Pa]
-    int32_t pressure_exhale;    // Exhale pressure [Pa]
-    int32_t pressure_patient;   // Pressure at patient [Pa] (TODO: Not Implemented Yet)
-    int32_t pressure_mfc;       // Pressure at MFC pressure vessel [Pa]
+    int32_t pressure_inhale;        // Inhale pressure [Pa]
+    int32_t pressure_exhale;        // Exhale pressure [Pa]
+    int32_t pressure_patient;       // Pressure at patient [Pa] (TODO: Not Implemented Yet)
+    int32_t pressure_mfc;           // Pressure at MFC pressure vessel [Pa]
 
-    int32_t oxygen;             // Oxygen percentage [0-100]
-    int32_t tidal_volume_inhale;       // Tidal volume [mL] (Based on inhale flow)
-    int32_t tidal_volume_exhale;       // Tidal volume [mL] (Based on exhale flow)
-    int32_t minute_volume;      // Average flow (exhale) [mL / minute] (average over last 10 sec interval)
-    int32_t cycle_state;        // PeeP / Peak / None
-    int32_t power_status;       // UPS status [mV OR-ed with UPSStatus bits]
+    int32_t oxygen;                 // Oxygen percentage [0-100]
+    int32_t tidal_volume_inhale;    // Tidal volume [mL] (Based on inhale flow)
+    int32_t tidal_volume_exhale;    // Tidal volume [mL] (Based on exhale flow)
+    int32_t minute_volume;          // Average flow (exhale) [mL / minute] (average over last 10 sec interval)
+    int32_t cycle_state;            // PeeP / Peak / None
+    int32_t power_status;           // UPS status [mV OR-ed with UPSStatus bits]
 
-    int32_t inspiratory_hold_result;   // Value for end of inspiratory hold mean sensors
-    int32_t expiratory_hold_result;   // Value for end of expiratory hold mean sensors
+    int32_t inspiratory_hold_result;// Value for end of inspiratory hold mean sensors
+    int32_t expiratory_hold_result; // Value for end of expiratory hold mean sensors
+
+    uint32_t system_status;         // enum SystemStatus value(s) OR-ed together
 
 }
 ```
@@ -156,6 +158,43 @@ enum UPSStatus {
     UPS_STATUS_OK                   = (1 << 31),
     UPS_STATUS_BATTERY_POWERED      = (1 << 30),
     UPS_STATUS_FAIL                 = (1 << 29)
+};
+
+```
+
+The system_status field shows multiple OR-combined flags indicating the status
+of the electronics, including errors that have occurred. In normal operation,
+only the flag `SYSTEM_STATUS_BOOT_POWER_ON` (or `SYSTEM_STATUS_BOOT_RESET_BY_PI` after a firmware upgrade) is expected to be set. Flags are only cleared by a resetting the MCU: a flag being set means that the error has occurred at least once since the last reset.
+```
+enum SystemStatus {
+    SYSTEM_STATUS_UNKNOWN               = 0,
+
+    // Boot info: one of these should be set at boot
+    SYSTEM_STATUS_BOOT_POWER_ON         = (1 << 0),     // Power-On-Reset
+    SYSTEM_STATUS_BOOT_RESET_BY_PI      = (1 << 1),     // External reset (triggered by RPI)
+    SYSTEM_STATUS_BOOT_RESET_BY_ERROR   = (1 << 2),     // Watchdog reset (firmware bug)
+    SYSTEM_STATUS_BOOT_RESET_BY_PWR_FAIL= (1 << 3),     // BOD reset (3.3V unstable)
+    SYSTEM_STATUS_BOOT_RESET_BY_UNKNOWN = (1 << 4),     // SYSRST or unknown
+
+    // Errors in sensors or actuators:
+    SYSTEM_STATUS_ERROR_SENSOR_P_INSP   = (1 << 5),     // Inspiration pressure sensor error
+    SYSTEM_STATUS_ERROR_SENSOR_P_EXP    = (1 << 6),     // Expiration pressure sensor error
+    SYSTEM_STATUS_ERROR_SENSOR_P_PATIENT= (1 << 7),     // Patient pressure sensor error
+    SYSTEM_STATUS_ERROR_SENSOR_FLOW     = (1 << 8),     // Flow sensor error
+
+    SYSTEM_STATUS_ERROR_ACTUATOR_MFC_AIR= (1 << 16),    // Air MFC (DAC) error
+    SYSTEM_STATUS_ERROR_ACTUATOR_MFC_O2 = (1 << 17),    // O2 MFC (DAC) error
+
+    // NOTE: new status flags may be added here
+    //
+
+
+    // Generic errors
+    SYSTEM_STATUS_ERROR_EEPROM          = (1 << 29),    // EEPROM error: settings may not be remembered after reset
+    SYSTEM_STATUS_ERROR_I2C_BUS         = (1 << 30),    // I2C bus is in invalid state
+
+    // Warning: the firmware is not a release build
+    SYSTEM_STATUS_DEBUG_ENABLED         = (1 << 31),    // Debug build should not be released
 };
 
 ```
