@@ -79,9 +79,9 @@ Binary responses from the microcontroller for the specific command are also pref
 | SwitchExtraOn       | Turn on 24V switch (extra)              | `0x66665555` | None         | Log info (ascii) |
 | SwitchExtraOff      | Turn off 24V switch (extra)             | `0x66775555` | None         | Log info (ascii) |
 | MFCAirSet           | Set 12 bit analog value for MFC (Air)   | `0x77771111` | [uint16 (mV)](#MFC-set-point) | Log info (ascii) |
-| MFCAirGet           | Get analog MFC (Air) feedback value     | `0x77881111` | None         | [MFC Feedback (mV)](#MFC-analog-in)  |
+| MFCAirGet           | Get analog MFC (Air) feedback value     | `0x77881111` | None         | [MFC Feedback uint16 (mV)](#MFC-analog-in)  |
 | MFCO2Set            | Set 12 bit analog value for MFC (O2)    | `0x77772222` | [uint16 (mV)](#MFC-set-point) | Log info (ascii) |
-| MFCO2Get            | Get analog MFC (O2) feedback value      | `0x77882222` | None         | [MFC Feedback (mV)](#MFC-analog-in)  |
+| MFCO2Get            | Get analog MFC (O2) feedback value      | `0x77882222` | None         | [MFC Feedback uint16 (mV)](#MFC-analog-in)  |
 | UserSwitchGet       | Get current user switch status (0 or 1) | `0x88883333` | None         | 0 or 1 (ascii)   |
 
 ### Settings
@@ -171,5 +171,5 @@ Set point for the mass flow controller. The MFC is controlled through a 12bit i2
 
 ### MFC analog in
 
-Analog-in scaled to millivolts as int32
+Feedback from the MFC are returned as uint16 value in millivolts (0-5000). Note: this command is binary and is not terminated with '\n'.
 
