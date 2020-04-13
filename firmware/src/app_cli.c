@@ -274,6 +274,7 @@ static void app(char *args)
 	} else {
 		log_cli("app is halted in state [%s]", app_get_state());
 	}
+    log_cli("System status: 0x%08X", (unsigned int)system_status_get());
 }
 
 static void rpi_on(char *args)
