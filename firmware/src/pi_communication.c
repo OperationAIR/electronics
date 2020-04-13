@@ -110,7 +110,7 @@ static void Uart_Init(void)
 	Chip_UART_Init(LPC_USART);
 	Chip_UART_SetBaud(LPC_USART, BAUDRATE);
 	Chip_UART_ConfigData(LPC_USART, (UART_LCR_WLEN8 | UART_LCR_SBS_1BIT));
-	Chip_UART_SetupFIFOS(LPC_USART, (UART_FCR_FIFO_EN | UART_FCR_TRG_LEV2));
+	Chip_UART_SetupFIFOS(LPC_USART, (UART_FCR_FIFO_EN | UART_FCR_TRG_LEV2 | UART_FCR_TX_RS | UART_FCR_RX_RS));
 	Chip_UART_TXEnable(LPC_USART);
 
 	ringbuffer_init(&rb_Rx, rb_Rx_buffer, 1, UART_RRB_SIZE);
@@ -407,7 +407,8 @@ void pi_comm_send(uint8_t *buffer, size_t len)
     ringbuffer_write(&rb_Tx, buffer, len);
 
     // THREINT may have been disabled if the ringbuffer was empty.
-    // re-enableing it should immediately trigger an interrupt
+    // re-enable it and trigger an interrupt
     Chip_UART_IntEnable(LPC_USART, UART_IER_THREINT);
+    NVIC_SetPendingIRQ(UART0_IRQn);
 
 }
