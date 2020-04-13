@@ -93,11 +93,14 @@ int main(void)
     clock_set_frequency(CLK_FREQ);
     SystemCoreClockUpdate();
 
-    system_status_init();
-    storage_init();
-
     delay_init();
     logging_init();
+
+    i2c_init();
+    control_signals_init();
+
+    system_status_init();
+    storage_init();
 
     // USB init
     delay_us(200 * 1000);
@@ -107,8 +110,6 @@ int main(void)
         delay_us(2000 * 1000);
     }
 
-    i2c_init();
-    control_signals_init();
 
     const int hw_version = version_hardware_get();
 

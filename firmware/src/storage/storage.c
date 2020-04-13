@@ -14,14 +14,17 @@
 
 
 enum {
-    SIZE_OPERATION_SETTINGS     = 128,
     SIZE_APP_USE_COUNT          = sizeof(uint32_t),
+
+    SIZE_OPERATION_SETTINGS     = 128,
 
 };
 
 enum {
-    OFFSET_OPERATION_SETTINGS   = EEPROM_ADDR_MIN,
-    OFFSET_APP_USE_COUNT        = OFFSET_OPERATION_SETTINGS + SIZE_OPERATION_SETTINGS,
+    OFFSET_APP_USE_COUNT        = EEPROM_ADDR_MIN,
+
+    // start at 64-byte boundary for performance reasons
+    OFFSET_OPERATION_SETTINGS   = 128,
 
 };
 
