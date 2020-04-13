@@ -42,7 +42,7 @@ static struct ValidSettings g_bounds = {
 static inline bool check_bounds(uint16_t value, AllowedRange *bounds)
 {
     const bool ok = (value >= bounds->min) && (value <= bounds->max);
-    
+
     if(!ok) {
         snprintf(g_description, sizeof(g_description),
                 "%s %d is not within (%d, %d)!\n",
@@ -114,11 +114,5 @@ void settings_copy(OperationSettings *dst, const OperationSettings *src)
     dst->pressure = src->pressure;
     dst->oxygen = src->oxygen;
 
-    dst->max_pressure_alarm = src->max_pressure_alarm;
-    dst->min_pressure_alarm = src->min_pressure_alarm;
-    dst->max_TV_alarm = src->max_TV_alarm;
-    dst->min_TV_alarm = src->min_TV_alarm;
-    dst->max_fiO2_alarm = src->max_fiO2_alarm;
-    dst->min_fiO2_alarm = src->min_fiO2_alarm;
     dst->crc = src->crc;
 }

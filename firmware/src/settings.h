@@ -19,20 +19,11 @@ typedef struct __attribute__((packed)) {
     // NOTE: when adding fields, make sure to update verify_settings
     // to verify their bounds.
 
-    // NOTE: these are not used by firmware.
-    // Alarms are determined by the RPI.
-    uint16_t max_pressure_alarm;    
-    uint16_t min_pressure_alarm;
-    uint16_t max_TV_alarm;
-    uint16_t min_TV_alarm;
-    uint16_t max_fiO2_alarm;
-    uint16_t min_fiO2_alarm;
-
     uint16_t crc;
 
 } OperationSettings;
 
-STATIC_ASSERT(sizeof(OperationSettings) == (13*2));
+STATIC_ASSERT(sizeof(OperationSettings) == (7*2));
 
 
 bool settings_update(const OperationSettings *new_settings);
