@@ -47,7 +47,9 @@ void control_signals_init(void)
 
     if (I2C_PULL_UP_AVAILABLE) {
         if(!i2cdac_init()) {
-            system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS);
+            system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS
+                    | SYSTEM_STATUS_ERROR_ACTUATOR_MFC_AIR
+                    | SYSTEM_STATUS_ERROR_ACTUATOR_MFC_O2);
         }
     } else {
         system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS);
