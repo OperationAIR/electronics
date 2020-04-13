@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "app.h"
+#include "crc/crc.h"
 
 typedef struct {
     int min;
@@ -65,7 +66,7 @@ static bool verify_settings(const OperationSettings *settings)
 
 void settings_default(void)
 {
-    const OperationSettings defaults = {
+    OperationSettings defaults = {
         .start      = 0,
         .peep       = (10 * 98.0665),
         .frequency  = 15,
@@ -74,6 +75,10 @@ void settings_default(void)
         .oxygen     = 40
 
     };
+
+    uint16_t crc_state = 0xFFFF;
+    const uint16_t crc = crc16_usb_stream_check(&crc_state, (uint8_t*)&defaults, sizeof(OperationSettings)-2);
+    defaults.crc = crc;
 
     settings_update(&defaults);
 
