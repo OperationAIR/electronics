@@ -73,8 +73,9 @@ void sensors_init(void) {
         board_get_GPIO(GPIO_ID_PSENSE_2_DRDY),
         board_get_GPIO(GPIO_ID_PSENSE_RESET));
 
-    mprls_enable(&mprls1);
-    mprls_enable(&mprls2);
+    // Only trigger reset for mprls1: both sensors trigger on same reset
+    mprls_enable(&mprls1, true);
+    mprls_enable(&mprls2, false);
 
     ADC_init();
 

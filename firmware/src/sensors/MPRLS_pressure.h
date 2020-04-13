@@ -19,7 +19,7 @@ typedef struct {
 } MPRLS;
 
 void mprls_init(MPRLS *ctx, LPC_SSP_T *LPC_SSP, const GPIO *cs_pin, const GPIO *drdy_pin, const GPIO *reset_pin);
-bool mprls_enable(MPRLS *ctx);
+bool mprls_enable(MPRLS *ctx, bool reset);
 
 uint8_t mprls_trigger_read(MPRLS *ctx);
 bool mprls_is_ready(MPRLS *ctx);

@@ -8,8 +8,11 @@
 // SPI 0,0 mode: clock idles in low state
 #define SPI_MODE      (SSP_CLOCK_MODE0)
 
-// Frequency: ADS5410 is specified up to 30MHz
+// Frequency: MPRLS sensor is specified up to 800khz
+// // TODO why 100khz??
 #define MPRLS_SENSOR_BITRATE   (100000)
+
+#define MPRLS_TIMEOUT_US        (7500)
 
 
 #define MPRLS_NOP 0xF0
@@ -73,7 +76,7 @@ uint8_t mprls_trigger_read(MPRLS *ctx)
 
     GPIO_HAL_set(ctx->cs_pin, HIGH);
 
-    delay_timeout_set(&ctx->timeout, 7500);
+    delay_timeout_set(&ctx->timeout, MPRLS_TIMEOUT_US);
 
     return (status >> 24) & 0xFF;
 }
@@ -141,13 +144,15 @@ int32_t mprls_read_data(MPRLS *ctx)
     return scale(pres);
 }
 
-bool mprls_enable(MPRLS *ctx)
+bool mprls_enable(MPRLS *ctx, bool reset)
 {
-    GPIO_HAL_set(ctx->reset_pin, HIGH);
-    GPIO_HAL_set(ctx->reset_pin, LOW);
-    delay_us(10*1000);
-    GPIO_HAL_set(ctx->reset_pin, HIGH);
-    delay_us(10*1000);
+    if(reset) {
+        GPIO_HAL_set(ctx->reset_pin, HIGH);
+        GPIO_HAL_set(ctx->reset_pin, LOW);
+        delay_us(10*1000);
+        GPIO_HAL_set(ctx->reset_pin, HIGH);
+        delay_us(10*1000);
+    }
 
     uint8_t status = mprls_trigger_read(ctx);
 
