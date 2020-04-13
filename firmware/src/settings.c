@@ -17,14 +17,6 @@ struct ValidSettings {
     AllowedRange pressure;
     AllowedRange ratio;
     AllowedRange oxygen;
-
-    // NOTE: these are dummy and are not used by firmware.
-    AllowedRange max_pressure_alarm;
-    AllowedRange min_pressure_alarm;
-    AllowedRange max_TV_alarm;
-    AllowedRange min_TV_alarm;
-    AllowedRange max_fiO2_alarm;
-    AllowedRange min_fiO2_alarm;
 };
 
 char g_description[60];
