@@ -63,11 +63,17 @@ static int32_t g_offset_pressure_out = 0;
 
 static MPRLS mprls1;
 static MPRLS mprls2;
+static const GPIO *g_btn;
 
 void sensors_init(void) {
 
     UPS_status_init();
     calculated_init();
+
+    g_btn = NULL;
+    if(board_has_GPIO(GPIO_ID_USER_SWITCH)) {
+        g_btn = board_get_GPIO(GPIO_ID_USER_SWITCH);
+    }
 
     mprls_init(&mprls1, LPC_SSP0,
         board_get_GPIO(GPIO_ID_PSENSE_1_CS),
@@ -365,6 +371,15 @@ uint32_t sensors_read_UPS_voltage_mv(void)
     return ADC_scale(Sensors.battery_level, ADC_FACTOR_BATTERY);
 }
 
+bool sensors_read_button_pressed(void)
+{
+    if(g_btn == NULL) {
+        return false;
+    }
+
+    // Signal is high by default, pulled low on press
+    return !GPIO_HAL_get(g_btn);
+}
 
 
 void sensors_read_all(SensorsAllData *data)

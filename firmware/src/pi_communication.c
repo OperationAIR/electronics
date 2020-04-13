@@ -263,6 +263,11 @@ static enum PiCommand match_start_sequence(Ringbuffer *rb)
                     uint16_t MFC_O2_mv = sensors_read_raw_MFC_O2_mv();
                     pi_comm_send((uint8_t*)&MFC_O2_mv, sizeof(MFC_O2_mv));
 					return PiCommandNone;
+                case PiCommandUserSwitchGet:
+					ringbuffer_flush(rb, 4);
+                    bool button_pressed = sensors_read_button_pressed();
+					pi_comm_send_string(button_pressed ? "1\n" : "0\n");
+					return PiCommandNone;
 
 				default:
 					// no match, advance rb 1 byte, try again until magic sequence is found

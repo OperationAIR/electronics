@@ -84,6 +84,7 @@ int32_t sensors_read_volume_cycle_out_CC(void);
 int32_t sensors_get_inspiratory_hold_result1(void);
 int32_t sensors_get_inspiratory_hold_result2(void);
 
+bool sensors_read_button_pressed(void);
 
 // Read all data relevant for communication to RPI
 void sensors_read_all(SensorsAllData *data);
