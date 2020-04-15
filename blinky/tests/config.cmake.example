@@ -1,0 +1,13 @@
+# === Local config === #
+# This is a separate config, used by the main CmakeLists.txt.
+# Its purpose is to allow easy adjustments of case-specific settings
+# without committing them to the code repository.
+# See CmakeLists.txt for the defaults
+
+# Compiler optimize level
+#set(OPTIMIZE 0)
+
+# Whether to run ALL (very exhaustive, brute-force-like tests).
+# Only recommended to run once in a while, as this takes quite some time to complete..
+#set(TEST_ALL 0)
+

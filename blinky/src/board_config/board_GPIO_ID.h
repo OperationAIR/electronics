@@ -1,0 +1,28 @@
+#ifndef BOARD_GPIO_ID_H
+#define BOARD_GPIO_ID_H
+
+enum GPIO_ID {
+    GPIO_ID_PSENSE_1_CS,
+    GPIO_ID_PSENSE_2_CS,
+    GPIO_ID_PSENSE_1_DRDY,
+    GPIO_ID_PSENSE_2_DRDY,
+    GPIO_ID_PSENSE_RESET,
+
+    GPIO_ID_LED_STATUS,
+    GPIO_ID_LED_ERROR,
+
+    GPIO_ID_EXTRA_1,
+    GPIO_ID_EXTRA_2,
+    GPIO_ID_EXTRA_3,
+    GPIO_ID_EXTRA_4,
+
+    GPIO_ID_STATUS_FAIL,
+    GPIO_ID_STATUS_DISCHARGING,
+    GPIO_ID_USER_SWITCH,
+    GPIO_ID_RPI_ON_OFF,
+
+    GPIO_ID_MAX // This should be last: it is used to count
+};
+
+#endif
+
