@@ -11,6 +11,8 @@
 #include <c_utils/f2strn.h>
 #include <log.h>
 
+#include "system_status.h"
+
 
 static void _flowsensor_boot(void);
 static bool _flowsensor_set_sampling_time(void);
@@ -63,11 +65,6 @@ float flowsensor_read(void)
      return _read_sensor(0x1);
 }
 
-bool flowsensor_read_and_clear_error(void)
-{
-    return i2c_check_and_clear_error();
-}
-
 static void _flowsensor_boot(void) {
     // The flowsensor may be in 'bootloader mode' after first power-on.
     // This command switches the sensor to 'sensor mode'.
@@ -83,6 +80,10 @@ static void _flowsensor_boot(void) {
 }
 
 static bool _flowsensor_set_sampling_time(void) {
+
+    // clear old errors (if any)
+    i2c_check_and_clear_error();
+
     // set the sampling time of the flowsensor in ms
     int sampling_time = 10;
 
@@ -100,16 +101,29 @@ static bool _flowsensor_set_sampling_time(void) {
 
     i2c_write(xfer.slaveAddr, xfer.txBuff, 3);
 
-    return !(i2c_check_and_clear_error());
+    const bool error = (i2c_check_and_clear_error());
+    if(error) {
+        system_status_set(SYSTEM_STATUS_ERROR_SENSOR_FLOW);
+    }
+
+    return (!error);
 }
 
 static bool _flowsensor_selftest(void) {
+
+    // clear old errors (if any)
+    i2c_check_and_clear_error();
+
     uint8_t rx[1] = {0};
     const uint8_t sensor_addr = 0x55;
     const uint8_t boot_reg = 0x19;
     i2c_read(sensor_addr, boot_reg, rx, sizeof(rx));
 
-    bool error = i2c_check_and_clear_error();
+    const bool error = i2c_check_and_clear_error();
+    if(error) {
+        system_status_set(SYSTEM_STATUS_ERROR_SENSOR_FLOW);
+    }
+
     return ((!error) && (rx[0] == sensor_addr));
 }
 
@@ -122,9 +136,13 @@ static float _read_sensor(uint8_t data_reg) {
     } conversion;
 
 
+    // clear old errors (if any)
+    i2c_check_and_clear_error();
+
     i2c_read(sensor_addr, data_reg, conversion.bytes, sizeof(conversion.bytes));
-    if(i2c_has_error()) {
-        return 0.0;
+    if(i2c_check_and_clear_error()) {
+        system_status_set(SYSTEM_STATUS_ERROR_SENSOR_FLOW);
+        return -1.0;
     }
     return conversion.value;
 }

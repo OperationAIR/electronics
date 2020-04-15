@@ -45,7 +45,7 @@ static void _event_handler(I2C_ID_T id, I2C_EVENT_T event)
 
 static void _do_transfer(int len) {
     delay_timeout_t timeout;
-    delay_timeout_set(&timeout, 200);
+    delay_timeout_set(&timeout, 1000);
     while (Chip_I2C_MasterTransfer(DEFAULT_I2C, &g_xfer) == I2C_STATUS_ARBLOST) {
         if(delay_timeout_done(&timeout)) {
             g_error = true;
@@ -114,6 +114,9 @@ bool i2c_check_and_clear_error(void)
 
 bool i2c_has_error(void)
 {
-    system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS);
+    if(g_error) {
+        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS);
+    }
     return g_error;
 }
+

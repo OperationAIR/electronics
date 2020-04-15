@@ -182,11 +182,12 @@ static void flow_test(char *args) {
 
     // flowsensor_test();
 	float flow = flowsensor_read();
-    if(flowsensor_read_and_clear_error()) {
-        system_status_set(SYSTEM_STATUS_ERROR_SENSOR_FLOW);
-        log_cli("Flow: 0.0 (error reading sensor)");
-        return;
-    }
+
+    char flow_str[32];
+    f2strn(flow, flow_str, sizeof(flow_str), 3);
+
+    log_cli("FLow: %s %s", flow_str, (flow < 0) ? "(error reading sensor)" : "");
+
 
 	log_cli("Flow: %d", (int)flow);
 

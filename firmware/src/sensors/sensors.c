@@ -190,12 +190,18 @@ void sensors_update(unsigned int dt)
         if (count++ % 5 == 0) {
             // calculate flow in SLPM
             float flow_SLPM = flowsensor_read();
-            flow_SLPM = flow_SLPM*3.14f*(0.015f/2)*(0.015f/2)*1000*60;
 
-            // SLPM to SCCPM
-            Sensors.flow_out = 1000*flow_SLPM;
+            // Flowsensor OK
+            if(flow_SLPM >= 0) {
 
-            if(flowsensor_read_and_clear_error()) {
+                flow_SLPM = flow_SLPM*3.14f*(0.015f/2)*(0.015f/2)*1000*60;
+
+                // SLPM to SCCPM
+                Sensors.flow_out = 1000*flow_SLPM;
+
+            // Flowsensor ERROR
+            } else {
+                Sensors.flow_out = -1;
                 system_status_set(SYSTEM_STATUS_ERROR_SENSOR_FLOW);
             }
         }
