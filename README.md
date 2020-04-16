@@ -7,3 +7,5 @@ The electronics for the Operation Air AIROne is comprised of a custom developed 
 This repository contains the electronic designs for the PCB and the accompanying firmware.
 
 The Pi talks to the microcontroller over UART using a [custom binary protocol](firmware/README.md#uart-communication-protocol).
+
+Contact info@interay.com for assembled, tested and programmed ready for use boards.
