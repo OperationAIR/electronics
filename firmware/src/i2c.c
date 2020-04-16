@@ -9,15 +9,15 @@
 #define I2C_DEFAULT_SPEED    I2C_SPEED_100KHZ
 
 
-static bool g_error = false;
+static bool g_i2c_error = false;
 
 static void _set_error(void)
 {
-    g_error = true;
+    g_i2c_error = true;
 }
 static void _clear_error(void)
 {
-    g_error = false;
+    g_i2c_error = false;
 }
 
 void I2C_IRQHandler(void)
@@ -42,7 +42,7 @@ static void _event_handler(I2C_ID_T id, I2C_EVENT_T event)
 	// Wait for the status to change
 	while (*stat == I2C_STATUS_BUSY) {
         if(delay_timeout_done(&timeout)) {
-            _set_error();
+            //_set_error(); // may set error in context of 'wrong' sensor
             break;
         }
     }
@@ -109,9 +109,10 @@ void i2c_write(uint8_t slaveAddr, const uint8_t *buff, uint8_t len)
     }
 }
 
+
 bool i2c_check_and_clear_error(void)
 {
-    bool err = g_error;
+    bool err = g_i2c_error;
 
     _clear_error();
 

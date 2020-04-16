@@ -41,11 +41,11 @@ bool i2cdac_set(uint8_t address, uint16_t value)
 	// Send data
     i2c_check_and_clear_error();
     i2c_write(xfer.slaveAddr, xfer.txBuff, 3);
-    const bool ok = i2c_check_and_clear_error();
-    if(!ok) {
+    const bool error = i2c_check_and_clear_error();
+    if(error) {
         system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS);
     }
 
-    return ok;
+    return (!error);
 }
 

@@ -143,7 +143,8 @@ static float _read_sensor(uint8_t data_reg) {
 
     i2c_read(sensor_addr, data_reg, conversion.bytes, sizeof(conversion.bytes));
     if(i2c_check_and_clear_error()) {
-        system_status_set(SYSTEM_STATUS_ERROR_SENSOR_FLOW);
+        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS
+                | SYSTEM_STATUS_ERROR_SENSOR_FLOW);
         return -1.0;
     }
     return conversion.value;

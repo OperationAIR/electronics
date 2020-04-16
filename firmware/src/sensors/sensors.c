@@ -88,6 +88,7 @@ void sensors_init(void) {
                 | SYSTEM_STATUS_ERROR_SENSOR_FLOW);
     }
 
+    delay_us(100*1000);
     sensors_reset();
 }
 
