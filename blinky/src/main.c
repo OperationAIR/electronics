@@ -47,6 +47,7 @@ int main(void)
     SystemCoreClockUpdate();
 
     delay_init();
+    logging_init();
 
     pi_comm_init();
 
@@ -66,6 +67,7 @@ int main(void)
     uint32_t count = 0;
     while (true)
     {
+        log_tasks();
         GPIO_HAL_toggle(LED_status);
         GPIO_HAL_set(LED_error, 1);
         delay_us(100*1000);
@@ -73,10 +75,10 @@ int main(void)
         GPIO_HAL_set(LED_error, 0);
         delay_us(10*1000);
 
-        log_debug(" iteration %u\n", count++);
+        log_debug(" iteration %lu\n", count++);
 
-        char *buf[100];
-        snprintf(buf, 100, " Iteration %u\n", count);
+        char buf[100];
+        snprintf(buf, 100, " Iteration %lu\n", count);
         pi_comm_send_string(buf);
     }
     return 0;
