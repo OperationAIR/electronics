@@ -3,6 +3,8 @@
 #include <c_utils/assert.h>
 #include <stddef.h>
 
+#include "system_status.h"
+
 
 // lpc11ux only has 1 i2c peripheral
 #define DEFAULT_I2C          I2C0
@@ -39,6 +41,11 @@ bool i2cdac_set(uint8_t address, uint16_t value)
 	// Send data
     i2c_check_and_clear_error();
     i2c_write(xfer.slaveAddr, xfer.txBuff, 3);
-    return i2c_check_and_clear_error();
+    const bool ok = i2c_check_and_clear_error();
+    if(!ok) {
+        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS);
+    }
+
+    return ok;
 }
 

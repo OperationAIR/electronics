@@ -103,7 +103,8 @@ static bool _flowsensor_set_sampling_time(void) {
 
     const bool error = (i2c_check_and_clear_error());
     if(error) {
-        system_status_set(SYSTEM_STATUS_ERROR_SENSOR_FLOW);
+        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS
+                | SYSTEM_STATUS_ERROR_SENSOR_FLOW);
     }
 
     return (!error);
@@ -121,7 +122,8 @@ static bool _flowsensor_selftest(void) {
 
     const bool error = i2c_check_and_clear_error();
     if(error) {
-        system_status_set(SYSTEM_STATUS_ERROR_SENSOR_FLOW);
+        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS
+                | SYSTEM_STATUS_ERROR_SENSOR_FLOW);
     }
 
     return ((!error) && (rx[0] == sensor_addr));

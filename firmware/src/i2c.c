@@ -4,8 +4,6 @@
 #include <mcu_timing/delay.h>
 #include <memory.h>
 
-#include "system_status.h"
-
 #define I2C_SPEED_100KHZ         100000
 #define I2C_SPEED_400KHZ         400000
 #define I2C_DEFAULT_SPEED    I2C_SPEED_100KHZ
@@ -13,6 +11,14 @@
 
 static bool g_error = false;
 
+static void _set_error(void)
+{
+    g_error = true;
+}
+static void _clear_error(void)
+{
+    g_error = false;
+}
 
 void I2C_IRQHandler(void)
 {
@@ -36,7 +42,7 @@ static void _event_handler(I2C_ID_T id, I2C_EVENT_T event)
 	// Wait for the status to change
 	while (*stat == I2C_STATUS_BUSY) {
         if(delay_timeout_done(&timeout)) {
-            g_error = true;
+            _set_error();
             break;
         }
     }
@@ -48,7 +54,7 @@ static void _do_transfer(int len) {
     delay_timeout_set(&timeout, 1000);
     while (Chip_I2C_MasterTransfer(DEFAULT_I2C, &g_xfer) == I2C_STATUS_ARBLOST) {
         if(delay_timeout_done(&timeout)) {
-            g_error = true;
+            _set_error();
             return;
         }
     }
@@ -58,7 +64,7 @@ static void _do_transfer(int len) {
 
 void i2c_init(void)
 {
-    g_error = false;
+    _clear_error();
 
 	Chip_SYSCTL_PeriphReset(RESET_I2C0);
 
@@ -81,9 +87,9 @@ void i2c_read(uint8_t slaveAddr, uint8_t cmd, uint8_t *buff, int len)
 
     _do_transfer(len);
 
-    const int remaining = len - g_xfer.rxSz;
+    const int remaining = g_xfer.rxSz;
     if(remaining) { 
-        g_error = true;
+        _set_error();
     }
 }
 
@@ -97,26 +103,18 @@ void i2c_write(uint8_t slaveAddr, const uint8_t *buff, uint8_t len)
 
     _do_transfer(len);
 
-    const int remaining = len - g_xfer.txSz;
+    const int remaining = g_xfer.txSz;
     if(remaining) { 
-        g_error = true;
+        _set_error();
     }
 }
 
 bool i2c_check_and_clear_error(void)
 {
-    bool err = i2c_has_error();
+    bool err = g_error;
 
-    g_error = false;
+    _clear_error();
 
     return err;
-}
-
-bool i2c_has_error(void)
-{
-    if(g_error) {
-        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS);
-    }
-    return g_error;
 }
 
