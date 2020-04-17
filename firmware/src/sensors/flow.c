@@ -9,6 +9,7 @@
 
 #include <stddef.h>
 #include <c_utils/f2strn.h>
+#include <mcu_timing/delay.h>
 #include <log.h>
 
 #include "system_status.h"
@@ -77,6 +78,9 @@ static void _flowsensor_boot(void) {
 
     // Ignore I2c errors: device may not have been be in bootloader mode..
     i2c_check_and_clear_error();
+
+    // Give the sensor 1 ms to boot?
+    delay_us(1000);
 }
 
 static bool _flowsensor_set_sampling_time(void) {

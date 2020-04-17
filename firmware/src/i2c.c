@@ -42,6 +42,7 @@ static void _event_handler(I2C_ID_T id, I2C_EVENT_T event)
 	// Wait for the status to change
 	while (*stat == I2C_STATUS_BUSY) {
         if(delay_timeout_done(&timeout)) {
+            Chip_I2C_ForceStop(DEFAULT_I2C);
             //_set_error(); // may set error in context of 'wrong' sensor
             break;
         }
@@ -54,6 +55,7 @@ static void _do_transfer(int len) {
     delay_timeout_set(&timeout, 1000);
     while (Chip_I2C_MasterTransfer(DEFAULT_I2C, &g_xfer) == I2C_STATUS_ARBLOST) {
         if(delay_timeout_done(&timeout)) {
+            Chip_I2C_ForceStop(DEFAULT_I2C);
             _set_error();
             return;
         }
