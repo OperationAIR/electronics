@@ -23,6 +23,7 @@
 #include "parse_utils.h"
 #include "breathing.h"
 #include "sensors/flow.h"
+#include "i2c.h"
 
 #include <chip.h>
 
@@ -187,10 +188,6 @@ static void flow_test(char *args) {
     f2strn(flow, flow_str, sizeof(flow_str), 3);
 
     log_cli("FLow: %s %s", flow_str, (flow < 0) ? "(error reading sensor)" : "");
-
-
-	log_cli("Flow: %d", (int)flow);
-
 }
 
 static void led_status(char *args) {

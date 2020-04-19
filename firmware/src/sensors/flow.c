@@ -25,18 +25,26 @@ static float _read_temp_celcius(void);
 
 bool flowsensor_enable(void)
 {
-    // boot sensor in case it is not already booted
-    _flowsensor_boot();
+    // Retry in case of I2C bus errors
+    for(size_t retry=0;retry<5;retry++) {
 
-    if(!_flowsensor_selftest()) {
-        return false;
+        // boot sensor in case it is not already booted
+        _flowsensor_boot();
+
+        if(!_flowsensor_selftest()) {
+            continue;
+        }
+
+        if(!_flowsensor_set_sampling_time()) {
+            continue;
+        }
+
+        return true;
     }
 
-    if(!_flowsensor_set_sampling_time()) {
-        return false;
-    }
-
-    return true;
+    // All retries failed: flowsensor not connected or defect
+    system_status_set(SYSTEM_STATUS_ERROR_SENSOR_FLOW);
+    return false;
 }
 
 float flowsensor_test(void)
@@ -107,8 +115,7 @@ static bool _flowsensor_set_sampling_time(void) {
 
     const bool error = (i2c_check_and_clear_error());
     if(error) {
-        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS
-                | SYSTEM_STATUS_ERROR_SENSOR_FLOW);
+        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS);
     }
 
     return (!error);
@@ -126,8 +133,7 @@ static bool _flowsensor_selftest(void) {
 
     const bool error = i2c_check_and_clear_error();
     if(error) {
-        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS
-                | SYSTEM_STATUS_ERROR_SENSOR_FLOW);
+        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS);
     }
 
     return ((!error) && (rx[0] == sensor_addr));

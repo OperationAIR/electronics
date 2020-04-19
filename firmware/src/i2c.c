@@ -10,6 +10,12 @@
 
 
 static bool g_i2c_error = false;
+static int g_timeout_us;
+
+void i2c_set_timeout_us(int timeout)
+{
+    g_timeout_us = timeout;
+}
 
 static void _set_error(void)
 {
@@ -36,7 +42,7 @@ static void _event_handler(I2C_ID_T id, I2C_EVENT_T event)
 	}
 
     delay_timeout_t timeout;
-    delay_timeout_set(&timeout, 1000);
+    delay_timeout_set(&timeout, g_timeout_us);
 	volatile I2C_STATUS_T *stat = &g_xfer.status;
 
 	// Wait for the status to change
@@ -52,7 +58,7 @@ static void _event_handler(I2C_ID_T id, I2C_EVENT_T event)
 
 static void _do_transfer(int len) {
     delay_timeout_t timeout;
-    delay_timeout_set(&timeout, 1000);
+    delay_timeout_set(&timeout, g_timeout_us);
     while (Chip_I2C_MasterTransfer(DEFAULT_I2C, &g_xfer) == I2C_STATUS_ARBLOST) {
         if(delay_timeout_done(&timeout)) {
             Chip_I2C_ForceStop(DEFAULT_I2C);
@@ -66,6 +72,8 @@ static void _do_transfer(int len) {
 
 void i2c_init(void)
 {
+    i2c_set_timeout_us(1000);
+
     _clear_error();
 
 	Chip_SYSCTL_PeriphReset(RESET_I2C0);

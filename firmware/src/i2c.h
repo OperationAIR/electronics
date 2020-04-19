@@ -12,6 +12,9 @@ void i2c_init(void);
 void i2c_read(uint8_t slaveAddr, uint8_t cmd, uint8_t *buff, int len);
 void i2c_write(uint8_t slaveAddr, const uint8_t *buff, uint8_t len);
 
+
+void i2c_set_timeout_us(int timeout);
+
 // has any error occurred? Also clears the error state
 bool i2c_check_and_clear_error(void);
 
