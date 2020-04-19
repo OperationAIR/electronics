@@ -14,22 +14,25 @@ typedef struct {
 
 struct ValidSettings {
     AllowedRange peep;
-    AllowedRange frequency;
     AllowedRange pressure;
-    AllowedRange ratio;
+    AllowedRange pc_above_peep;
+    AllowedRange frequency;
     AllowedRange oxygen;
+    AllowedRange ratio;
 };
 
 char g_description[60];
 
 static struct ValidSettings g_bounds = {
 
-    // TODO issue #15: what should the bounds be?
-    .peep               = {.min = 450,  .max = 2500,    .desc = "peep"},
-    .frequency          = {.min = 10,   .max = 35,      .desc = "frequency"},
-    .pressure           = {.min = 900,  .max = 8500,    .desc = "pressure"},
-    .ratio              = {.min = 10,   .max = 100,     .desc = "ratio"},
-    .oxygen             = {.min = 20,   .max = 100,     .desc = "oxygen"},
+    // NOTE: bounds based on feedback from pre-clinical trials at Erasmus MC,
+    // (see github issue #15)
+    .peep               = {.min = 450,  .max = 3000,    .desc = "peep"},
+    .pressure           = {.min = 900,  .max = 7000,    .desc = "pressure"},
+    .pc_above_peep      = {.min = 450,  .max = 4000,    .desc = "PC above peep"},
+    .frequency          = {.min = 5,    .max = 40,      .desc = "frequency"},
+    .ratio              = {.min = 10,   .max = 30,      .desc = "ratio"},
+    .oxygen             = {.min = 21,   .max = 100,     .desc = "oxygen"},
 };
 
 static inline bool check_bounds(uint16_t value, AllowedRange *bounds)
@@ -38,7 +41,7 @@ static inline bool check_bounds(uint16_t value, AllowedRange *bounds)
 
     if(!ok) {
         snprintf(g_description, sizeof(g_description),
-                "%s %d is not within (%d, %d)!\n",
+                "%s: %d is not within [%d, %d]!\n",
                 bounds->desc,
                 (int)value,
                 bounds->min,
@@ -55,11 +58,12 @@ static bool verify_settings(const OperationSettings *settings)
 
 
     ok &= check_bounds(settings->peep, &g_bounds.peep);
-    ok &= check_bounds(settings->frequency, &g_bounds.frequency);
     ok &= check_bounds(settings->pressure, &g_bounds.pressure);
-    ok &= check_bounds(settings->ratio, &g_bounds.ratio);
-    ok &= check_bounds(settings->oxygen, &g_bounds.oxygen);
+    ok &= check_bounds((settings->pressure - settings->peep), &g_bounds.pc_above_peep);
 
+    ok &= check_bounds(settings->frequency, &g_bounds.frequency);
+    ok &= check_bounds(settings->oxygen, &g_bounds.oxygen);
+    ok &= check_bounds(settings->ratio, &g_bounds.ratio);
 
     return ok;
 }
