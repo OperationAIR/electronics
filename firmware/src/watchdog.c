@@ -4,7 +4,7 @@
 
 #include <chip.h>
 
-// TODO move this to chip library
+// NOTE: why is this not defined in the chip library??
 #define WWDT_WDMOD_LOCK        ((uint32_t) (1 << 5))
 
 

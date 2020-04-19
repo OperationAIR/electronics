@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <c_utils/static_assert.h>
+
+
+
 typedef struct __attribute__((packed)) {
     uint16_t start;                 // nonzero: breathing is started
     uint16_t peep;                  // exhale pressure in Pa
@@ -12,22 +16,19 @@ typedef struct __attribute__((packed)) {
     uint16_t pressure;              // inhale pressure in Pa
     uint16_t oxygen;                // oxygen percentage for mixer (0-100)
 
-    // These may be checked in firmware later(?)
-    // For now they are done on the RPI
-    uint16_t max_pressure_alarm;    
-    uint16_t min_pressure_alarm;
-    uint16_t max_TV_alarm;
-    uint16_t min_TV_alarm;
-    uint16_t max_fiO2_alarm;
-    uint16_t min_fiO2_alarm;
+    // NOTE: when adding fields, make sure to update verify_settings
+    // to verify their bounds.
 
     uint16_t crc;
 
 } OperationSettings;
 
+STATIC_ASSERT(sizeof(OperationSettings) == (7*2));
 
-bool settings_update(OperationSettings *new_settings);
+
+bool settings_update(const OperationSettings *new_settings);
+void settings_default(void);
 const char *settings_get_last_description(void);
-void settings_copy(OperationSettings *dst, OperationSettings *src);
+void settings_copy(OperationSettings *dst, const OperationSettings *src);
 
 #endif

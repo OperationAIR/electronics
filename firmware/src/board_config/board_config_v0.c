@@ -59,7 +59,7 @@ static const PinMuxConfig pinmuxing[] = {
         {1,  27, (IOCON_FUNC2)},        // UART_TX
 
 
-        // I2C (TODO)
+        // I2C
         {0,  4, (IOCON_FUNC1)},         // I2C_SCL
         {0,  5, (IOCON_FUNC1)},         // I2C_SDA
 

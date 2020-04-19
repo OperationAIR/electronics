@@ -11,6 +11,7 @@
 #include "board_config/board_GPIO_ID.h"
 
 #include "global_settings.h"
+#include "system_status.h"
 
 struct {
     const GPIO *LED_status;
@@ -45,7 +46,13 @@ void control_signals_init(void)
 
 
     if (I2C_PULL_UP_AVAILABLE) {
-        i2cdac_init(I2C_DEFAULT_SPEED);
+        if(!i2cdac_init()) {
+            system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS
+                    | SYSTEM_STATUS_ERROR_ACTUATOR_MFC_AIR
+                    | SYSTEM_STATUS_ERROR_ACTUATOR_MFC_O2);
+        }
+    } else {
+        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS);
     }
 
     control_PWM_on();
@@ -93,10 +100,9 @@ void control_MFC_on(float flow_SLPM, float O2_fraction)
     if (I2C_PULL_UP_AVAILABLE) {
         control_raw_MFC_O2_mv(mV_O2);
         control_raw_MFC_air_mv(mV_Air);
+    } else {
+        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS);
     }
-
-    // TODO can we check something? Do we know if I2C DAC is OK?
-//    return true;
 }
 
 
@@ -106,14 +112,18 @@ void control_raw_MFC_O2_mv(int mv_O2)
     const int vcc_mv = 5000;
     int DAC_12bit = mv_O2*4095/(vcc_mv);
 
-    i2cdac_set(ADDDRESS_O2, DAC_12bit);
+    if(!i2cdac_set(ADDDRESS_O2, DAC_12bit)) {
+        system_status_set(SYSTEM_STATUS_ERROR_ACTUATOR_MFC_O2);
+    }
 }
 void control_raw_MFC_air_mv(int mv_air)
 {
     const int vcc_mv = 5000;
     int DAC_12bit = mv_air*4095/(vcc_mv);
 
-    i2cdac_set(ADDDRESS_AIR, DAC_12bit);
+    if(!i2cdac_set(ADDDRESS_AIR, DAC_12bit)) {
+        system_status_set(SYSTEM_STATUS_ERROR_ACTUATOR_MFC_AIR);
+    }
 }
 
 void control_LED_status_on(void)

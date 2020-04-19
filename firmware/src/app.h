@@ -28,21 +28,25 @@ void app_stop_expiratory_hold(void);
 
 void app_start_self_test(void);
 
-void app_reset_use_count(void);
 
 /**
  * Apply new operation settigns in a safe way
  * This function uses a critical section to update all settings in
  * a atomic way.
  */
-void app_apply_settings(OperationSettings *new_settings);
+void app_apply_settings(const OperationSettings *new_settings);
 
 /**
  * Get current Operation Settings in use by app
  */
 OperationSettings* app_get_settings(void);
 
-
-uint32_t get_last_pressure(void);
+/**
+ * Check if app has new settings that should be saved to NV storage.
+ *
+ * Storing settings to Non-Volatile storage may take some time, so it
+ * is recommended to do that from a low-priority context
+ */
+bool app_check_and_clear_settings_should_be_saved(void);
 
 #endif

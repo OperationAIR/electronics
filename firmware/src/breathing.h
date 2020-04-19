@@ -11,7 +11,7 @@ enum BreathCycleState {
 } BreathCycleState;
 
 
-bool breathing_init(void);
+void breathing_init(void);
 
 void breathing_start_calibration(void);
 void breathing_finish_calibration(void);

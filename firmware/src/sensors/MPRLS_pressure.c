@@ -8,8 +8,11 @@
 // SPI 0,0 mode: clock idles in low state
 #define SPI_MODE      (SSP_CLOCK_MODE0)
 
-// Frequency: ADS5410 is specified up to 30MHz
+// Frequency: MPRLS sensor is specified up to 800khz
+// // TODO why 100khz??
 #define MPRLS_SENSOR_BITRATE   (100000)
+
+#define MPRLS_TIMEOUT_US        (7500)
 
 
 #define MPRLS_NOP 0xF0
@@ -30,6 +33,7 @@ void mprls_init(MPRLS *ctx, LPC_SSP_T *LPC_SSP, const GPIO *cs_pin, const GPIO *
     ctx->cs_pin = cs_pin;
     ctx->drdry_pin = drdy_pin;
     ctx->reset_pin = reset_pin;
+    ctx->error = false;
 
     static SSP_ConfigFormat ssp_format;
     Chip_SSP_Init(LPC_SSP);
@@ -41,6 +45,13 @@ void mprls_init(MPRLS *ctx, LPC_SSP_T *LPC_SSP, const GPIO *cs_pin, const GPIO *
     Chip_SSP_SetBitRate(LPC_SSP, MPRLS_SENSOR_BITRATE);
 
 	Chip_SSP_Enable(LPC_SSP);
+}
+
+bool mprls_read_and_clear_error(MPRLS *ctx)
+{
+    const bool error = ctx->error;
+    ctx->error = false;
+    return error;
 }
 
 uint8_t mprls_trigger_read(MPRLS *ctx)
@@ -65,7 +76,7 @@ uint8_t mprls_trigger_read(MPRLS *ctx)
 
     GPIO_HAL_set(ctx->cs_pin, HIGH);
 
-    delay_timeout_set(&ctx->timeout, 7500);
+    delay_timeout_set(&ctx->timeout, MPRLS_TIMEOUT_US);
 
     return (status >> 24) & 0xFF;
 }
@@ -123,24 +134,25 @@ int32_t mprls_read_data(MPRLS *ctx)
 
     GPIO_HAL_set(ctx->cs_pin, HIGH);
 
-    // TODO if status=failed, set pressure bit to error
-//    uint8_t status = rx[0];
-//    if (status & MPRLS_STATUS_FAILED || status & MPRLS_STATUS_MATHSAT) {
-//        return scale(0xFFFFFF);
-//    }
+    const uint8_t status = rx[0];
+    if (status & MPRLS_STATUS_FAILED) {
+        ctx->error = true;
+    }
 
     uint32_t pres = rx[1] << 16 | rx[2] << 8 | rx[3];
 
     return scale(pres);
 }
 
-bool mprls_enable(MPRLS *ctx)
+bool mprls_enable(MPRLS *ctx, bool reset)
 {
-    GPIO_HAL_set(ctx->reset_pin, HIGH);
-    GPIO_HAL_set(ctx->reset_pin, LOW);
-    delay_us(10*1000);
-    GPIO_HAL_set(ctx->reset_pin, HIGH);
-    delay_us(10*1000);
+    if(reset) {
+        GPIO_HAL_set(ctx->reset_pin, HIGH);
+        GPIO_HAL_set(ctx->reset_pin, LOW);
+        delay_us(10*1000);
+        GPIO_HAL_set(ctx->reset_pin, HIGH);
+        delay_us(10*1000);
+    }
 
     uint8_t status = mprls_trigger_read(ctx);
 
@@ -165,7 +177,8 @@ int32_t mprls_read_blocking(MPRLS *ctx)
     while(!mprls_is_ready(ctx)) {
         // error if never ready
         if (mprls_is_timeout(ctx)) {
-           return 0; //TODO error code
+            ctx->error = true;
+           return 0;
         }
     }
 

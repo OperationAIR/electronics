@@ -14,15 +14,16 @@
 #include "cdc_vcom.h"
 #include "log.h"
 #include "global_settings.h"
+#include "system_status.h"
 #include "app.h"
 #include "actuators/control_signals.h"
 #include "sensors/sensors.h"
-#include "stats.h"
 #include "clock.h"
 #include "generated/firmware_version.h"
 #include "parse_utils.h"
 #include "breathing.h"
 #include "sensors/flow.h"
+#include "i2c.h"
 
 #include <chip.h>
 
@@ -90,7 +91,7 @@ static void in_hold(char *args) {
 	} else if (strncmp(args, "off", 3) == 0) {
 		app_stop_inspiratory_hold();
 	} else {
-		// TODO return current inspiratory state
+        log_cli("Inspiratory hold: %d Pa", sensors_get_inspiratory_hold_result());
 	}
 }
 
@@ -100,7 +101,7 @@ static void out_hold(char *args) {
     } else if (strncmp(args, "off", 3) == 0) {
         app_stop_expiratory_hold();
     } else {
-        // TODO return current expiratory state
+        log_cli("Exspiratory hold: %d Pa", sensors_get_expiratory_hold_result());
     }
 }
 
@@ -181,10 +182,12 @@ static void flow_test(char *args) {
     log_cli("Testing flow...");
 
     // flowsensor_test();
-	float flow = read_flow_sensor();
+	float flow = flowsensor_read();
 
-	log_cli("Flow: %d", (int)flow);
+    char flow_str[32];
+    f2strn(flow, flow_str, sizeof(flow_str), 3);
 
+    log_cli("FLow: %s %s", flow_str, (flow < 0) ? "(error reading sensor)" : "");
 }
 
 static void led_status(char *args) {
@@ -269,6 +272,7 @@ static void app(char *args)
 	} else {
 		log_cli("app is halted in state [%s]", app_get_state());
 	}
+    log_cli("System status: 0x%08X", (unsigned int)system_status_get());
 }
 
 static void rpi_on(char *args)

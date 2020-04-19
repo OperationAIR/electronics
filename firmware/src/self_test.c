@@ -36,7 +36,10 @@ void pre_self_test(void) {
     self_test.test_state = TestEmptySystem;
     self_test.test_result = 0;
 
-    // TODO hold everything open for X seconds
+    // TODO issue #18: Finish implementation of self-test.
+    //
+    // Start by holding everything open for X seconds?
+    // NOTE: can this be dangerous if a patient is connected?
     control_MFC_off();
     control_valve_insp_on(10000);
     control_valve_exp_on(10000);

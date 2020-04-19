@@ -221,6 +221,6 @@ bool app_usb_init(void)
 		/* now connect */
 		gUSB_API->hw->Connect(g_hUsb, 1);
 	}
-    g_initialized = true; // TODO ONLY ON OK?
+    g_initialized = (ret == LPC_OK);
     return ret == LPC_OK;
 }

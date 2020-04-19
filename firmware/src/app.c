@@ -18,8 +18,10 @@
 #include "app.h"
 #include "log.h"
 #include "global_settings.h"
+#include "system_status.h"
+
 #include <mcu_timing/delay.h>
-#include "stats.h"
+#include "storage/storage.h"
 #include "clock.h"
 
 #include "breathing.h"
@@ -56,23 +58,16 @@ static struct {
     volatile bool test_requested;
     volatile bool run;
     uint32_t not_allowed_reasons;
-    volatile bool maintenance;          //TODO should be non-volatile
     volatile unsigned int use_count;
-    volatile int current_max_pressure;  // TODO not really used
 
-    volatile uint32_t idle_blink; // timestamp for blink start
-    volatile uint32_t last_idle_blink; // timestamp last blink start
     OperationSettings settings;
 
     volatile bool inspiratory_hold;
     volatile bool expiratory_hold;
+
+    volatile bool settings_should_be_saved;
 } g_app;
 
-
-uint32_t get_last_pressure(void)
-{
-    return g_app.current_max_pressure;
-}
 
 enum ErrorReasons {
     ErrorNone = 0,
@@ -83,40 +78,14 @@ enum ErrorReasons {
 
 static void log_not_allowed_reason(void)
 {
-    log_wtime("Device not allowed to start because:");
+    log_wtime("Device not allowed to start because: ??");
 
-    /*
-    if (g_app.not_allowed_reasons & ErrorPressureOverload) {
-        log_wtime("-> Pressure Overload: %d kPa", sensors_read_pressure());
-    }
-    if (g_app.not_allowed_reasons & ErrorPressureUnderload) {
-        log_wtime("-> Pressure Underload: %d kPa", sensors_read_pressure());
-    }
-    */
-    if (g_app.not_allowed_reasons & ErrorMaintenance) {
-        log_wtime("-> Device needs maintenance");
-    }
 }
 
 
 bool app_start_allowed(void)
 {
     uint32_t reasons = ErrorNone;
-    /*
-    const int pressure = sensors_read_pressure();
-
-    if (pressure > PRESSURE_OVERLOAD_LIMIT_kPa) {
-        reasons |= ErrorPressureOverload;
-    }
-
-    if (pressure < PRESSURE_UNDERLOAD_LIMIT_kPa) {
-        reasons |= ErrorPressureUnderload;
-    }
-    */
-
-    if (g_app.maintenance) {
-        reasons |= ErrorMaintenance;
-    }
 
     g_app.not_allowed_reasons = reasons;
     if (reasons != ErrorNone) {
@@ -166,7 +135,7 @@ static char* get_state_name(enum AppState state)
 
 // NOTE: when adding new states, make sure to correctly control_XX signals on t=0
 enum AppState app_state_idle(void);
-enum AppState app_state_charging(void);
+
 enum AppState app_state_pre_breathing(void);
 enum AppState app_state_breathing(void);
 enum AppState app_state_after_breathing(void);
@@ -183,33 +152,9 @@ enum AppState app_state_error(void);
 enum AppState app_state_pre_self_test(void);
 enum AppState app_state_self_test(void);
 enum AppState app_state_self_test_result(void);
-enum AppState app_state_pre_bootloader(void);
-enum AppState app_state_overheat(void);
 
 void _go_to_state(enum AppState next_state);
 
-
-void app_clear_maintenance_mode(void)
-{
-    if (g_app.maintenance) {
-        g_app.maintenance = false;
-        stats_set_maintenance_mode(false);
-        log_wtime("Maintenance mode cleared: ready for use");
-    } else {
-        log_wtime("Device not in Maintenance mode, no need to clear..");
-    }
-}
-
-void app_reset_use_count(void)
-{
-    stats_clear_use_count();
-    g_app.use_count = stats_get_use_count();
-}
-
-bool app_is_maintenance_mode(void)
-{
-    return g_app.maintenance;
-}
 
 bool app_is_running(void)
 {
@@ -221,11 +166,24 @@ char* app_get_state(void)
     return get_state_name(g_app.next_state);
 }
 
-void app_apply_settings(OperationSettings *new_settings)
+void app_apply_settings(const OperationSettings *new_settings)
 {
     const bool critical_section = irq_disable();
     settings_copy(&g_app.settings, new_settings);
+    g_app.settings_should_be_saved = true;
     irq_restore(critical_section);
+}
+
+bool app_check_and_clear_settings_should_be_saved(void)
+{
+    const bool critical_section = irq_disable();
+
+    const bool result = g_app.settings_should_be_saved;
+    g_app.settings_should_be_saved = false;
+
+    irq_restore(critical_section);
+
+    return result;
 }
 
 OperationSettings* app_get_settings(void)
@@ -263,8 +221,6 @@ enum AppState app_state_pre_breathing(void)
 
         return AppStateIdle;
     }
-
-    g_app.current_max_pressure = 0;
 
     // At startup, do offset calibration.
     // During this time, the status led on PCB blinks.
@@ -336,7 +292,7 @@ enum AppState app_state_after_breathing(void) {
 
         log_wtime("Breathing is finished");
 
-        stats_increment_use_count();
+        storage_increment_app_use_count();
         control_LED_status_off();
 
         return AppStateIdle;
@@ -455,10 +411,6 @@ void SysTick_Handler(void)
         return;
     }
 
-
-    // TODO the state-machine is not 7001-specific yet. Do we really need
-    // all this complexity?
-
     const enum AppState last_state = g_app.next_state;
     enum AppState next_state = g_app.next_state;
 
@@ -536,17 +488,31 @@ void app_resume(void)
 
 void app_init(int hw_version)
 {
-    if (!breathing_init()) {
-        g_app.maintenance = true;
-    }
+    breathing_init();
+
     g_app.last_state = AppStateNone;
     g_app.next_state = AppStateIdle;
     g_app.run = true;
     g_app.version = hw_version;
 
-    g_app.use_count = stats_get_use_count();
-    g_app.maintenance = stats_get_maintenance_mode();
+    g_app.use_count = storage_read_app_use_count();
 
+    // MCU reset unexpectedly: try to recover settings from EEPROM
+    bool settings_restored = false;
+    if(system_status_get() & (SYSTEM_STATUS_BOOT_RESET_BY_ERROR
+            | SYSTEM_STATUS_BOOT_RESET_BY_PWR_FAIL
+            | SYSTEM_STATUS_BOOT_RESET_BY_UNKNOWN)) {
+
+        OperationSettings settings;
+        if(storage_read_settings(&settings)) {
+            settings_restored = settings_update(&settings);
+        }
+    }
+
+    // Apply default settings
+    if(!settings_restored) {
+        settings_default();
+    }
     sensors_init();
 
     const uint32_t update_frequency = 1000/DT_MS;

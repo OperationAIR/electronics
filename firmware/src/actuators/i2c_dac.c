@@ -3,22 +3,24 @@
 #include <c_utils/assert.h>
 #include <stddef.h>
 
+#include "system_status.h"
+
 
 // lpc11ux only has 1 i2c peripheral
 #define DEFAULT_I2C          I2C0
 
 /* Initialize the I2C bus */
-void i2cdac_init(int speed)
+bool i2cdac_init(void)
 {
-    i2cdac_set(ADDDRESS_O2, 0);
-    i2cdac_set(ADDDRESS_AIR, 0);
+    bool ok = true;
+    ok&= i2cdac_set(ADDDRESS_O2, 0);
+    ok&= i2cdac_set(ADDDRESS_AIR, 0);
+
+    return ok;
 }
 
-void i2cdac_set(uint8_t address, uint16_t value)
+bool i2cdac_set(uint8_t address, uint16_t value)
 {
-    // TODO how long can this block at maximum?
-    // Should a timeout be added??
-
     // only use lower 12 bits
     uint16_t v = value & 0x0FFF;
 
@@ -36,8 +38,14 @@ void i2cdac_set(uint8_t address, uint16_t value)
 
 	xfer.txBuff = &tx[0];
 
-	/* Send data */
-	Chip_I2C_MasterSend(DEFAULT_I2C, xfer.slaveAddr, xfer.txBuff, 3);
+	// Send data
+    i2c_check_and_clear_error();
+    i2c_write(xfer.slaveAddr, xfer.txBuff, 3);
+    const bool error = i2c_check_and_clear_error();
+    if(error) {
+        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS);
+    }
 
+    return (!error);
 }
 

@@ -13,6 +13,7 @@
 #include "board_config/board_GPIO_ID.h"
 
 #include "global_settings.h"
+#include "system_status.h"
 
 struct {
     int32_t pressure_MFC;
@@ -32,11 +33,6 @@ struct {
     int32_t expiratory_hold_result;
 } Sensors;
 
-static bool g_error = false;
-static bool g_error_flow = false;
-static bool g_error_mprls_out = false;
-static bool g_error_mprls_in = false;
-
 static int32_t g_offset_pressure_in = 0;
 static int32_t g_offset_pressure_out = 0;
 
@@ -45,8 +41,6 @@ static int32_t g_offset_pressure_out = 0;
 #define ADC_FACTOR_FLOW_MFC             (168.0/100.0)
 #define ADC_FACTOR_BATTERY              (11.5/1.5)
 
-// TODO FIXME: voltage divider for flow/MFC input is be wrong!
-// Datasheet table shows 1-5V instead of assumed 0-12!!
 #define ADC_FACTOR_PRESSURE_MFC         (13.3/3.3)
 #define ADC_FACTOR_PREG_PRESSURE        (1.0)
 
@@ -85,17 +79,22 @@ void sensors_init(void) {
         board_get_GPIO(GPIO_ID_PSENSE_2_DRDY),
         board_get_GPIO(GPIO_ID_PSENSE_RESET));
 
-    mprls_enable(&mprls1);
-    mprls_enable(&mprls2);
+    // Only trigger reset for mprls1: both sensors trigger on same reset
+    mprls_enable(&mprls1, true);
+    mprls_enable(&mprls2, false);
 
     ADC_init();
 
     if (I2C_PULL_UP_AVAILABLE) {
         if(!flowsensor_enable()) {
-            g_error_flow = true;
+            system_status_set(SYSTEM_STATUS_ERROR_SENSOR_FLOW);
         }
+    } else {
+        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS
+                | SYSTEM_STATUS_ERROR_SENSOR_FLOW);
     }
 
+    delay_us(100*1000);
     sensors_reset();
 }
 
@@ -109,16 +108,11 @@ bool sensors_calibrate_offset(void)
     g_offset_pressure_in = sensors_read_pressure_insp_pa();
     g_offset_pressure_out = sensors_read_pressure_exp_pa();
 
-    return true; //todo g_error;
+    return true;
 }
 
 void sensors_reset(void)
 {
-    g_error = false;
-    g_error_flow = false;
-    g_error_mprls_out = true;
-    g_error_mprls_in = true;
-
     Sensors.pressure_MFC = -1;
     Sensors.pressure_in = -1;
     Sensors.pressure_out = -1;
@@ -154,14 +148,18 @@ static void _update_sensor_in(void)
     if(mprls_is_ready(&mprls1)) {
         // read value and trigger next sample
         Sensors.pressure_in = mprls_read_data(&mprls1);
+        if(mprls_read_and_clear_error(&mprls1)) {
+            system_status_set(SYSTEM_STATUS_ERROR_SENSOR_P_INSP);
+        }
         mprls_trigger_read(&mprls1);
 
     } else if(mprls_is_timeout(&mprls1)) {
 
         // Timeout! try to trigger next sample, but something is wrong here!
-        // TODO handle error
 
-        g_error_mprls_in = true;
+        // Set error flag 
+        system_status_set(SYSTEM_STATUS_ERROR_SENSOR_P_INSP);
+
         mprls_trigger_read(&mprls1);
     }
 }
@@ -172,14 +170,18 @@ static void _update_sensor_out(void)
     if(mprls_is_ready(&mprls2)) {
         // read value and trigger next sample
         Sensors.pressure_out = mprls_read_data(&mprls2);
+        if(mprls_read_and_clear_error(&mprls2)) {
+            system_status_set(SYSTEM_STATUS_ERROR_SENSOR_P_EXP);
+        }
         mprls_trigger_read(&mprls2);
 
     } else if(mprls_is_timeout(&mprls2)) {
 
         // Timeout! try to trigger next sample, but something is wrong here!
-        // TODO handle error
 
-        g_error_mprls_out = true;
+        // Set error flag 
+        system_status_set(SYSTEM_STATUS_ERROR_SENSOR_P_EXP);
+
         mprls_trigger_read(&mprls2);
     }
 }
@@ -194,12 +196,25 @@ void sensors_update(unsigned int dt)
     if (I2C_PULL_UP_AVAILABLE) {
         if (count++ % 5 == 0) {
             // calculate flow in SLPM
-            float flow_SLPM = read_flow_sensor();
-            flow_SLPM = flow_SLPM*3.14f*(0.015f/2)*(0.015f/2)*1000*60;
+            float flow_SLPM = flowsensor_read();
 
-            // SLPM to SCCPM
-            Sensors.flow_out = 1000*flow_SLPM;
+            // Flowsensor OK
+            if(flow_SLPM >= 0) {
+
+                flow_SLPM = flow_SLPM*3.14f*(0.015f/2)*(0.015f/2)*1000*60;
+
+                // SLPM to SCCPM
+                Sensors.flow_out = 1000*flow_SLPM;
+
+            // Flowsensor ERROR
+            } else {
+                Sensors.flow_out = -1;
+                system_status_set(SYSTEM_STATUS_ERROR_SENSOR_FLOW);
+            }
         }
+    } else {
+        system_status_set(SYSTEM_STATUS_ERROR_I2C_BUS
+                | SYSTEM_STATUS_ERROR_SENSOR_FLOW);
     }
 
     _update_sensor_in();
@@ -263,6 +278,10 @@ int32_t sensors_read_pressure_exp_pa(void)
 
 int32_t sensors_read_pressure_patient_pa(void)
 {
+    if(Sensors.pressure_patient == -1) {
+        return -1;
+    }
+
     const int v_pressure = ADC_scale(Sensors.pressure_patient, ADC_FACTOR_PRESSURE);
 
     // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
@@ -404,5 +423,7 @@ void sensors_read_all(SensorsAllData *data)
 
     data->inspiratory_hold_result = sensors_get_inspiratory_hold_result();
     data->expiratory_hold_result = sensors_get_expiratory_hold_result();
+
+    data->system_status = system_status_get();
 }
 

@@ -19,10 +19,14 @@
 #include "sensors/sensors.h"
 
 
+// Hardware FIFO is 16-byte as per the datasheet
+#define SERIAL_HARDWARE_FIFO_SIZE       (16)
+
+
 #define BAUDRATE 500000
 /* Transmit and receive ring buffer sizes */
-#define UART_SRB_SIZE 256	/* Send */
-#define UART_RRB_SIZE 256	/* Receive */
+#define UART_SRB_SIZE 512	/* Send */
+#define UART_RRB_SIZE 512	/* Receive */
 
 uint8_t rb_Rx_buffer[UART_RRB_SIZE];
 uint8_t rb_Tx_buffer[UART_SRB_SIZE];
@@ -57,12 +61,59 @@ enum PiCommand {
 	PiCommandMFCO2Set				= 0x77772222,
 	PiCommandMFCO2Get				= 0x77882222,
 
-    // TODO test commands? or add to sensor data?
-	PiCommandBatteryLevel			= 0x88881111,
-	PiCommandPowerStatus			= 0x88882222,
+    // TODO issue #19: implement test command for button
 	PiCommandUserSwitchGet			= 0x88883333,
 };
 static enum PiCommand g_current_command = PiCommandNone;
+
+
+
+static size_t _fill_fifo(void)
+{
+    size_t n_sent = 0;
+    for(;n_sent<SERIAL_HARDWARE_FIFO_SIZE;n_sent++) {
+
+        uint8_t *byte = ringbuffer_get_readable(&rb_Tx);
+        if (!byte) {
+            break;
+        }
+        Chip_UART_SendByte(LPC_USART, *byte);
+        ringbuffer_advance(&rb_Tx);
+    }
+
+    return n_sent;
+}
+
+static void serial_tx_irq_handler(void)
+{
+    // No data to send: done
+    if (ringbuffer_is_empty(&rb_Tx)) {
+        Chip_UART_IntDisable(LPC_USART, UART_IER_THREINT);
+        return;
+    }
+
+    // FIFO not empty: nothing can be done, as there is no way to know how
+    // many free bytes (if any) there are in the FIFO!
+    // Just wait untill the next THREINT triggers...
+    if(!(Chip_UART_ReadLineStatus(LPC_USART) & UART_LSR_THRE)) {
+        return;
+    }
+
+
+    // Send bytes in bursts of SERIAL_HARDWARE_FIFO_SIZE.
+    // When writing multiple bytes to the hardware FIFO, the THREINT
+    // fires while the last byte is still in the shift register.
+    // In this case that timing is not very important. If it is,
+    // send the last byte separately. The last THREINT is then guaranteed
+    // to fire after all bytes have been sent out.
+
+    if(!_fill_fifo()) {
+        Chip_UART_IntDisable(LPC_USART, UART_IER_THREINT);
+    }
+}
+
+
+
 
 
 
@@ -72,26 +123,13 @@ static enum PiCommand g_current_command = PiCommandNone;
  */
 void UART_IRQHandler(void)
 {
-	/* Want to handle any errors? Do it here. */
-    // TODO handle uart errors
+    // NOTE: error handling would be tricky: where to report them?
+    // The app should check that it regularly receives valid
+    // commands from the RPI.
 
-	/* Handle transmit interrupt if enabled */
+	// Handle transmit interrupt if enabled
 	if (LPC_USART->IER & UART_IER_THREINT) {
-
-        /* Fill FIFO until full or until TX ring buffer is empty */
-        while ((Chip_UART_ReadLineStatus(LPC_USART) & UART_LSR_THRE) != 0) {
-            uint8_t *byte = ringbuffer_get_readable(&rb_Tx);
-            if (!byte) {
-                break;
-            }
-            Chip_UART_SendByte(LPC_USART, *byte);
-            ringbuffer_advance(&rb_Tx);
-        }
-
-		/* Disable transmit interrupt if the ring buffer is empty */
-        if (ringbuffer_is_empty(&rb_Tx)) {
-			Chip_UART_IntDisable(LPC_USART, UART_IER_THREINT);
-		}
+        serial_tx_irq_handler();
 	}
 
 	// receive
@@ -110,8 +148,9 @@ static void Uart_Init(void)
 	// Setup UART for 115.2K8N1
 	Chip_UART_Init(LPC_USART);
 	Chip_UART_SetBaud(LPC_USART, BAUDRATE);
+    // TODO FDR?
 	Chip_UART_ConfigData(LPC_USART, (UART_LCR_WLEN8 | UART_LCR_SBS_1BIT));
-	Chip_UART_SetupFIFOS(LPC_USART, (UART_FCR_FIFO_EN | UART_FCR_TRG_LEV2));
+	Chip_UART_SetupFIFOS(LPC_USART, (UART_FCR_FIFO_EN | UART_FCR_TRG_LEV2 | UART_FCR_TX_RS | UART_FCR_RX_RS));
 	Chip_UART_TXEnable(LPC_USART);
 
 	ringbuffer_init(&rb_Rx, rb_Rx_buffer, 1, UART_RRB_SIZE);
@@ -408,8 +447,16 @@ void pi_comm_send_string(char *string)
 
 void pi_comm_send(uint8_t *buffer, size_t len)
 {
-	Chip_UART_IntDisable(LPC_USART, UART_IER_THREINT);
+    //Chip_UART_IntDisable(LPC_USART, UART_IER_THREINT);
+    // Ringbuffer is designed to be thread safe, so no need
+    // to disable IRQ while writing
     ringbuffer_write(&rb_Tx, buffer, len);
-    Chip_UART_IntEnable(LPC_USART, UART_IER_THREINT);
-	UART_IRQHandler(); //TODO: does this make sense? Compare with uint32_t Chip_UART_SendRB from chip libray
+
+
+    // kick off tx irq if disabled
+    if(!(LPC_USART->IER & UART_IER_THREINT)) {
+        serial_tx_irq_handler();
+        Chip_UART_IntEnable(LPC_USART, UART_IER_THREINT);
+    }
 }
+
