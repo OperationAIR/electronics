@@ -238,6 +238,30 @@ static void valve_extra(char *args) {
 	}
 }
 
+static void UPS(char *args)
+{
+    const char *status;
+    switch(UPS_status_get()) {
+        case UPS_STATUS_OK:
+            status = "Power OK";
+            break;
+        case UPS_STATUS_BATTERY_POWERED:
+            status = "Battery powered";
+            break;
+        case UPS_STATUS_FAIL:
+            status = "Battery empty";
+            break;
+
+        default:
+            status = "Unknown";
+            break;
+    }
+
+
+    log_cli("UPS: %d mV: %s", sensors_read_UPS_voltage_mv(), status);
+}
+
+
 static void sensors(char *args) {
 
     char str[32];
@@ -251,7 +275,10 @@ static void sensors(char *args) {
     log_cli("Pressure in: %d Pa", sensors_read_pressure_insp_pa());
     log_cli("Pressure out: %d Pa", sensors_read_pressure_exp_pa());
     log_cli("Oxygen: %d %%", sensors_read_oxygen_percent());
+
+    UPS("");
 }
+
 
 static void halt(char *args)
 {
@@ -342,6 +369,11 @@ CliCommand cli_commands[] = {
 		.cmd = "sensors",
 		.help = "Show sensor data",
 		.function = sensors
+	},
+	{
+		.cmd = "UPS",
+		.help = "show UPS status",
+		.function = UPS
 	},
 	{
 		.cmd = "led_status",
