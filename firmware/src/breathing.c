@@ -6,6 +6,8 @@
 #include "sensors/sensors.h"
 #include "sensors/calculated.h"
 
+#include "system_status.h"
+
 #include "global_settings.h"
 #include "breathing.h"
 #include "log.h"
@@ -56,7 +58,14 @@ float EXP_PID_Kd = 10;
 #define MFC_FLOW_MIN_SLPM   0.0
 #define MFC_FLOW_MAX_SLPM   50.0
 
-const int g_MFC_setpoint_pa = 65000;
+const int MFC_SETPOINT_PA = 65000;
+
+// MFCs will be turned off if overpressure is reached,
+// turned back on when pressure is below END_OF_OVERPRESSURE
+const int MFC_OVERPRESSURE_PA = 95000;
+const int MFC_END_OF_OVERPRESSURE_PA = 50000;
+
+static bool g_MFC_overpressure = false;
 
 
 int breathing_read_setpoint_pa(void)
@@ -179,6 +188,8 @@ static struct {
 
 void breathing_init(void)
 {
+    g_MFC_overpressure = false;
+
     // Nothing to do here?
 }
 
@@ -290,7 +301,23 @@ void _MFC_control_loop(void) {
     //
 
     g_MFC_pressure_pa = sensors_read_pressure_MFC_pa();
-    float MFC_error_mbar = (g_MFC_setpoint_pa - g_MFC_pressure_pa)/100.0;
+
+    // Detect MFC overpressure condition
+    if(g_MFC_pressure_pa >= MFC_OVERPRESSURE_PA) {
+        system_status_set(SYSTEM_STATUS_ERROR_MFC_OVERPRESSURE);
+        g_MFC_overpressure = true;
+    }
+    if(g_MFC_pressure_pa <= MFC_END_OF_OVERPRESSURE_PA) {
+        g_MFC_overpressure = false;
+    }
+
+    if(g_MFC_overpressure) {
+        control_MFC_off();
+        return;
+    } 
+
+    // Not in overpressure: regulate pressure with PID
+    float MFC_error_mbar = (MFC_SETPOINT_PA - g_MFC_pressure_pa)/100.0;
     float MFC_PID_out = arm_pid_f32(&MFC_PID, MFC_error_mbar);
     MFC_PID_out = constrain(MFC_PID_out, MFC_FLOW_MIN_SLPM, MFC_FLOW_MAX_SLPM);
 
@@ -384,7 +411,7 @@ void breathing_run(const OperationSettings *config, const int dt)
     if(BREATHING_LOG_INTERVAL_ms && time_ms && ((time_ms % BREATHING_LOG_INTERVAL_ms) == 0)) {
 
 //        log_debug("%d, %d",
-//                  (int) g_MFC_setpoint_pa,
+//                  (int) MFC_SETPOINT_PA,
 //                  (int) g_MFC_pressure_pa);
 
 

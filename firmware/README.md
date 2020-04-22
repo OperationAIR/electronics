@@ -185,6 +185,8 @@ enum SystemStatus {
     SYSTEM_STATUS_ERROR_ACTUATOR_MFC_AIR= (1 << 16),    // Air MFC (DAC) error
     SYSTEM_STATUS_ERROR_ACTUATOR_MFC_O2 = (1 << 17),    // O2 MFC (DAC) error
 
+    SYSTEM_STATUS_ERROR_MFC_OVERPRESSURE= (1 << 18),    // MFC output pressure too high
+
     // NOTE: new status flags may be added here
     //
 
