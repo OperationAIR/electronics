@@ -58,8 +58,8 @@ float EXP_PID_Kd = 15;
 #define MFC_FLOW_MIN_SLPM   0.0
 #define MFC_FLOW_MAX_SLPM   50.0
 
-const int MFC_SETPOINT_PA_BOUND_L = 65000;
-const int MFC_SETPOINT_PA_BOUND_H = 80000;
+#define MFC_SETPOINT_PA_BOUND_L 65000
+#define MFC_SETPOINT_PA_BOUND_H 80000
 int MFC_SETPOINT_PA = MFC_SETPOINT_PA_BOUND_L;
 
 // MFCs will be turned off if overpressure is reached,
