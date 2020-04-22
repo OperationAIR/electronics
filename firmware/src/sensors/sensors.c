@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #include <lpc_tools/boardconfig.h>
 #include <lpc_tools/GPIO_HAL.h>
 #include <c_utils/max.h>
@@ -16,10 +18,17 @@
 #include "system_status.h"
 
 struct {
+    // raw values
     int32_t pressure_MFC;
+
     int32_t pressure_in;
     int32_t pressure_out;
     int32_t pressure_patient;
+
+    // outputs
+    int32_t p_MFC_pa;
+    int32_t p_patient_pa;
+
 
     int32_t flow_MFC_air;
     int32_t flow_MFC_O2;
@@ -193,6 +202,15 @@ void sensors_update(unsigned int dt)
     filter_adc(&Sensors.pressure_MFC, ADC_ID_PRESSURE_MFC,
             ADC_RANGE/SLEW_LIMIT_PRESSURE_MFC);
 
+    const int p_mv = ADC_scale(Sensors.pressure_MFC, ADC_FACTOR_PRESSURE_MFC);
+
+    // calibrated 10-4-2020 expirementally
+    Sensors.p_MFC_pa = (0.9 * Sensors.p_MFC_pa) + (0.1 * (16.56 * p_mv + 21523));
+
+
+
+
+
     if (I2C_PULL_UP_AVAILABLE) {
         if (count++ % 5 == 0) {
             // calculate flow in SLPM
@@ -226,6 +244,7 @@ void sensors_update(unsigned int dt)
     filter_adc(&Sensors.flow_MFC_air, ADC_ID_MFC_AIR,
             ADC_RANGE/SLEW_LIMIT_MFC_FEEDBACK);
 
+
     if(board_has_ADC(ADC_ID_BATTERY_LEVEL)) {
         filter_adc(&Sensors.battery_level, ADC_ID_BATTERY_LEVEL,
                 ADC_RANGE/SLEW_LIMIT_BATTERY_LEVEL);
@@ -235,22 +254,25 @@ void sensors_update(unsigned int dt)
     if(board_has_ADC(ADC_ID_PRESSURE_PATIENT)) {
         filter_adc(&Sensors.pressure_patient, ADC_ID_PRESSURE_PATIENT,
                 ADC_RANGE/SLEW_LIMIT_PRESSURE);
+
+        const int v_pressure = ADC_scale(Sensors.pressure_patient, ADC_FACTOR_PRESSURE);
+
+        // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
+        const int offset_mv = 167;
+        const int scale_factor = 2157;
+        Sensors.p_patient_pa = ((v_pressure-offset_mv)*scale_factor)/1000;
+
+
+
     }
 
     Sensors.inspiratory_hold_result = (int32_t)breathing_get_inspiratory_hold_result();
     Sensors.expiratory_hold_result = (int32_t)breathing_get_expiratory_hold_result();
 }
 
-static float p_MFC_pa;
 int32_t sensors_read_pressure_MFC_pa(void)
 {
-    const int p_mv = ADC_scale(Sensors.pressure_MFC, ADC_FACTOR_PRESSURE_MFC);
-
-    // calibrated 10-4-2020 expirementally
-    p_MFC_pa = (0.9 * p_MFC_pa) + (0.1 * (16.56 * p_mv + 21523));
-
-    return p_MFC_pa;
-
+    return Sensors.p_MFC_pa;
 }
 
 // Virtual 'sensor' that returns the current setpoint
@@ -278,18 +300,7 @@ int32_t sensors_read_pressure_exp_pa(void)
 
 int32_t sensors_read_pressure_patient_pa(void)
 {
-    if(Sensors.pressure_patient == -1) {
-        return -1;
-    }
-
-    const int v_pressure = ADC_scale(Sensors.pressure_patient, ADC_FACTOR_PRESSURE);
-
-    // NOTE: this is calibrated experimentally, instead of datasheet-based (MPVZ5010)
-    const int offset_mv = 167;
-    const int scale_factor = 2157;
-    int32_t result = ((v_pressure-offset_mv)*scale_factor)/1000;
-
-    return result;
+    return Sensors.p_patient_pa;
 }
 
 int32_t sensors_read_flow_out_SCCPM(void)
