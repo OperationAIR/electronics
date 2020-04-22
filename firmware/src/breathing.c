@@ -58,7 +58,9 @@ float EXP_PID_Kd = 15;
 #define MFC_FLOW_MIN_SLPM   0.0
 #define MFC_FLOW_MAX_SLPM   50.0
 
-const int MFC_SETPOINT_PA = 65000;
+const int MFC_SETPOINT_PA_BOUND_L = 65000;
+const int MFC_SETPOINT_PA_BOUND_H = 80000;
+int MFC_SETPOINT_PA = MFC_SETPOINT_PA_BOUND_L;
 
 // MFCs will be turned off if overpressure is reached,
 // turned back on when pressure is below END_OF_OVERPRESSURE
@@ -66,8 +68,6 @@ const int MFC_OVERPRESSURE_PA = 95000;
 const int MFC_END_OF_OVERPRESSURE_PA = 50000;
 
 static bool g_MFC_overpressure = false;
-
-
 
 int breathing_read_setpoint_pa(void)
 {
@@ -400,10 +400,20 @@ void breathing_run(const OperationSettings *config, const int dt)
     // start building pressure
     if(breathing.cycle_time <= cfg.time_high_ms) {
         _inspiration(dt);
+        MFC_SETPOINT_PA = MFC_SETPOINT_PA_BOUND_L;
 
     // during low pressure
     } else if(breathing.cycle_time > cfg.time_high_ms) {
         _expiration(dt);
+        MFC_SETPOINT_PA = MFC_SETPOINT_PA_BOUND_L;
+    }
+
+    // Set MFC setpoint 500 ms before high time to 800mbar untill 300 ms before switch to low
+    if (breathing.cycle_time > cfg.time_total_ms - 500) {
+        MFC_SETPOINT_PA = MFC_SETPOINT_PA_BOUND_H;
+    }
+    if (breathing.cycle_time < cfg.time_high_ms - 300) {
+        MFC_SETPOINT_PA = MFC_SETPOINT_PA_BOUND_H;
     }
 
     _DPR_control_loop();
@@ -415,12 +425,14 @@ void breathing_run(const OperationSettings *config, const int dt)
 //                  (int) MFC_SETPOINT_PA,
 //                  (int) g_MFC_pressure_pa);
 
-
 //         DPR plot
-//        log_debug("%d,%d,%d",
-//                (int)g_pressure_setpoint_pa,
-//                (int)g_pressure_state_insp,
-//                (int)g_pressure_state_exp);
+        log_debug("%d,%d,%d,%d,%d",
+                (int)g_pressure_setpoint_pa*10,
+                (int)g_pressure_state_insp*10,
+                (int)g_pressure_state_exp*10,
+                (int)g_MFC_pressure_pa,
+                (int)MFC_SETPOINT_PA);
+
 //                (int)10000-g_signal_to_switch,
 //                (int)DPR_pressure,
 //                (int)to_DPR);
