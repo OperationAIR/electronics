@@ -502,7 +502,8 @@ void app_init(int hw_version)
     bool settings_restored = false;
     if(system_status_get() & (SYSTEM_STATUS_BOOT_RESET_BY_ERROR
             | SYSTEM_STATUS_BOOT_RESET_BY_PWR_FAIL
-            | SYSTEM_STATUS_BOOT_RESET_BY_UNKNOWN)) {
+            | SYSTEM_STATUS_BOOT_RESET_BY_UNKNOWN
+            | SYSTEM_STATUS_BOOT_RESET_BY_PI)) {
 
         OperationSettings settings;
         if(storage_read_settings(&settings)) {
