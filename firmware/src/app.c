@@ -36,6 +36,7 @@
 enum AppState {
     AppStateNone = -1,
     AppStateIdle = 0,
+    AppStateCalibrate,
     AppStatePreBreathing,
     AppStateBreathing,
     AppStateAfterBreathing,
@@ -102,6 +103,8 @@ static char* get_state_name(enum AppState state)
     switch(state) {
         case AppStateIdle:
             return "idle";
+        case AppStateCalibrate:
+            return "calibrate";
         case AppStateBreathing:
             return "breathing";
         case AppStatePreBreathing:
@@ -136,6 +139,7 @@ static char* get_state_name(enum AppState state)
 
 // NOTE: when adding new states, make sure to correctly control_XX signals on t=0
 enum AppState app_state_idle(void);
+enum AppState app_state_calibrate(void);
 
 enum AppState app_state_pre_breathing(void);
 enum AppState app_state_breathing(void);
@@ -213,24 +217,13 @@ enum AppState app_state_idle(void)
     return AppStateIdle;
 }
 
-enum AppState app_state_pre_breathing(void)
+enum AppState app_state_calibrate(void)
 {
-    // Stop from GUI: abort calibration
-    if(!g_app.settings.start) {
-        breathing_power_off();
-        control_LED_status_off();
-
-        return AppStateIdle;
-    }
-
-    // At startup, do offset calibration.
+    // Perform offset calibration.
     // During this time, the status led on PCB blinks.
     if (g_app.time == 0) {
         log_wtime("Calibrating offsets...");
         breathing_start_calibration();
-
-        // disable reset pin so RPi cannot interrupt breathing program accidentally.
-        board_disable_reset_pin();
     }
 
     if((g_app.time % 50) == 0) {
@@ -244,11 +237,35 @@ enum AppState app_state_pre_breathing(void)
         if(!breathing_start_program()) {
             return AppStateError;
         }
-        control_LED_status_on();
+        control_LED_status_off();
 
-        return AppStateBreathing;
+        return AppStateIdle;
     }
-    return AppStatePreBreathing;
+
+    return AppStateCalibrate;
+}
+
+enum AppState app_state_pre_breathing(void)
+{
+    // Stop from GUI: abort calibration
+    if(!g_app.settings.start) {
+        breathing_power_off();
+        control_LED_status_off();
+
+        return AppStateIdle;
+    }
+
+    // disable reset pin so RPi cannot interrupt breathing program accidentally.
+    board_disable_reset_pin();
+
+
+    log_wtime("Start Breathing Program");
+    if(!breathing_start_program()) {
+        return AppStateError;
+    }
+    control_LED_status_on();
+
+    return AppStateBreathing;
 }
 
 enum AppState app_state_breathing(void)
@@ -419,6 +436,11 @@ void SysTick_Handler(void)
         case AppStateIdle:
             next_state = app_state_idle();
             break;
+
+        case AppStateCalibrate:
+            next_state = app_state_calibrate();
+            break;
+
         case AppStatePreBreathing:
             next_state = app_state_pre_breathing();
             break;
@@ -492,7 +514,9 @@ void app_init(int hw_version)
     breathing_init();
 
     g_app.last_state = AppStateNone;
-    g_app.next_state = AppStateIdle;
+
+    // By default, the app starts in 'calibrate' state
+    g_app.next_state = AppStateCalibrate;
     g_app.run = true;
     g_app.version = hw_version;
 
@@ -504,6 +528,11 @@ void app_init(int hw_version)
             | SYSTEM_STATUS_BOOT_RESET_BY_PWR_FAIL
             | SYSTEM_STATUS_BOOT_RESET_BY_UNKNOWN
             | SYSTEM_STATUS_BOOT_RESET_BY_PI)) {
+
+        // Not a normal power-on: skip calibration, start in 'idle' state
+        // After an (unexpected) reset, breathing should be resumed
+        // as quickly as possible!
+        g_app.next_state = AppStateIdle;
 
         OperationSettings settings;
         if(storage_read_settings(&settings)) {
