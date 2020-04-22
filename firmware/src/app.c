@@ -22,6 +22,7 @@
 
 #include <mcu_timing/delay.h>
 #include "storage/storage.h"
+#include "crc/crc.h"
 #include "clock.h"
 
 #include "breathing.h"
@@ -519,16 +520,24 @@ void app_init(int hw_version)
     assert(systick_init(update_frequency));
 }
 
+
 // start from CLI
 void app_program_force_start(void)
 {
     log_debug("Starting...");
     g_app.settings.start = true;
-    g_app.settings.peep = 1000;
-    g_app.settings.pressure = 3000;
+    g_app.settings.peep = 800;
+    g_app.settings.pressure = 2500;
     g_app.settings.frequency = 15;
-    g_app.settings.ratio = 2;
+    g_app.settings.ratio = 20;
     g_app.settings.oxygen = 21;
+
+
+    uint16_t crc_state = 0xFFFF;
+    const uint16_t crc = crc16_usb_stream_check(&crc_state, (uint8_t*)&g_app.settings, sizeof(OperationSettings)-2);
+    g_app.settings.crc = crc;
+
+    app_apply_settings(&g_app.settings);
 }
 
 // stom from CLI
