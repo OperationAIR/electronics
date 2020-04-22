@@ -214,12 +214,14 @@ void sensors_update(unsigned int dt)
     if (I2C_PULL_UP_AVAILABLE) {
         if (count++ % 5 == 0) {
             // calculate flow in SLPM
+
             float flow_SLPM = flowsensor_read();
 
             // Flowsensor OK
             if(flow_SLPM >= 0) {
 
                 flow_SLPM = flow_SLPM*3.14f*(0.015f/2)*(0.015f/2)*1000*60;
+//                flow_SLPM = flow_SLPM*12.0f;
 
                 // SLPM to SCCPM
                 Sensors.flow_out = 1000*flow_SLPM;

@@ -188,6 +188,13 @@ static void flow_test(char *args) {
     f2strn(flow, flow_str, sizeof(flow_str), 3);
 
     log_cli("FLow: %s %s", flow_str, (flow < 0) ? "(error reading sensor)" : "");
+	log_cli("Flow: %d", (int)(flow*1000));
+}
+
+static void open_valves(char *args) {
+	log_cli("Open all valves...");
+	control_valve_insp_on(10000);
+	control_valve_exp_on(10000);
 }
 
 static void led_status(char *args) {
@@ -389,6 +396,11 @@ CliCommand cli_commands[] = {
 		.cmd = "flow_test",
 		.help = "Test flow sensor",
 		.function = flow_test
+	},
+	{
+		.cmd = "all_valves",
+		.help = "Open all valves",
+		.function = open_valves
 	},
 	{
 		.cmd = "DPR_PID",
