@@ -31,7 +31,7 @@ static struct ValidSettings g_bounds = {
     .pressure           = {.min = 900,  .max = 7000,    .desc = "pressure"},
     .pc_above_peep      = {.min = 450,  .max = 4000,    .desc = "PC above peep"},
     .frequency          = {.min = 5,    .max = 40,      .desc = "frequency"},
-    .ratio              = {.min = 10,   .max = 30,      .desc = "ratio"},
+    .ratio              = {.min = 5,    .max = 30,      .desc = "ratio"},
     .oxygen             = {.min = 21,   .max = 100,     .desc = "oxygen"},
 };
 
