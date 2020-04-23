@@ -213,4 +213,3 @@ Set point for the mass flow controller. The MFC is controlled through a 12bit i2
 ### MFC analog in
 
 Feedback from the MFC are returned as uint16 value in millivolts (0-5000). Note: this command is binary and is not terminated with '\n'.
-
