@@ -103,7 +103,7 @@ int main(void)
     storage_init();
 
     // USB init
-    delay_us(200 * 1000);
+    delay_us(300 * 1000);
 
     if (!app_usb_init())
     {
@@ -120,10 +120,6 @@ int main(void)
     pi_comm_init();
     pi_comm_send_string("Hallo Ventilator!\n");
 
-    control_LED_status_on();
-
-    delay_us(1000*1000);
-    control_LED_status_off();
 
     while (true)
     {

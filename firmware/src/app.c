@@ -230,7 +230,7 @@ enum AppState app_state_calibrate(void)
         control_LED_status_toggle();
     }
 
-    if (g_app.time >= (CALIBRATION_DURATION_MS/2)) {
+    if (g_app.time >= (CALIBRATION_DURATION_MS/DT_MS)) {
         breathing_finish_calibration();
 
         log_wtime("Start Breathing Program");
