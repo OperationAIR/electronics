@@ -23,7 +23,10 @@
 #define SERIAL_HARDWARE_FIFO_SIZE       (16)
 
 
+// NOTE: not all baudrates can be created exactly.
+// (the MCU runs at 48MHz)
 #define BAUDRATE 500000
+
 /* Transmit and receive ring buffer sizes */
 #define UART_SRB_SIZE 512	/* Send */
 #define UART_RRB_SIZE 512	/* Receive */
@@ -61,7 +64,6 @@ enum PiCommand {
 	PiCommandMFCO2Set				= 0x77772222,
 	PiCommandMFCO2Get				= 0x77882222,
 
-    // TODO issue #19: implement test command for button
 	PiCommandUserSwitchGet			= 0x88883333,
 };
 static enum PiCommand g_current_command = PiCommandNone;
@@ -145,10 +147,11 @@ void UART_IRQHandler(void)
 
 static void Uart_Init(void)
 {
-	// Setup UART for 115.2K8N1
+	// Setup UART
 	Chip_UART_Init(LPC_USART);
 	Chip_UART_SetBaud(LPC_USART, BAUDRATE);
-    // TODO FDR?
+    // NOTE: use Chip_UART_SetBaudFDR() to allow more specific baudrates
+
 	Chip_UART_ConfigData(LPC_USART, (UART_LCR_WLEN8 | UART_LCR_SBS_1BIT));
 	Chip_UART_SetupFIFOS(LPC_USART, (UART_FCR_FIFO_EN | UART_FCR_TRG_LEV2 | UART_FCR_TX_RS | UART_FCR_RX_RS));
 	Chip_UART_TXEnable(LPC_USART);
