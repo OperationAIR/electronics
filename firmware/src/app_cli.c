@@ -116,7 +116,7 @@ static void mfc(char *args) {
     }
 
     float flow_SLPM = params[0];
-    control_MFC_on(flow_SLPM, 0.21);
+    control_MFC_on(flow_SLPM, 0.605f);
     log_cli("MFC flowrate set to ca '%d'", (int)flow_SLPM);
 
 }
@@ -217,24 +217,33 @@ static void led_error(char *args) {
 }
 
 static void valve_insp(char *args) {
-	if (strncmp(args, "open", 2) == 0) {
-		control_valve_insp_on(10000);
-		log_cli("Inspiration valve opened");
-	} else if (strncmp(args, "close", 3) == 0) {
-		control_valve_insp_off();
-		log_cli("Inspiration valve closed");
-	}
+    float params[3];
+    size_t n_params = 0;
+
+    if(!parse_float_csv(&n_params, params, array_length(params), args) || (n_params != 1)) {
+        log_cli("invalid opening '%s': expected %% opened", args);
+        return;
+    }
+
+    float percentage_open = params[0];
+    control_valve_insp_on((int) percentage_open*100);
+    log_cli("Valve insp set at '%d' %%", (int)percentage_open);
 }
 
 static void valve_exp(char *args) {
-	if (strncmp(args, "open", 2) == 0) {
-		control_valve_exp_on(10000);
-		log_cli("Expiration valve opened");
-	} else if (strncmp(args, "close", 3) == 0) {
-		control_valve_exp_off();
-		log_cli("Expiration valve closed");
-	}
+    float params[3];
+    size_t n_params = 0;
+
+    if(!parse_float_csv(&n_params, params, array_length(params), args) || (n_params != 1)) {
+        log_cli("invalid opening '%s': expected %% opened", args);
+        return;
+    }
+
+    float percentage_open = params[0];
+    control_valve_exp_on((int) percentage_open*100);
+    log_cli("Valve exp set at '%d' %%", (int)percentage_open);
 }
+
 static void valve_extra(char *args) {
 	if (strncmp(args, "open", 2) == 0) {
 		control_extra_on(10000);
@@ -279,8 +288,8 @@ static void sensors(char *args) {
     f2strn(sensors_read_flow_MFC_air_SCCPM()/1000.0, str, sizeof(str), 3);
     log_cli("MFC flow air: '%s' SLPM", str);
     log_cli("Pressure MFC: %d Pa", sensors_read_pressure_MFC_pa());
-    log_cli("Pressure in: %d Pa", sensors_read_pressure_insp_pa());
-    log_cli("Pressure out: %d Pa", sensors_read_pressure_exp_pa());
+    log_cli("Pressure insp: %d Pa", sensors_read_pressure_insp_pa());
+    log_cli("Pressure exp: %d Pa", sensors_read_pressure_exp_pa());
     log_cli("Oxygen: %d %%", sensors_read_oxygen_percent());
 
     UPS("");
@@ -398,7 +407,7 @@ CliCommand cli_commands[] = {
 		.function = flow_test
 	},
 	{
-		.cmd = "all_valves",
+		.cmd = "valves_all",
 		.help = "Open all valves",
 		.function = open_valves
 	},
@@ -419,17 +428,17 @@ CliCommand cli_commands[] = {
 	},
 	{
 		.cmd = "MFC",
-		.help = "Set flowrate in SLPM",
+		.help = "Set flowrate in SLPM [0-100 L/min], 0.605% O2",
 		.function = mfc
 	},
 	{
 		.cmd = "valve_insp",
-		.help = "Inpiration valve: 'open' or 'close'",
+		.help = "Inpiration valve: % open: 0 close, 100 open",
 		.function = valve_insp
 	},
 	{
 		.cmd = "valve_exp",
-		.help = "Expiration valve: 'open' or 'close'",
+		.help = "Expiration valve: % open: 0 close, 100 open",
 		.function = valve_exp
 	},
 	{

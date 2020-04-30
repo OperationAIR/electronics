@@ -20,9 +20,9 @@
 
 
 // PID loop for DPR
-float DPR_PID_Kp = 2; //1.4
-float DPR_PID_Ki = 0.04f; //0.01
-float DPR_PID_Kd = 7; //0.25
+float DPR_PID_Kp = 1.4f; //1.4 later 2
+float DPR_PID_Ki = 0.01f; //0.01 later 0.04f
+float DPR_PID_Kd = 0.25f; //0.25 later 7
 
 static int g_signal_to_switch = 0;
 static volatile int g_pressure_setpoint_pa = 0;
@@ -51,7 +51,7 @@ float MFC_PID_Kd = 0.5;
 // PID loop for EXP
 float EXP_PID_Kp = 6;
 float EXP_PID_Ki = 0.08f;
-float EXP_PID_Kd = 15;
+float EXP_PID_Kd = 5;
 
 #define CLOSE_TIME_MS 4000
 
@@ -284,12 +284,17 @@ void _read_and_filter_pressure_sensor(void) {
 }
 
 void _DPR_control_loop(void) {
-    float error = g_pressure_setpoint_pa - g_pressure_system_pa;
+//    float error = g_pressure_setpoint_pa - g_pressure_system_pa;
+    float error = g_pressure_setpoint_pa - g_pressure_state_exp;
 
     float DPR_PID_out = arm_pid_f32(&DPR_PID, error);
     // End PID
 
     g_to_DPR = DPR_PID_out + 5500;
+
+    if (error <=0 && (g_breath_cycle_state == BreathCycleStatePeakPressure)) {
+        g_to_DPR = 4000;
+    }
 
     float to_DPR = constrain((g_to_DPR), 0, 10000);
     //float to_DPR = g_pressure_setpoint_pa;
@@ -339,7 +344,6 @@ void _inspiration(int dt) {
 
         // start of lower pressure
         control_valve_exp_on(10000);
-        g_pressure_setpoint_pa = cfg.peep;
         _init_EXP_PID();
     }
 }
@@ -347,14 +351,24 @@ void _inspiration(int dt) {
 void _expiration(int dt) {
     g_breath_cycle_state = BreathCycleStatePeep;
 
+    // Ramp for expiration
+    volatile int32_t ramp_time = 200;
+    volatile int32_t time_exp = (breathing.cycle_time - cfg.time_high_ms);
 
-//    float error = g_pressure_setpoint_pa - g_pressure_system_pa;
-    float error = g_pressure_system_pa - g_pressure_setpoint_pa;
+    int32_t offset = 0;
+    if (time_exp <= ramp_time) {
+        offset = time_exp*(cfg.pressure-cfg.peep)/(ramp_time);
+        g_pressure_setpoint_pa = cfg.pressure - offset;
+    } else {
+        g_pressure_setpoint_pa = cfg.peep;
+    }
+
+    float error = g_pressure_state_insp - g_pressure_setpoint_pa;
 
     float EXP_PID_out = arm_pid_f32(&EXP_PID, error);
 
-//    g_to_EXP = EXP_PID_out + 5500;
-    g_to_EXP = 5500+EXP_PID_out;
+//    g_to_EXP = 5500+EXP_PID_out;
+    g_to_EXP = EXP_PID_out;
 
     float to_EXP = constrain((g_to_EXP), 0, 10000);
 
@@ -416,6 +430,7 @@ void breathing_run(const OperationSettings *config, const int dt)
         MFC_SETPOINT_PA = MFC_SETPOINT_PA_BOUND_H;
     }
 
+
     _DPR_control_loop();
     _MFC_control_loop();
 
@@ -428,8 +443,8 @@ void breathing_run(const OperationSettings *config, const int dt)
 //         DPR plot
         log_debug("%d,%d,%d,%d,%d",
                 (int)g_pressure_setpoint_pa*10,
-                (int)g_pressure_state_insp*10,
                 (int)g_pressure_state_exp*10,
+                (int)g_pressure_state_insp*10,
                 (int)g_MFC_pressure_pa,
                 (int)MFC_SETPOINT_PA);
 
@@ -494,6 +509,15 @@ bool inspiratory_hold_run(const OperationSettings *config, bool hold_pressed, co
     _MFC_control_loop();
 
     breathing.hold_time+=dt;
+
+
+    log_debug("%d,%d,%d,%d,%d",
+              (int)g_pressure_setpoint_pa*10,
+              (int)g_pressure_state_insp*10,
+              (int)g_pressure_state_exp*10,
+              (int)g_MFC_pressure_pa,
+              (int)MFC_SETPOINT_PA);
+
 
     return false;
 }

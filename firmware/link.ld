@@ -2,7 +2,7 @@
 MEMORY
 {
   /* Define each memory region */
-  Flash (rx) : ORIGIN = 0x0, LENGTH = 0x10000 /* 64K bytes */
+  Flash (rx) : ORIGIN = 0x0, LENGTH = 0x20000 /* 128K bytes */
   RAM_IAP (rwx) : ORIGIN = 0x10000000, LENGTH = 0x0020 /* 32 bytes */
   RAM_main (rwx) : ORIGIN = 0x10000020, LENGTH = 0x1FE0 /* 8K-32 bytes */
   RAM_USB (rwx) : ORIGIN = 0x20004000, LENGTH = 0x800 /* 2K bytes */
