@@ -205,11 +205,10 @@ void sensors_update(unsigned int dt)
     const int p_mv = ADC_scale(Sensors.pressure_MFC, ADC_FACTOR_PRESSURE_MFC);
 
     // calibrated 10-4-2020 expirementally
-    Sensors.p_MFC_pa = (0.9 * Sensors.p_MFC_pa) + (0.1 * (16.56 * p_mv + 21523));
+//    Sensors.p_MFC_pa = (0.9 * Sensors.p_MFC_pa) + (0.1 * (16.56 * p_mv + 21523));
 
-
-
-
+    // calibrated 6-5-2020 expirementally
+    Sensors.p_MFC_pa = (0.9 * Sensors.p_MFC_pa) + (0.1 * (10.701107 * p_mv - 12355.72));
 
     if (I2C_PULL_UP_AVAILABLE) {
         if (count++ % 5 == 0) {

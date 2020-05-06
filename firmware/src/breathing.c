@@ -20,9 +20,9 @@
 
 
 // PID loop for DPR
-float DPR_PID_Kp = 1.4f; //1.4 later 2
-float DPR_PID_Ki = 0.01f; //0.01 later 0.04f
-float DPR_PID_Kd = 0.25f; //0.25 later 7
+float DPR_PID_Kp = 0.4f; //1.4 later 0.4
+float DPR_PID_Ki = 0.01f; //0.01 later 0.01f
+float DPR_PID_Kd = 3; //0.25 later 3
 
 static int g_signal_to_switch = 0;
 static volatile int g_pressure_setpoint_pa = 0;
@@ -220,7 +220,6 @@ bool breathing_start_program(void)
     g_pressure_state_insp = sensors_read_pressure_insp_pa();
     g_pressure_state_exp = sensors_read_pressure_exp_pa();
 
-
     return true;
 }
 
@@ -293,7 +292,7 @@ void _DPR_control_loop(void) {
     g_to_DPR = DPR_PID_out + 5500;
 
     if (error <=0 && (g_breath_cycle_state == BreathCycleStatePeakPressure)) {
-        g_to_DPR = 4000;
+        arm_pid_reset_f32(&DPR_PID);
     }
 
     float to_DPR = constrain((g_to_DPR), 0, 10000);
@@ -341,14 +340,17 @@ void _inspiration(int dt) {
     // If the next time would be past time_high,
     // the expiration should start.
     if((breathing.cycle_time + dt) > cfg.time_high_ms) {
-
+        control_valve_insp_on(0);
         // start of lower pressure
         control_valve_exp_on(10000);
+
         _init_EXP_PID();
     }
 }
 
 void _expiration(int dt) {
+    control_valve_insp_on(0);
+
     g_breath_cycle_state = BreathCycleStatePeep;
 
     // Ramp for expiration
@@ -365,9 +367,12 @@ void _expiration(int dt) {
 
     float error = g_pressure_state_insp - g_pressure_setpoint_pa;
 
+    if ( (error <= -50) && (g_pressure_setpoint_pa <= 1000)){
+        arm_pid_reset_f32(&EXP_PID);
+    }
+
     float EXP_PID_out = arm_pid_f32(&EXP_PID, error);
 
-//    g_to_EXP = 5500+EXP_PID_out;
     g_to_EXP = EXP_PID_out;
 
     float to_EXP = constrain((g_to_EXP), 0, 10000);
@@ -415,11 +420,13 @@ void breathing_run(const OperationSettings *config, const int dt)
     if(breathing.cycle_time <= cfg.time_high_ms) {
         _inspiration(dt);
         MFC_SETPOINT_PA = MFC_SETPOINT_PA_BOUND_L;
-
+        _DPR_control_loop();
+        _MFC_control_loop();
     // during low pressure
     } else if(breathing.cycle_time > cfg.time_high_ms) {
         _expiration(dt);
         MFC_SETPOINT_PA = MFC_SETPOINT_PA_BOUND_L;
+        _MFC_control_loop();
     }
 
     // Set MFC setpoint 500 ms before high time to 800mbar untill 300 ms before switch to low
@@ -430,9 +437,8 @@ void breathing_run(const OperationSettings *config, const int dt)
         MFC_SETPOINT_PA = MFC_SETPOINT_PA_BOUND_H;
     }
 
-
-    _DPR_control_loop();
-    _MFC_control_loop();
+//    _DPR_control_loop();
+//    _MFC_control_loop();
 
     if(BREATHING_LOG_INTERVAL_ms && time_ms && ((time_ms % BREATHING_LOG_INTERVAL_ms) == 0)) {
 

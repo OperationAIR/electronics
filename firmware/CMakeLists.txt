@@ -7,7 +7,6 @@ project(OPERATION_AIR)
 
 include(${CMAKE_FILES}/CPM_setup.cmake)
 
-
 #-----------------------------------------------------------------------
 # Build settings
 #-----------------------------------------------------------------------
@@ -62,7 +61,6 @@ add_definitions(-DPROFILE_ENABLED=1)
 
 # lpc_usb_lib settings
 add_definitions(-D__LPC11U1X)
-
 
 set(ELF_PATH            "${CMAKE_CURRENT_BINARY_DIR}/${EXE_NAME}")
 set(EXE_PATH            "${ELF_PATH}.bin")

@@ -28,6 +28,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 # Compilers like arm-none-eabi-gcc that target bare metal systems don't pass
 # CMake's compiler check, so fill in the results manually and mark the test
 # as passed:
+
 set(CMAKE_COMPILER_IS_GNUCC     1)
 set(CMAKE_C_COMPILER_ID         GNU)
 set(CMAKE_C_COMPILER_ID_RUN     TRUE)
