@@ -267,7 +267,6 @@ static void UPS(char *args)
         case UPS_STATUS_FAIL:
             status = "Battery empty";
             break;
-
         default:
             status = "Unknown";
             break;

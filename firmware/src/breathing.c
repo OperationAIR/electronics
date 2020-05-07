@@ -260,7 +260,8 @@ static struct {
 
 static void _update_cfg(const OperationSettings *config)
 {
-    cfg.peep = config->peep;
+    int offset_peep = 5;
+    cfg.peep = config->peep + offset_peep;
     cfg.pressure = config->pressure;
 
     // calculate duration of inhale/exhale in ms
@@ -367,9 +368,9 @@ void _expiration(int dt) {
 
     float error = g_pressure_state_insp - g_pressure_setpoint_pa;
 
-    if ( (error <= -50) && (g_pressure_setpoint_pa <= 1000)){
-        arm_pid_reset_f32(&EXP_PID);
-    }
+//    if ( (error <= -50) && (g_pressure_setpoint_pa <= 1000)){
+//        arm_pid_reset_f32(&EXP_PID);
+//    }
 
     float EXP_PID_out = arm_pid_f32(&EXP_PID, error);
 
