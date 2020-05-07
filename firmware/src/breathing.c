@@ -49,9 +49,9 @@ float MFC_PID_Ki = 0.0;
 float MFC_PID_Kd = 0.5;
 
 // PID loop for EXP
-float EXP_PID_Kp = 6;
-float EXP_PID_Ki = 0.08f;
-float EXP_PID_Kd = 5;
+float EXP_PID_Kp = 2; //6
+float EXP_PID_Ki = 0.08f; //0.08
+float EXP_PID_Kd = 5; //5
 
 #define CLOSE_TIME_MS 4000
 
